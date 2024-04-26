@@ -1,0 +1,41 @@
+.triCat {
+    /* background: rgb(56 189 248); */
+    width: 0;
+    height: 0;
+    margin-top: -15px;
+    margin-bottom: -15px;
+    border-top: 60px solid transparent;
+    border-left: 35px solid  rgb(56 189 248);
+    border-bottom: 60px solid transparent;
+}
+
+.triCat2 {
+    width: 0;
+    height: 0;
+    margin-top: -50px;
+    margin-left: -35px;
+    border-top: 50px solid transparent;
+    border-left: 25px solid rgb(243 244 246);
+    border-bottom: 50px solid transparent;
+}
+
+.triProd {
+    /* background: rgb(56 189 248); */
+    width: 0;
+    height: 0;
+    margin-top: -15px;
+    margin-bottom: -15px;
+    border-top: 60px solid transparent;
+    border-left: 35px solid  rgb(244, 73, 58);
+    border-bottom: 60px solid transparent;
+}
+
+.triProd2 {
+    width: 0;
+    height: 0;
+    margin-top: -50px;
+    margin-left: -35px;
+    border-top: 50px solid transparent;
+    border-left: 25px solid rgb(243 244 246);
+    border-bottom: 50px solid transparent;
+}

@@ -1,0 +1,9 @@
+:host ::ng-deep .p-multiselect {
+    margin: 10px;
+    width: 96%;
+    
+}
+
+:host ::ng-deep .p-checkbox-box {
+    outline: 1px solid rgba(0, 0, 0, 0.113);
+}

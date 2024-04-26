@@ -1,0 +1,23 @@
+.success {
+    height: 100%;
+    background-color: rgb(143, 255, 143);
+    font-size: smaller;
+    padding: 5px;
+    font-size: xx-small;
+}
+
+.error {
+    height: 100%;
+    background-color: rgb(255, 161, 161);
+    font-size: smaller;
+    padding: 5px;
+    font-size: xx-small;
+}
+
+.in_progress {
+    height: 100%;
+    background-color: rgb(116, 211, 255);
+    font-size: smaller;
+    padding: 5px;
+    font-size: xx-small;
+}

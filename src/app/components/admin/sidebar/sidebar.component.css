@@ -1,0 +1,5 @@
+.active {
+    background-color: rgb(246, 167, 167); 
+    --tw-text-opacity: 1;
+    color: rgb(85, 0, 0)
+}

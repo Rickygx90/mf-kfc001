@@ -1,0 +1,58 @@
+<div class="w-auto h-full p-5 bg-gray-100">
+    <div class="w-auto h-[calc(100%-50px)] flex border-2 rounded-lg">
+        <div class="w-full h-full border-r-2">
+
+            <div class="border-b-2">
+                <h3 class="m-4 text-lg">Canales de Venta</h3>
+            </div>
+
+            <div class="m-1 border-b">
+                <mat-checkbox [checked]="allCompleteCategoria" [indeterminate]="someCompleteCategorias()"
+                    (change)="setAllCategorias($event.checked)"><div class="font-semibold text-sm">{{listSelectableCanalesVenta.name}}</div></mat-checkbox>
+            </div>
+            <div class="w-full h-[calc(100%-110px)] overflow-auto">
+                @for (categoria of listSelectableCanalesVenta.children; track categoria) {
+                <div class="m-1">
+                    <mat-checkbox [(ngModel)]="categoria.select"
+                        (ngModelChange)="updateAllCompleteCategorias()">
+                        <div class="border border-gray-300 py-1 px-5 text-xs">
+                            <p>{{categoria.name}}</p>
+                            <p>2024-04-10 16:00:00</p>
+                        </div>
+                    </mat-checkbox>
+                </div>
+                }
+            </div>
+        </div>
+        <div class="w-full h-full border-r-2">
+
+            <div class="border-b-2">
+                <h3 class="m-4 text-lg">Cadena</h3>
+            </div>
+
+            <p-multiSelect [options]="cadenas" optionLabel="name"  [(ngModel)]="cadenasSeleccionadas"
+            placeholder="Cadenas Seleccionadas" [panelStyle]="{'width':'100%', 'margin-bottom': '10px'}"
+            (onPanelHide)="onPanelHideCadenas()"></p-multiSelect>
+
+
+            <div class="m-1 border-b">
+                <mat-checkbox [checked]="allCompleteRestaurante" [indeterminate]="someCompleteRestaurantes()"
+                    (change)="setAllRestaurantes($event.checked)"><div class="font-semibold text-sm">{{listSelectableRestaurantes.name}}</div></mat-checkbox>
+            </div>
+            <div class="w-full h-[calc(100%-178px)] overflow-auto">
+                @for (restaurante of listSelectableRestaurantes.children; track restaurante) {
+                <div class="m-1">
+                    <mat-checkbox [(ngModel)]="restaurante.select"
+                        (ngModelChange)="updateAllCompleteRestaurantes()">
+                        <div class="border border-gray-300 py-1 px-5 text-xs">
+                            <p>{{restaurante.name}}</p>
+                            <p>2024-04-10 16:00:00</p>
+                        </div>
+                    </mat-checkbox>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+    <button class="mt-4" mat-flat-button color="primary">ENVIAR AHORA</button>
+</div>
