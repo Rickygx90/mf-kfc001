@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FilterMenuComponent } from './filter-menu.component';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 describe('FilterMenuComponent', () => {
   let component: FilterMenuComponent;
@@ -8,10 +9,10 @@ describe('FilterMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FilterMenuComponent]
-    })
-    .compileComponents();
-    
+      imports: [FilterMenuComponent, MatDialogModule],
+      providers: [{ provide: MatDialogRef, useValue: {} }, provideAnimations()],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(FilterMenuComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

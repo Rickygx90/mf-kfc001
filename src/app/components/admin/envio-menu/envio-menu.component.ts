@@ -6,9 +6,10 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FilterMenuComponent } from '../filter-menu/filter-menu.component';
 import { MenuService } from '../../../services/menu.service';
-import { multiSelectI } from '../../../models/interfaces';
+import { multiSelectI, optionsToSelectI } from '../../../models/interfaces';
 import { MatButtonModule } from '@angular/material/button';
 import { CanalEnvioComponent } from '../canal-envio/canal-envio.component';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-envio-menu',
@@ -19,6 +20,7 @@ import { CanalEnvioComponent } from '../canal-envio/canal-envio.component';
     FormsModule,
     NavbarComponent,
     MatButtonModule,
+    MatExpansionModule,
   ],
   templateUrl: './envio-menu.component.html',
   styleUrl: './envio-menu.component.css',
@@ -29,10 +31,10 @@ export class EnvioMenuComponent {
 
   allCompleteMenu: boolean = false;
   allCompleteCategoria: boolean = false;
-  subCategoriasSelected: Array<any> = [];
-  subProductoSelected: Array<any> = [];
-
   allCompleteProducto: boolean = false;
+
+  subCategoriasSelected: Array<optionsToSelectI> = [];
+  subProductoSelected: Array<optionsToSelectI> = [];
 
   showCategorias: boolean = false;
   showProductos: boolean = false;
@@ -44,19 +46,19 @@ export class EnvioMenuComponent {
     children: [],
   };
 
-  listSelectableCategories: any = {
+  listSelectableCategories: multiSelectI = {
     name: 'Seleccionar todos',
     select: false,
     children: [],
   };
 
-  listSelectableProducts: any = {
+  listSelectableProducts: multiSelectI = {
     name: 'Seleccionar todos',
     select: false,
     children: [],
   };
 
-  restartCategoriasProductos(panel: string) {
+  restartCategoriasProductos(panel: string): void {
     if (panel === 'menu') {
       this.showCategorias =
         this.listSelectableCategories.children.length > 0 ? true : false;
@@ -75,10 +77,10 @@ export class EnvioMenuComponent {
     this.btnCanalEnvioDisabled = true;
   }
 
-  updateAllCompleteSubOptions(obj: any, panel: string) {
+  updateAllCompleteSubOptions(obj: optionsToSelectI, panel: string): void {
     obj.allCompleteSubCategoria =
-      obj.children != null && obj.children.every((obj: any) => obj.select);
-    obj.children.map((subobj: any) => {
+      obj.children != null && obj.children.every((obj) => obj.select);
+    obj.children?.map((subobj) => {
       if (panel === 'categoria') {
         if (subobj.select) {
           if (
@@ -111,12 +113,16 @@ export class EnvioMenuComponent {
     });
   }
 
-  setAllSubOptions(obj: any, panel: string, select: boolean) {
+  setAllSubOptions(
+    obj: optionsToSelectI,
+    panel: string,
+    select: boolean
+  ): void {
     obj.allCompleteSubCategoria = select;
     if (obj.children == null) {
       return;
     }
-    obj.children.forEach((subobj: any) => {
+    obj.children.forEach((subobj) => {
       subobj.select = select;
       if (panel === 'categoria') {
         if (select) {
@@ -150,7 +156,7 @@ export class EnvioMenuComponent {
     });
   }
 
-  updateAllCompleteMenu() {
+  updateAllCompleteMenu(): void {
     this.allCompleteMenu =
       this.listSelectableMenu.children != null &&
       this.listSelectableMenu.children.every((t) => t.select);
@@ -158,7 +164,7 @@ export class EnvioMenuComponent {
       (menu) => menu.select
     );
     this.listSelectableCategories.children =
-      this.menuService.getCategoriasMenu(menusSelected);
+      this.menuService.getCategoriasMenuToSelectCheckbox(menusSelected);
     this.restartCategoriasProductos('menu');
   }
 
@@ -172,7 +178,7 @@ export class EnvioMenuComponent {
     );
   }
 
-  setAllMenu(select: boolean) {
+  setAllMenu(select: boolean): void {
     this.allCompleteMenu = select;
     if (this.listSelectableMenu.children == null) {
       return;
@@ -182,15 +188,15 @@ export class EnvioMenuComponent {
       (menu) => menu.select
     );
     this.listSelectableCategories.children =
-      this.menuService.getCategoriasMenu(menusSelected);
+      this.menuService.getCategoriasMenuToSelectCheckbox(menusSelected);
     this.restartCategoriasProductos('menu');
   }
 
-  updateAllCompleteCategorias() {
+  updateAllCompleteCategorias(): void {
     this.allCompleteCategoria =
       this.listSelectableCategories.children != null &&
       this.listSelectableCategories.children.every(
-        (categoria: any) => categoria.select
+        (categoria) => categoria.select
       );
   }
 
@@ -200,64 +206,62 @@ export class EnvioMenuComponent {
     }
     return (
       this.listSelectableCategories.children.filter(
-        (categoria: any) => categoria.select
+        (categoria) => categoria.select
       ).length > 0 && !this.allCompleteCategoria
     );
   }
 
-  setAllCategorias(select: boolean) {
+  setAllCategorias(select: boolean): void {
     this.subCategoriasSelected = [];
     this.allCompleteCategoria = select;
     if (this.listSelectableCategories.children == null) {
       return;
     }
-    this.listSelectableCategories.children.forEach((categoria: any) => {
+    this.listSelectableCategories.children.forEach((categoria) => {
       categoria.select = select;
       categoria.allCompleteSubCategoria = select;
-      categoria.children.forEach(
-        (subCategoria: any) => (subCategoria.select = categoria.select)
+      categoria.children?.forEach(
+        (subCategoria) => (subCategoria.select = categoria.select)
       );
     });
-    this.listSelectableCategories.children.map((categoria: any) => {
-      categoria.children.map((subcategoria: any) => {
+    this.listSelectableCategories.children.map((categoria) => {
+      categoria.children?.map((subcategoria) => {
         if (subcategoria.select) this.subCategoriasSelected.push(subcategoria);
       });
     });
     this.listSelectableProducts.children =
-      this.menuService.getProductosCategorias(this.subCategoriasSelected);
+      this.menuService.getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected);
     this.restartCategoriasProductos('categoria');
   }
 
-  updateAllCompleteSubCategorias(categoria: any) {
+  updateAllCompleteSubCategorias(categoria: optionsToSelectI): void {
     this.updateAllCompleteSubOptions(categoria, 'categoria');
     this.listSelectableProducts.children =
-      this.menuService.getProductosCategorias(this.subCategoriasSelected);
+      this.menuService.getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected);
     this.restartCategoriasProductos('categoria');
   }
 
-  someCompleteSubCategorias(categoria: any): boolean {
+  someCompleteSubCategorias(categoria: optionsToSelectI): boolean {
     if (categoria.children == null) {
       return false;
     }
     return (
-      categoria.children.filter((categoria: any) => categoria.select).length >
-        0 && !categoria.allCompleteSubCategoria
+      categoria.children.filter((categoria) => categoria.select).length > 0 &&
+      !categoria.allCompleteSubCategoria
     );
   }
 
-  setAllSubCategorias(select: boolean, categoria: any) {
+  setAllSubCategorias(select: boolean, categoria: any): void {
     this.setAllSubOptions(categoria, 'categoria', select);
     this.listSelectableProducts.children =
-      this.menuService.getProductosCategorias(this.subCategoriasSelected);
+      this.menuService.getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected);
     this.restartCategoriasProductos('categoria');
   }
 
-  updateAllCompleteProductos() {
+  updateAllCompleteProductos(): void {
     this.allCompleteProducto =
       this.listSelectableProducts.children != null &&
-      this.listSelectableProducts.children.every(
-        (producto: any) => producto.select
-      );
+      this.listSelectableProducts.children.every((producto) => producto.select);
   }
 
   someCompleteProductos(): boolean {
@@ -265,27 +269,26 @@ export class EnvioMenuComponent {
       return false;
     }
     return (
-      this.listSelectableProducts.children.filter(
-        (producto: any) => producto.select
-      ).length > 0 && !this.allCompleteProducto
+      this.listSelectableProducts.children.filter((producto) => producto.select)
+        .length > 0 && !this.allCompleteProducto
     );
   }
 
-  setAllProductos(select: boolean) {
+  setAllProductos(select: boolean): void {
     this.subProductoSelected = [];
     this.allCompleteProducto = select;
     if (this.listSelectableProducts.children == null) {
       return;
     }
-    this.listSelectableProducts.children.forEach((producto: any) => {
+    this.listSelectableProducts.children.forEach((producto) => {
       producto.select = select;
       producto.allCompleteSubProducto = select;
-      producto.children.forEach(
-        (subproducto: any) => (subproducto.select = producto.select)
+      producto.children?.forEach(
+        (subproducto) => (subproducto.select = producto.select)
       );
     });
-    this.listSelectableProducts.children.map((producto: any) => {
-      producto.children.map((subproducto: any) => {
+    this.listSelectableProducts.children.map((producto) => {
+      producto.children?.map((subproducto) => {
         if (subproducto.select) this.subProductoSelected.push(subproducto);
       });
     });
@@ -293,13 +296,13 @@ export class EnvioMenuComponent {
       this.subProductoSelected.length > 0 ? false : true;
   }
 
-  updateAllCompleteSubProductos(producto: any) {
+  updateAllCompleteSubProductos(producto: optionsToSelectI): void {
     this.updateAllCompleteSubOptions(producto, 'producto');
     this.btnCanalEnvioDisabled =
       this.subProductoSelected.length > 0 ? false : true;
   }
 
-  someCompleteSubProductos(producto: any): boolean {
+  someCompleteSubProductos(producto: optionsToSelectI): boolean {
     if (producto.children == null) {
       return false;
     }
@@ -309,7 +312,7 @@ export class EnvioMenuComponent {
     );
   }
 
-  setAllSubProductos(select: boolean, producto: any) {
+  setAllSubProductos(select: boolean, producto: any): void {
     this.setAllSubOptions(producto, 'producto', select);
     this.btnCanalEnvioDisabled =
       this.subProductoSelected.length > 0 ? false : true;
@@ -317,18 +320,17 @@ export class EnvioMenuComponent {
 
   openFilterMenu(): void {
     const dialogRef = this.dialog.open(FilterMenuComponent, {
-      height: '345px',
+      height: '370px',
       width: '460px',
     });
     dialogRef.afterClosed().subscribe((result) => {
       this.listSelectableMenu.children = this.menuService.menuList;
-      console.log('The dialog was closed');
     });
   }
 
-  canalEnvio() {
-    console.log('canalEnvio');
+  canalEnvio(): void {
     const dialogRef = this.dialog.open(CanalEnvioComponent, {
+      data: this.subProductoSelected,
       height: '900px',
       width: '1600px',
     });

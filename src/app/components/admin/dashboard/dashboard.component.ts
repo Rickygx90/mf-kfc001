@@ -3,6 +3,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { MenuService } from '../../../services/menu.service';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { menuItemI } from '../../../models/interfaces';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,10 +14,9 @@ import { NavbarComponent } from '../navbar/navbar.component';
 })
 
 export class DashboardComponent implements OnInit {
-  menuItems: Array<any> | null = null;
+  menuItems: Array<menuItemI> | null = null;
   menuService = inject(MenuService);
   ngOnInit(): void{
     this.menuItems = this.menuService.getMenuItems('uber');
   }
-
 }

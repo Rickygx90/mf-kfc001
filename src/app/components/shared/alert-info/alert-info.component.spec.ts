@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { AlertInfoComponent } from './alert-info.component';
 
 describe('AlertInfoComponent', () => {
@@ -8,10 +8,10 @@ describe('AlertInfoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AlertInfoComponent]
-    })
-    .compileComponents();
-    
+      imports: [AlertInfoComponent, MatDialogModule],
+      providers: [{ provide: MatDialogRef, useValue: {} }],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(AlertInfoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

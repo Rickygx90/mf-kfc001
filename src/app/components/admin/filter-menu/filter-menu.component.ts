@@ -19,7 +19,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MenuService } from '../../../services/menu.service';
-import { Cadena, Restaurantes } from '../../../models/interfaces';
+import { CadenaI, RestauranteI } from '../../../models/interfaces';
 
 @Component({
   selector: 'app-filter-menu',
@@ -47,8 +47,8 @@ export class FilterMenuComponent implements OnInit {
   ) {}
 
   menuService = inject(MenuService);
-  cadenas!: Cadena[];
-  restaurantes!: Restaurantes[];
+  cadenas!: Array<CadenaI>;
+  restaurantes!: Array<RestauranteI>;
 
   get cadenasSeleccionadas() {
     return this.formularioFiltro.get('cadenasSeleccionadas') as FormControl;
@@ -76,12 +76,12 @@ export class FilterMenuComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.cadenas = this.menuService.getCadenas();
+    this.cadenas = this.menuService.getCadenasToSelect();
   }
 
   onPanelHideCadenas() {
     console.log('onPanelHide');
-    this.restaurantes = this.menuService.getRestaurantes(
+    this.restaurantes = this.menuService.getRestaurantesToSelect(
       this.cadenasSeleccionadas.value
     );
     if (this.cadenasSeleccionadas.value.length > 0) {
@@ -93,7 +93,7 @@ export class FilterMenuComponent implements OnInit {
   }
 
   onSubmit() {
-    this.menuService.getMenuList(this.formularioFiltro.value);
+    this.menuService.getMenuToSelectCheckbox(this.formularioFiltro.value);
     this.dialogRef.close();
   }
 }

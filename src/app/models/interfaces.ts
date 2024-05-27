@@ -1,23 +1,42 @@
-export interface Interfaces {}
-
-export interface Cadena {
+export interface CadenaI {
   name: string;
   code: String;
 }
 
-export interface Restaurantes {
+export interface RestauranteI {
   name: string;
   code: String;
-}
-
-export interface optionsToSelect {
-  name: string;
-  code: string;
-  select: boolean;
 }
 
 export interface multiSelectI {
   name: string;
   select: boolean;
-  children: optionsToSelect[];
+  children: optionsToSelectI[];
+  time?: string;
+}
+
+export interface optionsToSelectI {
+  name: string;
+  code: string;
+  parent?: string;
+  select: boolean;
+  time?: string;
+  allCompleteSubCategoria?: boolean;
+  allCompleteSubProducto?: boolean;
+  children?: optionsToSelectI[];
+}
+
+export interface menuItemI {
+  id: number;
+  rstName: string;
+  channelName: string;
+  status: string;
+  createdAtFormat: string;
+}
+
+export interface User {
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
 }

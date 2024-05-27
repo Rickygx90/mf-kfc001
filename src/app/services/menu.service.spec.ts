@@ -13,4 +13,11 @@ describe('MenuService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  it('Debe retornar un string con los datos de inicio de sesion del usuario.', (done: DoneFn) => {
+    const menuItems = service.getMenuItems('uber');
+    expect(menuItems).toBeTruthy();
+    expect(menuItems.length).toBeGreaterThan(0);
+    done();
+  });
 });

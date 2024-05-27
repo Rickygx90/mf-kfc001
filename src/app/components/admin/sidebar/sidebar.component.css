@@ -3,3 +3,30 @@
     --tw-text-opacity: 1;
     color: rgb(85, 0, 0)
 }
+
+.ocultarSidebar {
+    animation: ocultar 0.15s forwards;
+}
+
+@keyframes ocultar {
+    0% {
+        left: -1%;
+    }
+    100% {
+        left: -100%;
+        display: none;
+    }
+}
+
+.mostrarSidebar {
+    animation: mostrar 0.25s;
+}
+
+@keyframes mostrar {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: -10%;
+    }
+}

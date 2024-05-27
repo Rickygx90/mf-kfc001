@@ -1,42 +1,81 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
+import { environment } from '../../environments/environment.development';
+import { User } from '../models/interfaces';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+
+const httpOptions = {
+  headers: new HttpHeaders({
+    Authorization:
+      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU5ODM2MDYsImlkIjoiNjY0NTNiMjIwMjZkNzBlMTA3ZDk0NDU1IiwidXNlcm5hbWUiOiJhZG1pbiJ9.E32H39TjV7ElIvRkgHtc5K-murq_zEsB-7Yi-PFRPPk',
+  }),
+};
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsersService {
+  private httpClient = inject(HttpClient);
+  private toastr = inject(ToastrService);
+  private user?: User;
 
-  //private httpClient = inject(HttpClient);
-  private baseUrl: string;
+  constructor(private router: Router) {}
 
-  constructor() { 
-    this.baseUrl = '';
+  get currentUser(): User | undefined {
+    if (!this.user) return undefined;
+    //structuredClone(this.user)
+    return { ...this.user };
   }
 
-  register(formValue: any) {
-    console.log(formValue)
-    /* return firstValueFrom(
-      this.httpClient.post<any>(`${this.baseUrl}/rtegister`, formValue)
-    ) */
+  getToken(formValue: any): Observable<any> {
+    return this.httpClient.post<any>(
+      `${environment.url}/auth/login`,
+      {
+        username: formValue.username,
+        password: formValue.password,
+      },
+      httpOptions
+    );
   }
 
-  login(formValue: any) {
-    console.log(formValue)
-    if(formValue.username === 'admin' && formValue.password === '1234') {
-      console.log(true)
-      this.setItem('token', JSON.stringify({
-        isSuccess: true,
-        token: '12345678',
-        franchise: 'f2c13a02-3cb5-4781-9e10-d3f1519c51e2',
-        country: '342ca602-fb3e-0749-7500-93de9653444c'
-      }))
-      return this.getItem('token');
+  login(formularioLogin: any) {
+    this.getToken(formularioLogin.value).subscribe({
+      next: (token) => {
+        localStorage.setItem('token', JSON.stringify(token));
+        this.router.navigate(['/home/dashboard']);
+      },
+      error: (err) => {
+        console.log(err)
+        this.toastr.error('Usuario o contraseña son incorrectos', 'Error');
+        formularioLogin.reset();
+      },
+      complete: () => {
+        console.info('complete');
+      }
+    });
+  }
+
+  checkStatusAutenticacion(): Observable<boolean> {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return of(false);
     }
-    return null;
-    /* return firstValueFrom(
-      this.httpClient.post<any>(`${this.baseUrl}/login`, formValue)
-    ) */
+    console.log('checkStatusAutenticacion');
+    console.log(token);
+
+    return this.httpClient
+      .get<User>(`${environment.url}/account/my-account`, {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${JSON.parse(token).accessToken}`,
+        }),
+      })
+      .pipe(
+        tap((u) => (this.user = u)),
+        map((u) => !!u),
+        catchError((err) => of(false))
+      );
   }
 
   setItem(key: string, value: string): void {
@@ -52,6 +91,7 @@ export class UsersService {
   }
 
   clear(): void {
+    this.user = undefined;
     localStorage.clear();
   }
 }

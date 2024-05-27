@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { UsersService } from '../../../services/users.service';
+import { User } from '../../../models/interfaces';
 
 @Component({
   selector: 'app-navbar',
@@ -8,5 +10,13 @@ import { Component } from '@angular/core';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
+  usersService = inject(UsersService);
+  loginInfo: string | null = null;
+  username: string = '';
+  rol: string = '';
 
+  get getUser():User | undefined{
+    return this.usersService.currentUser;
+  }
+  
 }

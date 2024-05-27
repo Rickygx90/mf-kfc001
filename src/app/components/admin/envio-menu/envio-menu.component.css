@@ -1,5 +1,13 @@
+.animacion {
+    animation: animacion 3s;
+}
+
+@keyframes animacion {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
 .triCat {
-    /* background: rgb(56 189 248); */
     width: 0;
     height: 0;
     margin-top: -15px;
@@ -7,20 +15,20 @@
     border-top: 60px solid transparent;
     border-left: 35px solid  rgb(56 189 248);
     border-bottom: 60px solid transparent;
+    position: relative;
 }
 
 .triCat2 {
     width: 0;
     height: 0;
-    margin-top: -50px;
+    margin-top: -45px;
     margin-left: -35px;
-    border-top: 50px solid transparent;
-    border-left: 25px solid rgb(243 244 246);
-    border-bottom: 50px solid transparent;
+    border-top: 45px solid transparent;
+    border-left: 27px solid rgb(243 244 246);
+    border-bottom: 45px solid transparent;
 }
 
 .triProd {
-    /* background: rgb(56 189 248); */
     width: 0;
     height: 0;
     margin-top: -15px;
@@ -33,9 +41,20 @@
 .triProd2 {
     width: 0;
     height: 0;
-    margin-top: -50px;
+    margin-top: -45px;
     margin-left: -35px;
-    border-top: 50px solid transparent;
-    border-left: 25px solid rgb(243 244 246);
-    border-bottom: 50px solid transparent;
+    border-top: 45px solid transparent;
+    border-left: 27px solid rgb(243 244 246);
+    border-bottom: 45px solid transparent;
+}
+
+
+
+
+:host ::ng-deep .mdc-form-field {
+    width: 100%;
+}
+
+:host ::ng-deep .mdc-label {
+    width: 100%
 }

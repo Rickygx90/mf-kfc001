@@ -1,0 +1,79 @@
+<div class="w-full h-full bg-gray-300 flex overflow-auto">
+    <app-sidebar></app-sidebar>
+    <div class="w-full h-full pt-2 md:-ml-12 pl-4 pr-4">
+        <app-navbar></app-navbar>
+        <span class="flex text-sm">
+            <i class="ri-exchange-box-fill"></i>
+            <p>/Sincronización automática</p>
+        </span>
+
+        <div class="h-[calc(100%-112px)] p-5 bg-gray-100 rounded-lg shadow-md ">
+            <div class="w-full h-full flex justify-center items-center border-2 rounded-lg">
+
+                <div class="w-11/12 h-[calc(100%-40px)] p-5 flex justify-center border-2 rounded-lg">
+
+                    <!-- <div class="w-full px-4 flex flex-col border-b-2">
+                        <mat-checkbox [(ngModel)]="selectMP"
+                        (ngModelChange)="updateSelects()" class="-left-2">
+                            <h3 class="text-xl lg:text-2xl">Sincronizar desde maxpoint</h3>
+                        </mat-checkbox>
+                        <input class="h-6 md:h-8 lg:h-9 2xl:h-14 mb-3 px-5 text-xl rounded-lg" type="time" [(ngModel)]="timeMP">
+                    </div>
+                    <div class="w-full px-4 py-2 flex flex-col">
+                        <h3 class="text-xl lg:text-2xl">Sincronizacion Agregadores</h3>
+                        <div class="w-full m-1 2xl:m-3 px-4 py-1 flex flex-col border-2 rounded-lg">
+                            <mat-checkbox [(ngModel)]="selectUber" [disabled]="selectMP" class="-left-2">
+                                <h3 class="text-sm xl:text-2xl">Uber</h3>
+                            </mat-checkbox>
+                            <input [disabled]="selectMP" class="h-6 md:h-8 lg:h-9 2xl:h-14 mb-2 px-5 text-lg rounded-lg" type="time" [(ngModel)]="timeUber">
+                        </div>
+    
+                        <div class="w-full m-1 2xl:m-3 px-4 py-2 flex flex-col border-2 rounded-lg">
+                            <mat-checkbox [(ngModel)]="selectPeya" [disabled]="selectMP" class="-left-2">
+                                <h3 class="text-sm xl:text-2xl">Pedidos Ya</h3>
+                            </mat-checkbox>
+                            <input [disabled]="selectMP" class="h-6 md:h-8 lg:h-9 2xl:h-14 mb-2 px-5 text-lg rounded-lg" type="time" [(ngModel)]="timePeya">
+                        </div>
+                    </div>
+                    <button mat-flat-button color="primary">Sincronizar</button> -->
+                    @if (showLoading) {
+                        
+                    } @else {
+                        <div class="w-3/6 mx-2 flex flex-col">
+                            <mat-checkbox [checked]="allCompleteAgregadores" (change)="setAllAgregadores($event.checked)">
+                                <h3 class="text-sm lg:text-2xl">{{listSelectableAgregadores.name}}</h3>
+                            </mat-checkbox>
+                            <input class="h-6 md:h-8 lg:h-9 2xl:h-14 mb-3 px-5 text-xl rounded-lg" type="time"
+                                [(ngModel)]="listSelectableAgregadores.time">
+                            <button [disabled]="btnSincronizarDisabled" mat-flat-button color="primary"
+                                (click)="enviarSincronizacionAutomatica()">Sincronizar</button>
+                        </div>
+    
+                        <div class="w-3/6 mx-2 flex flex-col">
+                            <h3 class="text-sm lg:text-2xl text-center">Sincronización Agregadores</h3>
+                            <div class="w-full overflow-auto">
+                                @for (agregador of listSelectableAgregadores.children; track agregador) {
+                                    @if (agregador) {
+                                    <div class="w-full px-4 py-2 my-1 flex flex-col border-2 rounded-lg">
+                                        <mat-checkbox [disabled]="allCompleteAgregadores" [(ngModel)]="agregador.select"
+                                            (ngModelChange)="updateAllCompleteAgregadores()" class="-left-2">
+                                            <h3 class="text-sm xl:text-2xl">{{agregador.name}}</h3>
+                                        </mat-checkbox>
+                                        <input [disabled]="allCompleteAgregadores"
+                                            class="h-6 md:h-8 lg:h-9 2xl:h-14 px-5 text-lg rounded-lg" type="time"
+                                            [(ngModel)]="agregador.time">
+                                    </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+
+
+                    
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

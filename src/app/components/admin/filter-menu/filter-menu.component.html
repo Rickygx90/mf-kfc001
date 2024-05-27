@@ -9,7 +9,7 @@
             optionLabel="name" placeholder="Restaurantes Seleccionados" [panelStyle]="{'width':'100%'}"
             [style]="{'width':'100%', 'margin-top': '10px', 'margin-bottom': '10px'}"></p-multiSelect>
 
-        <mat-form-field class="w-full mt-3">
+        <mat-form-field class="w-full mt-4">
             <mat-label>Seleccione un rango de fechas</mat-label>
             <mat-date-range-input [rangePicker]="picker">
                 <input formControlName="fechaInicio" matStartDate placeholder="Fecha inicio">
@@ -20,7 +20,7 @@
             <mat-date-range-picker touchUi #picker></mat-date-range-picker>
         </mat-form-field>
 
-        <div class="flex justify-end mt-8">
+        <div class="flex justify-end mt-16">
             <button [disabled]="formularioFiltro.invalid" type="submit" class="mr-2" mat-flat-button
                 color="primary">Buscar</button>
             <button mat-flat-button color="warn" mat-dialog-close>Cancelar</button>

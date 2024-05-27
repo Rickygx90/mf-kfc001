@@ -1,22 +1,30 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
-import { Cadena, optionsToSelect } from '../models/interfaces';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import {
+  CadenaI,
+  RestauranteI,
+  menuItemI,
+  multiSelectI,
+  optionsToSelectI,
+} from '../models/interfaces';
+import { Observable, catchError, map, of, tap } from 'rxjs';
+import { environment } from '../../environments/environment.development';
+const httpOptions = {
+  headers: new HttpHeaders({
+    Authorization:
+      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU5ODM2MDYsImlkIjoiNjY0NTNiMjIwMjZkNzBlMTA3ZDk0NDU1IiwidXNlcm5hbWUiOiJhZG1pbiJ9.E32H39TjV7ElIvRkgHtc5K-murq_zEsB-7Yi-PFRPPk',
+  }),
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class MenuService {
-  //private httpClient = inject(HttpClient);
-  private baseUrl: string;
-  public menuList: Array<optionsToSelect> = [];
-  public categoriasMenu: Array<any> = [];
+  private httpClient = inject(HttpClient);
+  public menuList: Array<optionsToSelectI> = [];
+  private aggregators: Array<optionsToSelectI> = [];
 
-  constructor() {
-    this.baseUrl = '';
-  }
-
-  getMenuItems(channelName: string) {
+  getMenuItems(channelName: string): Array<menuItemI> {
     console.log(channelName);
     /* return firstValueFrom(
       this.httpClient.post<any>(`${this.baseUrl}/rtegister`, formValue)
@@ -144,7 +152,7 @@ export class MenuService {
     ];
   }
 
-  getCadenas() {
+  getCadenasToSelect(): Array<CadenaI> {
     return [
       { name: 'Tropiburger', code: 'tropi' },
       { name: 'KFC', code: 'kfc' },
@@ -153,42 +161,42 @@ export class MenuService {
     ];
   }
 
-  getRestaurantes(cadenas: Array<Cadena>) {
+  getRestaurantesToSelect(cadenas: Array<CadenaI>): Array<RestauranteI> {
     let codigoCadenas = [];
     codigoCadenas = cadenas.map((cadena) => cadena.code);
-    if(cadenas.length > 0) 
-    return [
-      { name: 'k001', code: 'k001' },
-      { name: 't001', code: 't001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001', code: 'p001' },
-      { name: 'p001*****', code: 'p001' },
-    ];
+    if (cadenas.length > 0)
+      return [
+        { name: 'k001', code: 'k001' },
+        { name: 't001', code: 't001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001', code: 'p001' },
+        { name: 'p001*****', code: 'p001' },
+      ];
     return [];
   }
 
-  getMenuList(formularioFiltro: any) {
+  getMenuToSelectCheckbox(formularioFiltro: any): void {
     const body = {
       restaurantes: formularioFiltro.restaurantesSeleccionados,
       tiempo: {
@@ -233,7 +241,9 @@ export class MenuService {
     ];
   }
 
-  getCategoriasMenu(menus: Array<any>) {
+  getCategoriasMenuToSelectCheckbox(
+    menus: Array<optionsToSelectI>
+  ): Array<optionsToSelectI> {
     console.log(menus);
     if (menus.length > 0) {
       return [
@@ -288,7 +298,9 @@ export class MenuService {
     }
   }
 
-  getProductosCategorias(categorias: Array<any>) {
+  getProductosCategoriasToSelectCheckbox(
+    categorias: Array<optionsToSelectI>
+  ): Array<optionsToSelectI> {
     console.log(categorias);
     if (categorias.length > 0) {
       return [
@@ -334,7 +346,11 @@ export class MenuService {
             { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
             { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
             { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya ***********', code: 'pcp1', select: false },
+            {
+              name: 'Producto Categoria Peya ***********',
+              code: 'pcp1',
+              select: false,
+            },
           ],
         },
       ];
@@ -343,7 +359,7 @@ export class MenuService {
     }
   }
 
-  getCanalesVenta() {
+  getCanalesVentaToSelectCheckbox(): Array<optionsToSelectI> {
     return [
       { name: 'UBER', code: 'cvuber', select: false },
       { name: 'PEYA', code: 'cvpeya', select: false },
@@ -379,4 +395,136 @@ export class MenuService {
       { name: 'OTROS', code: 'cvotros', select: false },
     ];
   }
+
+  getRestaurantesToSelectCheckbox(
+    cadenas: Array<CadenaI>
+  ): Array<optionsToSelectI> {
+    let codigoCadenas = [];
+    codigoCadenas = cadenas.map((cadena) => cadena.code);
+    if (cadenas.length > 0)
+      return [
+        { name: 'k001', code: 'k001', select: false },
+        { name: 't001', code: 't001', select: false },
+        { name: 'p001', code: 'p001', select: false },
+      ];
+    return [];
+  }
+
+  setNow() {
+    let now = new Date();
+    let hours = ('0' + now.getHours()).slice(-2);
+    let minutes = ('0' + now.getMinutes()).slice(-2);
+    return hours + ':' + minutes;
+  }
+
+  requestAggregators(lastConfiguration: any): Observable<any> {
+    const token = localStorage.getItem('token');
+    if (token) {
+      return this.httpClient
+        .get<any>(`${environment.url}/aggregators`, {
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${JSON.parse(token).accessToken}`,
+          }),
+        })
+        .pipe(
+          map((aggregators) => {
+            const newConfiguration: any = {
+              syncMaxPoint: false,
+              syncTime: this.setNow(),
+              newAggregators: [],
+            };
+            if (lastConfiguration) {
+              if (lastConfiguration.last.syncMaxPoint) {
+                aggregators.forEach((agg: any) => {
+                  const aux = lastConfiguration.last.aggregators.find(
+                    (e: any) => {
+                      if (e.aggregator.code === agg.code) {
+                        return e;
+                      }
+                    }
+                  );
+                  if (aux) {
+                    newConfiguration.newAggregators.push({
+                      name: aux.aggregator.name,
+                      code: aux.aggregator.code,
+                      time: lastConfiguration.last.syncTime,
+                      select: false,
+                    });
+                    newConfiguration.syncMaxPoint = lastConfiguration.last.syncMaxPoint;
+                    newConfiguration.syncTime = lastConfiguration.last.syncTime;
+                  }
+                });
+              } else {
+                aggregators.forEach((agg: any) => {
+                  const aux = lastConfiguration.last.aggregators.find(
+                    (e: any) => {
+                      if (e.aggregator.code === agg.code) {
+                        return e;
+                      }
+                    }
+                  );
+                  if (aux)
+                    newConfiguration.newAggregators.push({
+                      name: aux.aggregator.name,
+                      code: aux.aggregator.code,
+                      time: aux.syncTime,
+                      select: false,
+                    });
+                });
+              }
+
+              return newConfiguration;
+            } else {
+              aggregators.forEach((agg: any) => {
+                newConfiguration.newAggregators.push({
+                  name: agg.name,
+                  code: agg.code,
+                  time: this.setNow(),
+                  select: false,
+                });
+              });
+              return newConfiguration;
+            }
+          }),
+          catchError((err) => of(false))
+        );
+    }
+    return of(null);
+  }
+
+  requestLastConfiguration(): Observable<any> {
+    const token = localStorage.getItem('token');
+    if (token) {
+      return this.httpClient.get<any>(
+        `${environment.url}/configurations/last`,
+        {
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${JSON.parse(token).accessToken}`,
+          }),
+        }
+      );
+    }
+    return of(null);
+  }
+
+  /* checkStatusAutenticacion(): Observable<boolean> {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return of(false);
+    }
+    console.log('checkStatusAutenticacion');
+    console.log(token);
+
+    return this.httpClient
+      .get<User>(`${environment.url}/account/my-account`, {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${JSON.parse(token).accessToken}`,
+        }),
+      })
+      .pipe(
+        tap((u) => (this.user = u)),
+        map((u) => !!u),
+        catchError((err) => of(false))
+      );
+  } */
 }

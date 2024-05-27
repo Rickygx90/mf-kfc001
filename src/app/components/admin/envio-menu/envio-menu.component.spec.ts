@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { RouterModule } from "@angular/router";
 import { EnvioMenuComponent } from './envio-menu.component';
 
 describe('EnvioMenuComponent', () => {
@@ -8,7 +8,7 @@ describe('EnvioMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EnvioMenuComponent]
+      imports: [EnvioMenuComponent, RouterModule.forRoot([])]
     })
     .compileComponents();
     

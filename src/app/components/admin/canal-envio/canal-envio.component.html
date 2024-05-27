@@ -54,5 +54,5 @@
             </div>
         </div>
     </div>
-    <button class="mt-4" mat-flat-button color="primary">ENVIAR AHORA</button>
+    <button [disabled]="btnEnviarAhoraDisabled" class="mt-4" mat-flat-button color="primary" (click)="enviarAhora()">ENVIAR AHORA</button>
 </div>

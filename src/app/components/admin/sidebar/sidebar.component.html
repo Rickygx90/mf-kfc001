@@ -1,10 +1,9 @@
-<div
-    [ngClass]="showSidevar ? 'fixed md:relative z-10 flex flex-col justify-between -left-5 top-2 w-48 md:w-52 h-[calc(100%-12px)] bg-gray-100 text-black font-medium mr-6 pl-10 py-4 pr-3 rounded-lg shadow-2xl' : 'hidden'">
+<div class="fixed md:relative z-10 flex flex-col justify-between -left-5 top-2 w-48 md:w-52 h-[calc(100%-12px)] bg-gray-100 text-black font-medium mr-6 pl-10 py-4 pr-3 rounded-lg shadow-2xl"
+    [ngClass]="showSidevar ? 'mostrarSidebar' : 'ocultarSidebar'">
     <div>
         <div class="flex justify-between items-start">
             <a href="/home/dashboard" class="flex items-center pb-4">
-                <img src="https://placehold.co/40x40" alt="" class="w-8 h-8 rounded object-cover">
-                <span class="text-lg font-bold text-black ml-3">KFC</span>
+                <img src="https://assets.prod.deuna.io/assets/2bb258f4-051d-4a46-9321-b0a7a857cd71/kfc-logo-4712cdc128a8f9435acee236e7178eeb3efb61239732f0563e600f097703106d.png" alt="" class="w-24 h-8 rounded object-cover">
             </a>
             <button (click)="openCloseSidevar()" class="text-lg">
                 <i class="ri-close-line"></i>
@@ -21,8 +20,15 @@
             <li class="mb-1">
                 <a [routerLink]="['/home/enviomenu']" routerLinkActive="active"
                     class="flex items-center py-2 px-4 text-gray-950 hover:bg-gray-300 hover:text-gray-100">
-                    <i class="ri-home-2-line mr-3 text-lg"></i>
-                    <span class="text-xs">Envio de Menu</span>
+                    <i class="ri-file-list-3-line mr-3 text-lg"></i>
+                    <span class="text-xs">Envio de Menú </span>
+                </a>
+            </li>
+            <li class="mb-1">
+                <a [routerLink]="['/home/sincronizacionauto']" routerLinkActive="active"
+                    class="flex items-center py-2 px-4 text-gray-950 hover:bg-gray-300 hover:text-gray-100">
+                    <i class="ri-exchange-box-fill mr-3 text-lg"></i>
+                    <span class="text-xs">Sincronización automática</span>
                 </a>
             </li>
         </ul>
@@ -33,7 +39,7 @@
     </button>
 </div>
 <button
-    [ngClass]="!showSidevar ? 'fixed md:relative -left-5 top-2 w-12 bg-gray-100 py-2 pl-3 rounded-lg shadow-2xl' : 'hidden'"
+    [ngClass]="!showSidevar ? 'fixed md:relative -left-5 top-12 w-12 bg-gray-100 py-2 pl-3 rounded-lg shadow-2xl' : 'hidden'"
     (click)="openCloseSidevar()">
     <i class="ri-menu-line"></i>
 </button>

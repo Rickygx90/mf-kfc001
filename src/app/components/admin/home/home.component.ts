@@ -10,16 +10,16 @@ import { CommonModule } from '@angular/common';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   constructor(private router: Router) {}
   loginInfo: string | null = null;
   usersService = inject(UsersService);
 
-  ngOnInit(): void {
-    this.loginInfo = this.usersService.getItem('token');
+  /* ngOnInit(): void {
+    this.loginInfo = this.usersService.getItem('usuario');
     console.log(this.loginInfo);
     if (!this.loginInfo || !JSON.parse(this.loginInfo).isSuccess) {
       this.router.navigate(['/login']);
     }
-  }
+  } */
 }

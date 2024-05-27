@@ -1,3 +1,14 @@
 :host ::ng-deep .p-checkbox-box {
     outline: 1px solid rgba(0, 0, 0, 0.113);
 }
+
+
+/* :host ::ng-deep .p-multiselect-panel {
+    background-color: blue;
+} */
+
+
+
+:host ::ng-deep .p-multiselect-items-wrapper {
+    max-height: 160px !important;
+}
