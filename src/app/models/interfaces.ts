@@ -40,3 +40,17 @@ export interface User {
   firstName: string;
   lastName: string;
 }
+
+export interface automaticSync {
+  id?: string;
+  syncMaxPoint: boolean;
+  syncTime: string | null;
+  aggregators: Array<AggregatorI>;
+}
+
+export interface AggregatorI {
+  id?: string;
+  code: number;
+  name: string;
+  active?: true;
+}

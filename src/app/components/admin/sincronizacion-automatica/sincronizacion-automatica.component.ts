@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { multiSelectI } from '../../../models/interfaces';
 import { MenuService } from '../../../services/menu.service';
 import { catchError, switchMap } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-sincronizacion-automatica',
@@ -40,15 +41,15 @@ export class SincronizacionAutomaticaComponent {
       .requestLastConfiguration()
       .pipe(
         switchMap((lastConfiguration) => {
-          console.log(lastConfiguration)
           return this.menuService.requestAggregators(lastConfiguration);
-        }),
+        })
         //catchError((error) => console.error(error))
       )
       .subscribe({
         next: (newConfiguration) => {
           this.listSelectableAgregadores.time = newConfiguration.syncTime;
-          this.listSelectableAgregadores.children = newConfiguration.newAggregators;
+          this.listSelectableAgregadores.children =
+            newConfiguration.newAggregators;
         },
         error: (err) => {
           console.log(err);
@@ -65,30 +66,16 @@ export class SincronizacionAutomaticaComponent {
       (agregador: any) => agregador.select
     );
     return agregadoresSelected;
-    //this.btnSincronizarDisabled = agregadoresSelected.length > 0 ? false : true;
   }
 
   updateAllCompleteAgregadores(): void {
-    /* this.allCompleteAgregadores =
-      this.listSelectableAgregadores.children != null &&
-      this.listSelectableAgregadores.children.every((t) => t.select); */
     this.btnSincronizarDisabled =
       this.getAgregadoresSelected().length > 0 ? false : true;
   }
 
-  /*someCompleteAgregadores(): boolean {
-    console.log('someCompleteAgregadores!!!');
-    if (this.listSelectableAgregadores.children == null) {
-      return false;
-    }
-    return (
-      this.listSelectableAgregadores.children.filter((t) => t.select).length >
-        0 && !this.allCompleteAgregadores
-    );
-  } */
-
   setAllAgregadores(select: boolean): void {
     this.allCompleteAgregadores = select;
+    this.listSelectableAgregadores.select = select;
     if (this.listSelectableAgregadores.children == null) {
       return;
     }
@@ -100,33 +87,66 @@ export class SincronizacionAutomaticaComponent {
       this.getAgregadoresSelected().length > 0 ? false : true;
   }
 
+  changeMainSync() {
+    console.log('changeMainSync!!!!');
+    if (this.allCompleteAgregadores) {
+      console.log(this.listSelectableAgregadores.time);
+      this.listSelectableAgregadores.children.map((agg) => {
+        console.log(agg);
+        agg.time = this.listSelectableAgregadores.time;
+      });
+    }
+  }
+
+  formatearHora(hora: string = '') {
+    if (hora.length === 5) {
+      return hora + ':00';
+    }
+    return hora;
+  }
+
   enviarSincronizacionAutomatica() {
-    console.log('enviarSincronizacionAutomatica!!!');
-    console.log(this.getAgregadoresSelected());
+    Swal.fire({
+      title: '<div class="loader"></div>',
+      showConfirmButton: false,
+      width: 110,
+      heightAuto: false,
+    });
 
     const agregadoresSelected = this.getAgregadoresSelected();
-
     const aggregators = agregadoresSelected.map((agregador: any) => ({
-      code: agregador.id,
-      syncTime: agregador.time,
+      code: agregador.code,
+      syncTime: this.formatearHora(agregador.time),
     }));
-
-    console.log(aggregators);
-
     const req = {
-      syncMaxPoint: true,
-      syncTime: '18:00:00',
-      aggregators: [
-        {
-          aggregator: {
-            id: '66452dbab8e206bc1dc6ab6d',
-            code: 0,
-            name: 'Uber',
-            active: true,
-          },
-          syncTime: '15:00:00',
-        },
-      ],
+      syncMaxPoint: this.listSelectableAgregadores.select,
+      syncTime: this.formatearHora(this.listSelectableAgregadores.time),
+      aggregators,
     };
+
+    this.menuService.sendAutomaticSync(req).subscribe({
+      next: (response) => {
+        console.log(response);
+      },
+      error: (err) => {
+        console.log(err);
+        Swal.fire({
+          title: 'Error',
+          text: 'Error al momento de enviar la sincronizacion',
+          icon: 'error',
+          confirmButtonText: 'OK',
+          heightAuto: false,
+        });
+      },
+      complete: () => {
+        Swal.fire({
+          title: 'Exito!',
+          text: 'La informacion se envio correctamente',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          heightAuto: false,
+        });
+      },
+    });
   }
 }

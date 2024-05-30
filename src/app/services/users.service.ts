@@ -1,26 +1,16 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { User } from '../models/interfaces';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
-
-const httpOptions = {
-  headers: new HttpHeaders({
-    Authorization:
-      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU5ODM2MDYsImlkIjoiNjY0NTNiMjIwMjZkNzBlMTA3ZDk0NDU1IiwidXNlcm5hbWUiOiJhZG1pbiJ9.E32H39TjV7ElIvRkgHtc5K-murq_zEsB-7Yi-PFRPPk',
-  }),
-};
 
 @Injectable({
   providedIn: 'root',
 })
 export class UsersService {
   private httpClient = inject(HttpClient);
-  private toastr = inject(ToastrService);
   private user?: User;
-
   constructor(private router: Router) {}
 
   get currentUser(): User | undefined {
@@ -30,30 +20,9 @@ export class UsersService {
   }
 
   getToken(formValue: any): Observable<any> {
-    return this.httpClient.post<any>(
-      `${environment.url}/auth/login`,
-      {
-        username: formValue.username,
-        password: formValue.password,
-      },
-      httpOptions
-    );
-  }
-
-  login(formularioLogin: any) {
-    this.getToken(formularioLogin.value).subscribe({
-      next: (token) => {
-        localStorage.setItem('token', JSON.stringify(token));
-        this.router.navigate(['/home/dashboard']);
-      },
-      error: (err) => {
-        console.log(err)
-        this.toastr.error('Usuario o contraseña son incorrectos', 'Error');
-        formularioLogin.reset();
-      },
-      complete: () => {
-        console.info('complete');
-      }
+    return this.httpClient.post<any>(`${environment.url}/auth/login`, {
+      username: formValue.username,
+      password: formValue.password,
     });
   }
 
@@ -62,15 +31,8 @@ export class UsersService {
     if (!token) {
       return of(false);
     }
-    console.log('checkStatusAutenticacion');
-    console.log(token);
-
     return this.httpClient
-      .get<User>(`${environment.url}/account/my-account`, {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${JSON.parse(token).accessToken}`,
-        }),
-      })
+      .get<User>(`${environment.url}/account/my-account`)
       .pipe(
         tap((u) => (this.user = u)),
         map((u) => !!u),

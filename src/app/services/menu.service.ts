@@ -1,20 +1,13 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   CadenaI,
   RestauranteI,
   menuItemI,
-  multiSelectI,
   optionsToSelectI,
 } from '../models/interfaces';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment.development';
-const httpOptions = {
-  headers: new HttpHeaders({
-    Authorization:
-      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU5ODM2MDYsImlkIjoiNjY0NTNiMjIwMjZkNzBlMTA3ZDk0NDU1IiwidXNlcm5hbWUiOiJhZG1pbiJ9.E32H39TjV7ElIvRkgHtc5K-murq_zEsB-7Yi-PFRPPk',
-  }),
-};
 
 @Injectable({
   providedIn: 'root',
@@ -22,13 +15,9 @@ const httpOptions = {
 export class MenuService {
   private httpClient = inject(HttpClient);
   public menuList: Array<optionsToSelectI> = [];
-  private aggregators: Array<optionsToSelectI> = [];
 
   getMenuItems(channelName: string): Array<menuItemI> {
     console.log(channelName);
-    /* return firstValueFrom(
-      this.httpClient.post<any>(`${this.baseUrl}/rtegister`, formValue)
-    ) */
     return [
       {
         id: 1,
@@ -410,7 +399,7 @@ export class MenuService {
     return [];
   }
 
-  setNow() {
+  setNow(): string {
     let now = new Date();
     let hours = ('0' + now.getHours()).slice(-2);
     let minutes = ('0' + now.getMinutes()).slice(-2);
@@ -418,113 +407,79 @@ export class MenuService {
   }
 
   requestAggregators(lastConfiguration: any): Observable<any> {
-    const token = localStorage.getItem('token');
-    if (token) {
-      return this.httpClient
-        .get<any>(`${environment.url}/aggregators`, {
-          headers: new HttpHeaders({
-            Authorization: `Bearer ${JSON.parse(token).accessToken}`,
-          }),
-        })
-        .pipe(
-          map((aggregators) => {
-            const newConfiguration: any = {
-              syncMaxPoint: false,
-              syncTime: this.setNow(),
-              newAggregators: [],
-            };
-            if (lastConfiguration) {
-              if (lastConfiguration.last.syncMaxPoint) {
-                aggregators.forEach((agg: any) => {
-                  const aux = lastConfiguration.last.aggregators.find(
-                    (e: any) => {
-                      if (e.aggregator.code === agg.code) {
-                        return e;
-                      }
-                    }
-                  );
-                  if (aux) {
-                    newConfiguration.newAggregators.push({
-                      name: aux.aggregator.name,
-                      code: aux.aggregator.code,
-                      time: lastConfiguration.last.syncTime,
-                      select: false,
-                    });
-                    newConfiguration.syncMaxPoint = lastConfiguration.last.syncMaxPoint;
-                    newConfiguration.syncTime = lastConfiguration.last.syncTime;
+    return this.httpClient.get<any>(`${environment.url}/aggregators`).pipe(
+      map((aggregators) => {
+        const newConfiguration: any = {
+          syncMaxPoint: false,
+          syncTime: this.setNow(),
+          newAggregators: [],
+        };
+        if (lastConfiguration) {
+          if (lastConfiguration.last.syncMaxPoint) {
+            aggregators.forEach((aggregator: any) => {
+              const validAggregator = lastConfiguration.last.aggregators.find(
+                (e: any) => {
+                  if (e.aggregator.code === aggregator.code) {
+                    return e;
                   }
-                });
-              } else {
-                aggregators.forEach((agg: any) => {
-                  const aux = lastConfiguration.last.aggregators.find(
-                    (e: any) => {
-                      if (e.aggregator.code === agg.code) {
-                        return e;
-                      }
-                    }
-                  );
-                  if (aux)
-                    newConfiguration.newAggregators.push({
-                      name: aux.aggregator.name,
-                      code: aux.aggregator.code,
-                      time: aux.syncTime,
-                      select: false,
-                    });
-                });
-              }
-
-              return newConfiguration;
-            } else {
-              aggregators.forEach((agg: any) => {
+                }
+              );
+              if (validAggregator) {
                 newConfiguration.newAggregators.push({
-                  name: agg.name,
-                  code: agg.code,
-                  time: this.setNow(),
+                  name: validAggregator.aggregator.name,
+                  code: validAggregator.aggregator.code,
+                  time: lastConfiguration.last.syncTime,
                   select: false,
                 });
-              });
-              return newConfiguration;
-            }
-          }),
-          catchError((err) => of(false))
-        );
-    }
-    return of(null);
+                newConfiguration.syncMaxPoint =
+                  lastConfiguration.last.syncMaxPoint;
+                newConfiguration.syncTime = lastConfiguration.last.syncTime;
+              }
+            });
+          } else {
+            aggregators.forEach((aggregator: any) => {
+              const validAggregator = lastConfiguration.last.aggregators.find(
+                (e: any) => {
+                  if (e.aggregator.code === aggregator.code) {
+                    return e;
+                  }
+                }
+              );
+              if (validAggregator)
+                newConfiguration.newAggregators.push({
+                  name: validAggregator.aggregator.name,
+                  code: validAggregator.aggregator.code,
+                  time: validAggregator.syncTime,
+                  select: false,
+                });
+            });
+          }
+
+          return newConfiguration;
+        } else {
+          aggregators.forEach((aggregator: any) => {
+            newConfiguration.newAggregators.push({
+              name: aggregator.name,
+              code: aggregator.code,
+              time: this.setNow(),
+              select: false,
+            });
+          });
+          return newConfiguration;
+        }
+      }),
+      catchError((err) => of(false))
+    );
   }
 
   requestLastConfiguration(): Observable<any> {
-    const token = localStorage.getItem('token');
-    if (token) {
-      return this.httpClient.get<any>(
-        `${environment.url}/configurations/last`,
-        {
-          headers: new HttpHeaders({
-            Authorization: `Bearer ${JSON.parse(token).accessToken}`,
-          }),
-        }
-      );
-    }
-    return of(null);
+    return this.httpClient.get<any>(`${environment.url}/configurations/last`);
   }
 
-  /* checkStatusAutenticacion(): Observable<boolean> {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      return of(false);
-    }
-    console.log('checkStatusAutenticacion');
-    console.log(token);
-
-    return this.httpClient
-      .get<User>(`${environment.url}/account/my-account`, {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${JSON.parse(token).accessToken}`,
-        }),
-      })
-      .pipe(
-        tap((u) => (this.user = u)),
-        map((u) => !!u),
-        catchError((err) => of(false))
-      );
-  } */
+  sendAutomaticSync(automaticSync: any): Observable<any> {
+    return this.httpClient.put<any>(
+      `${environment.url}/configurations`,
+      automaticSync
+    );
+  }
 }

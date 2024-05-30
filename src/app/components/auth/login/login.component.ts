@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -11,9 +11,9 @@ import { UsersService } from '../../../services/users.service';
 import { Router } from '@angular/router';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialog } from '@angular/material/dialog';
-import { AlertInfoComponent } from '../../shared/alert-info/alert-info.component';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
@@ -27,7 +27,7 @@ import { Observable } from 'rxjs';
     MatSlideToggleModule,
   ],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -48,42 +48,27 @@ export class LoginComponent implements OnInit {
     password: ['', Validators.required],
   });
 
-  ngOnInit(): void {
-    /* this.loginTokens = this.usersService.getItem('usuario');
-    console.log(this.loginTokens);
-    if (this.loginTokens && JSON.parse(this.loginTokens).isSuccess) {
-      this.router.navigate(['/home/dashboard']);
-    } */
-  }
-
   onSubmit() {
-    this.usersService.login(this.formularioLogin);
-    console.log('usersService after')
-    //if()
-    //console.log(existToken)
-    /* if(!existToken) {
-      this.toastr.error('Usuario o contraseña son incorrectos', 'Error');
-      this.formularioLogin.reset();
-    } */
-    /* if (this.loginTokens$) {
-      this.router.navigate(['/home/dashboard']);
-    } else {
-      //this.openDialog()
-      this.toastr.error('Usuario o contraseña son incorrectos', 'Error');
-      this.formularioLogin.reset();
-    } */
-  }
-
-  /* openDialog(): void {
-    const dialogRef = this.dialog.open(AlertInfoComponent, {
-      data: {
-        title: 'error',
-        content: 'El usuario o la contrasena ingresada son incorrectos',
+    Swal.fire({
+      title: '<div class="loader"></div>',
+      showConfirmButton: false,
+      width: 110,
+    });
+    this.usersService.getToken(this.formularioLogin.value).subscribe({
+      next: (token) => {
+        localStorage.setItem('token', JSON.stringify(token));
+        this.router.navigate(['/home/dashboard']);
+      },
+      error: (err) => {
+        console.log(err);
+        this.toastr.error('Usuario o contraseña son incorrectos', 'Error');
+        this.formularioLogin.reset();
+        Swal.close();
+      },
+      complete: () => {
+        console.info('complete');
+        Swal.close();
       },
     });
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
-      this.formularioLogin.reset();
-    });
-  } */
+  }
 }
