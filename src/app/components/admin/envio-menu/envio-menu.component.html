@@ -35,7 +35,7 @@
                             <mat-checkbox [(ngModel)]="menu.select" (ngModelChange)="updateAllCompleteMenu()">
                                 <div class="border border-gray-300 py-1 px-5 text-xs">
                                     <p>{{menu.name}}</p>
-                                    <p>2024-04-10 16:00:00</p>
+                                    <p>{{menu.date}}</p>
                                 </div>
                             </mat-checkbox>
                         </div>
@@ -73,7 +73,7 @@
                                         (ngModelChange)="updateAllCompleteSubCategorias(categoria)">
                                         <div class="border border-gray-300 py-1 px-5 text-xs">
                                             <p>{{subcategoria.name}}</p>
-                                            <p>2024-04-10 16:00:00</p>
+                                            <p>{{subcategoria.date}}</p>
                                         </div>
                                     </mat-checkbox>
                                 </div>

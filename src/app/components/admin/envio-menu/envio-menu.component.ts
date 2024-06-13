@@ -163,8 +163,20 @@ export class EnvioMenuComponent {
     const menusSelected = this.listSelectableMenu.children.filter(
       (menu) => menu.select
     );
-    this.listSelectableCategories.children =
-      this.menuService.getCategoriasMenuToSelectCheckbox(menusSelected);
+    this.menuService
+      .getCategoriasMenuToSelectCheckbox(menusSelected)
+      .subscribe({
+        next: (categorias) => {
+          console.log(categorias)
+          this.listSelectableCategories.children = categorias;
+        },
+        error: (err) => {
+          console.log(err);
+        },
+        complete: () => {
+          console.log('complete!!!');
+        },
+      });
     this.restartCategoriasProductos('menu');
   }
 
@@ -187,8 +199,20 @@ export class EnvioMenuComponent {
     const menusSelected = this.listSelectableMenu.children.filter(
       (menu) => menu.select
     );
-    this.listSelectableCategories.children =
-      this.menuService.getCategoriasMenuToSelectCheckbox(menusSelected);
+    this.menuService
+      .getCategoriasMenuToSelectCheckbox(menusSelected)
+      .subscribe({
+        next: (categorias) => {
+          console.log(categorias)
+          this.listSelectableCategories.children = categorias;
+        },
+        error: (err) => {
+          console.log(err);
+        },
+        complete: () => {
+          console.log('complete!!!');
+        },
+      });
     this.restartCategoriasProductos('menu');
   }
 
@@ -230,14 +254,18 @@ export class EnvioMenuComponent {
       });
     });
     this.listSelectableProducts.children =
-      this.menuService.getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected);
+      this.menuService.getProductosCategoriasToSelectCheckbox(
+        this.subCategoriasSelected
+      );
     this.restartCategoriasProductos('categoria');
   }
 
   updateAllCompleteSubCategorias(categoria: optionsToSelectI): void {
     this.updateAllCompleteSubOptions(categoria, 'categoria');
     this.listSelectableProducts.children =
-      this.menuService.getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected);
+      this.menuService.getProductosCategoriasToSelectCheckbox(
+        this.subCategoriasSelected
+      );
     this.restartCategoriasProductos('categoria');
   }
 
@@ -254,7 +282,9 @@ export class EnvioMenuComponent {
   setAllSubCategorias(select: boolean, categoria: any): void {
     this.setAllSubOptions(categoria, 'categoria', select);
     this.listSelectableProducts.children =
-      this.menuService.getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected);
+      this.menuService.getProductosCategoriasToSelectCheckbox(
+        this.subCategoriasSelected
+      );
     this.restartCategoriasProductos('categoria');
   }
 

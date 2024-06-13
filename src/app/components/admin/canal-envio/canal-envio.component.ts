@@ -34,7 +34,7 @@ export class CanalEnvioComponent implements OnInit {
     public dialogRef: MatDialogRef<CanalEnvioComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
-  cadenas: Array<CadenaI> = [];
+  cadenas: Array<any> = [];
   cadenasSeleccionadas: Array<CadenaI> = [];
   menuService = inject(MenuService);
   allCompleteCategoria: boolean = false;
@@ -55,7 +55,21 @@ export class CanalEnvioComponent implements OnInit {
   ngOnInit(): void {
     this.listSelectableCanalesVenta.children =
       this.menuService.getCanalesVentaToSelectCheckbox();
-    this.cadenas = this.menuService.getCadenasToSelect();
+    //this.cadenas = this.menuService.getCadenasToSelect();
+
+
+    this.menuService.getCadenasToSelect().subscribe({
+      next: (cadenas) => {
+        console.log(cadenas);
+        this.cadenas = cadenas;
+      },
+      error: (err) => {
+        console.log(err);
+      },
+      complete: () => {
+        console.log('complete!!!');
+      },
+    });
   }
 
   getCanalesRestaurantesSelected(): any {

@@ -1,3 +1,4 @@
+<p-toast />
 <div class="w-full h-full bg-gray-300 flex overflow-auto">
     <app-sidebar></app-sidebar>
     <div class="w-full h-full pt-2 md:-ml-12 pl-4 pr-4">
@@ -6,7 +7,6 @@
             <i class="ri-exchange-box-fill"></i>
             <p>/Sincronización automática</p>
         </span>
-
         <div class="h-[calc(100%-112px)] p-5 bg-gray-100 rounded-lg shadow-md ">
             <div class="w-full h-full flex justify-center items-center border-2 rounded-lg">
 
@@ -17,29 +17,31 @@
                     </div>
                     } @else {
                     <div class="w-3/6 mx-2 flex flex-col">
-                        <mat-checkbox [checked]="allCompleteAgregadores" (change)="setAllAgregadores($event.checked)">
+                        <mat-checkbox [disabled]="checkSincronizarDisabled" [checked]="allCompleteAgregadores"
+                            (change)="setAllAgregadores($event.checked)">
                             <h3 class="text-sm lg:text-2xl">{{listSelectableAgregadores.name}}</h3>
                         </mat-checkbox>
-                        <input class="h-6 md:h-8 lg:h-9 2xl:h-14 mb-3 px-5 text-xl rounded-lg" type="time"
-                            [(ngModel)]="listSelectableAgregadores.time" (change)="changeMainSync()">
+                        <p-calendar class="text-lg" [disabled]="false" [(ngModel)]="listSelectableAgregadores.time"
+                            (change)="changeMainSync()" [timeOnly]="true" (onClose)="closeCalendar()" />
+
                         <button [disabled]="btnSincronizarDisabled" mat-flat-button color="primary"
-                            (click)="enviarSincronizacionAutomatica()">Sincronizar&emsp;<i
+                            (click)="enviarSincronizacionAutomatica()">Guardar&emsp;<i
                                 class="ri-loop-right-line"></i></button>
                     </div>
 
                     <div class="w-3/6 mx-2 flex flex-col">
                         <h3 class="text-sm lg:text-2xl text-center">Sincronización Agregadores</h3>
-                        <div class="w-full overflow-auto">
-                            @for (agregador of listSelectableAgregadores.children; track agregador) {
-                            @if (agregador) {
+                        <div class="w-full">
+                            @for (aggregator of listSelectableAgregadores.children; track aggregator) {
+                            @if (aggregator) {
                             <div class="w-full px-4 py-2 my-1 flex flex-col border-2 rounded-lg">
-                                <mat-checkbox [disabled]="allCompleteAgregadores" [(ngModel)]="agregador.select"
+                                <mat-checkbox [disabled]="allCompleteAgregadores" [(ngModel)]="aggregator.select"
                                     (ngModelChange)="updateAllCompleteAgregadores()" class="-left-2">
-                                    <h3 class="text-sm xl:text-2xl">{{agregador.name}}</h3>
+                                    <h3 class="text-sm xl:text-2xl">{{aggregator.name}}</h3>
                                 </mat-checkbox>
-                                <input [disabled]="allCompleteAgregadores"
-                                    class="h-6 md:h-8 lg:h-9 2xl:h-14 px-5 text-lg rounded-lg" type="time"
-                                    [(ngModel)]="agregador.time">
+
+                                <p-calendar class="text-lg" [disabled]="allCompleteAgregadores"
+                                    [(ngModel)]="aggregator.time" [timeOnly]="true" />
                             </div>
                             }
                             }

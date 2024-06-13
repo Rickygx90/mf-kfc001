@@ -12,15 +12,17 @@ export interface multiSelectI {
   name: string;
   select: boolean;
   children: optionsToSelectI[];
-  time?: string;
+  time?: Date;
 }
 
 export interface optionsToSelectI {
   name: string;
   code: string;
+  id?: string;
   parent?: string;
   select: boolean;
-  time?: string;
+  time?: Date;
+  date?: string;
   allCompleteSubCategoria?: boolean;
   allCompleteSubProducto?: boolean;
   children?: optionsToSelectI[];
@@ -45,12 +47,18 @@ export interface automaticSync {
   id?: string;
   syncMaxPoint: boolean;
   syncTime: string | null;
-  aggregators: Array<AggregatorI>;
+  aggregators: AggregatorI[];
 }
 
 export interface AggregatorI {
   id?: string;
   code: number;
-  name: string;
-  active?: true;
+  name: Aggregator;
+  time?: string;
+  select?: boolean;
+}
+
+enum Aggregator {
+  uber = "Uber",
+  peya = "Pedidos Ya"
 }

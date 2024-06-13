@@ -47,8 +47,8 @@ export class FilterMenuComponent implements OnInit {
   ) {}
 
   menuService = inject(MenuService);
-  cadenas!: Array<CadenaI>;
-  restaurantes!: Array<RestauranteI>;
+  cadenas!: Array<any>;
+  restaurantes!: Array<any>;
 
   get cadenasSeleccionadas() {
     return this.formularioFiltro.get('cadenasSeleccionadas') as FormControl;
@@ -76,24 +76,58 @@ export class FilterMenuComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.cadenas = this.menuService.getCadenasToSelect();
+    this.menuService.getCadenasToSelect().subscribe({
+      next: (cadenas) => {
+        this.cadenas = cadenas;
+      },
+      error: (err) => {
+        console.log(err);
+      },
+      complete: () => {
+        console.log('complete!!!');
+      },
+    });
   }
 
   onPanelHideCadenas() {
-    console.log('onPanelHide');
-    this.restaurantes = this.menuService.getRestaurantesToSelect(
-      this.cadenasSeleccionadas.value
-    );
-    if (this.cadenasSeleccionadas.value.length > 0) {
-      this.restaurantesSeleccionados.enable();
-    } else {
-      this.restaurantesSeleccionados.setValue([]);
-      this.restaurantesSeleccionados.disable();
-    }
+    console.log('onPanelHideCadenas');
+    this.menuService
+      .getRestaurantesToSelect(this.cadenasSeleccionadas.value)
+      .subscribe({
+        next: (restaurantes) => {
+          console.log(restaurantes);
+          this.restaurantes = restaurantes;
+          if (this.cadenasSeleccionadas.value.length > 0) {
+            this.restaurantesSeleccionados.enable();
+          } else {
+            this.restaurantesSeleccionados.setValue([]);
+            this.restaurantesSeleccionados.disable();
+          }
+        },
+        error: (err) => {
+          console.log(err);
+        },
+        complete: () => {
+          console.log('complete!!!');
+        },
+      });
   }
 
   onSubmit() {
-    this.menuService.getMenuToSelectCheckbox(this.formularioFiltro.value);
+    this.menuService
+      .getMenuToSelectCheckbox(this.formularioFiltro.value)
+      .subscribe({
+        next: (menus) => {
+          this.menuService.menuList = menus;
+        },
+        error: (err) => {
+          console.log(err);
+        },
+        complete: () => {
+          console.log('complete!!!');
+        },
+      });
+
     this.dialogRef.close();
   }
 }

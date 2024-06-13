@@ -7,8 +7,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { multiSelectI } from '../../../models/interfaces';
 import { MenuService } from '../../../services/menu.service';
-import { catchError, switchMap } from 'rxjs';
-import Swal from 'sweetalert2';
+import { catchError, of, switchMap } from 'rxjs';
+import { CalendarModule } from 'primeng/calendar';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-sincronizacion-automatica',
@@ -20,45 +22,59 @@ import Swal from 'sweetalert2';
     CommonModule,
     MatCheckboxModule,
     MatButtonModule,
+    ToastModule,
+    CalendarModule,
   ],
+  providers: [MessageService],
   templateUrl: './sincronizacion-automatica.component.html',
   styleUrl: './sincronizacion-automatica.component.css',
 })
 export class SincronizacionAutomaticaComponent {
   allCompleteAgregadores: boolean = false;
   btnSincronizarDisabled: boolean = true;
+  checkSincronizarDisabled: boolean = false;
   showLoading: boolean = true;
   listSelectableAgregadores: multiSelectI = {
     name: 'Sincronizar desde maxpoint',
     select: false,
-    time: '',
+    time: new Date(),
     children: [],
   };
   menuService = inject(MenuService);
 
-  constructor() {
+  getLastConfiguration() {
     this.menuService
       .requestLastConfiguration()
       .pipe(
         switchMap((lastConfiguration) => {
           return this.menuService.requestAggregators(lastConfiguration);
-        })
-        //catchError((error) => console.error(error))
+        }),
+        catchError((error) => of(console.error(error)))
       )
       .subscribe({
         next: (newConfiguration) => {
-          this.listSelectableAgregadores.time = newConfiguration.syncTime;
+          console.log(newConfiguration);
+          this.allCompleteAgregadores = false;
+          this.listSelectableAgregadores.time = this.formatearHoraAFecha(
+            newConfiguration.syncTime
+          );
           this.listSelectableAgregadores.children =
-            newConfiguration.newAggregators;
+            newConfiguration.aggregators.map((aggregator: any) => ({
+              ...aggregator,
+              time: this.formatearHoraAFecha(aggregator.time),
+            }));
         },
         error: (err) => {
           console.log(err);
         },
         complete: () => {
-          console.info('complete');
           this.showLoading = false;
         },
       });
+  }
+
+  constructor(private messageService: MessageService) {
+    this.getLastConfiguration();
   }
 
   getAgregadoresSelected(): any {
@@ -79,73 +95,107 @@ export class SincronizacionAutomaticaComponent {
     if (this.listSelectableAgregadores.children == null) {
       return;
     }
-    this.listSelectableAgregadores.children.forEach((t) => {
-      t.select = select;
-      if (select) t.time = this.listSelectableAgregadores.time;
+    this.listSelectableAgregadores.children.forEach((aggregator) => {
+      aggregator.select = select;
+      if (select) aggregator.time = this.listSelectableAgregadores.time;
     });
-    this.btnSincronizarDisabled =
-      this.getAgregadoresSelected().length > 0 ? false : true;
+    this.updateAllCompleteAgregadores();
   }
 
   changeMainSync() {
-    console.log('changeMainSync!!!!');
     if (this.allCompleteAgregadores) {
-      console.log(this.listSelectableAgregadores.time);
-      this.listSelectableAgregadores.children.map((agg) => {
-        console.log(agg);
-        agg.time = this.listSelectableAgregadores.time;
+      this.listSelectableAgregadores.children.map((aggregator) => {
+        aggregator.time = this.listSelectableAgregadores.time;
       });
     }
   }
 
-  formatearHora(hora: string = '') {
-    if (hora.length === 5) {
-      return hora + ':00';
+  closeCalendar() {
+    if (this.allCompleteAgregadores) {
+      this.listSelectableAgregadores.children.map((aggregator) => {
+        aggregator.time = this.listSelectableAgregadores.time;
+      });
     }
-    return hora;
+  }
+
+  addZero(value: number): string {
+    if (value <= 9) {
+      return '0' + value.toString();
+    }
+    return value.toString();
+  }
+
+  formatearFechaAHora(hora: Date = new Date()): string {
+    return (
+      this.addZero(hora.getHours()) +
+      ':' +
+      this.addZero(hora.getMinutes()) +
+      ':' +
+      this.addZero(hora.getSeconds())
+    );
+  }
+
+  formatearHoraAFecha(hora: string = ''): Date {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const day = now.getDate();
+    const [hour, minutes] = hora.split(':').map(Number);
+    const dateWithTime = new Date(year, month, day, hour, minutes);
+    return dateWithTime;
   }
 
   enviarSincronizacionAutomatica() {
-    Swal.fire({
+    this.btnSincronizarDisabled = true;
+    this.checkSincronizarDisabled = true;
+    /* Swal.fire({
       title: '<div class="loader"></div>',
       showConfirmButton: false,
       width: 110,
       heightAuto: false,
-    });
+    }); */
 
     const agregadoresSelected = this.getAgregadoresSelected();
     const aggregators = agregadoresSelected.map((agregador: any) => ({
       code: agregador.code,
-      syncTime: this.formatearHora(agregador.time),
+      syncTime: this.formatearFechaAHora(agregador.time),
     }));
     const req = {
       syncMaxPoint: this.listSelectableAgregadores.select,
-      syncTime: this.formatearHora(this.listSelectableAgregadores.time),
+      syncTime: this.formatearFechaAHora(this.listSelectableAgregadores.time),
       aggregators,
     };
-
+    console.log(req);
     this.menuService.sendAutomaticSync(req).subscribe({
       next: (response) => {
         console.log(response);
       },
       error: (err) => {
+        this.checkSincronizarDisabled = false;
         console.log(err);
-        Swal.fire({
+        /* Swal.fire({
           title: 'Error',
           text: 'Error al momento de enviar la sincronizacion',
           icon: 'error',
           confirmButtonText: 'OK',
           heightAuto: false,
-        });
+        }); */
       },
       complete: () => {
-        Swal.fire({
+        /* Swal.fire({
           title: 'Exito!',
           text: 'La informacion se envio correctamente',
           icon: 'success',
           confirmButtonText: 'OK',
           heightAuto: false,
+        }); */
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exito',
+          detail: 'La configuración se guardo exitosamente!',
         });
+        this.checkSincronizarDisabled = false;
+        this.getLastConfiguration();
       },
     });
   }

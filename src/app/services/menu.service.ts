@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import {
   CadenaI,
   RestauranteI,
+  automaticSync,
   menuItemI,
   optionsToSelectI,
 } from '../models/interfaces';
@@ -141,101 +142,68 @@ export class MenuService {
     ];
   }
 
-  getCadenasToSelect(): Array<CadenaI> {
-    return [
-      { name: 'Tropiburger', code: 'tropi' },
-      { name: 'KFC', code: 'kfc' },
-      { name: 'Pollo Gus', code: 'gus' },
-      { name: 'Menestras del negro', code: 'menestras' },
-    ];
+  getCadenasToSelect(): Observable<any[]> {
+    return this.httpClient.get<any>(
+      `http://192.168.101.29:3001/api/sincronization/getchains`
+    );
   }
 
-  getRestaurantesToSelect(cadenas: Array<CadenaI>): Array<RestauranteI> {
-    let codigoCadenas = [];
-    codigoCadenas = cadenas.map((cadena) => cadena.code);
-    if (cadenas.length > 0)
-      return [
-        { name: 'k001', code: 'k001' },
-        { name: 't001', code: 't001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001', code: 'p001' },
-        { name: 'p001*****', code: 'p001' },
-      ];
-    return [];
+  getRestaurantesToSelect(cadenas: Array<any>): Observable<any[]> {
+    let idCadenas = [];
+    idCadenas = cadenas.map((cadena) => cadena.id);
+    return this.httpClient.post<any>(
+      `http://192.168.101.29:3001/api/sincronization/restaurants`,
+      {
+        ids: idCadenas,
+      }
+    );
   }
 
-  getMenuToSelectCheckbox(formularioFiltro: any): void {
-    const body = {
-      restaurantes: formularioFiltro.restaurantesSeleccionados,
-      tiempo: {
-        start: formularioFiltro.fechaInicio,
-        end: formularioFiltro.fechaFin,
-      },
-    };
-
-    this.menuList = [
-      { name: 'Menu Uber', code: 'muber', select: false },
-      { name: 'Otro Menu', code: 'motros', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-      { name: 'Menu peya', code: 'mpeya', select: false },
-    ];
+  getMenuToSelectCheckbox(formularioFiltro: any): Observable<any[]> {
+    return this.httpClient.post<any>(
+      `http://192.168.101.29:3001/api/sincronization/getmenus`,
+      {
+        restaurantes: formularioFiltro.restaurantesSeleccionados,
+        fecha: {
+          fechaInicial: formularioFiltro.fechaInicio,
+          fechaFinal: formularioFiltro.fechaFin,
+        },
+      }
+    );
   }
 
   getCategoriasMenuToSelectCheckbox(
     menus: Array<optionsToSelectI>
-  ): Array<optionsToSelectI> {
+  ): Observable<any> {
     console.log(menus);
-    if (menus.length > 0) {
-      return [
+    let idMenus = [];
+    idMenus = menus.map((menu) => menu.id);
+    console.log(idMenus);
+    return this.httpClient.post<any>(
+      `http://192.168.101.29:3001/api/sincronization/getcategoriesbymenu`,
+      {
+        ids: idMenus,
+      }
+    ).pipe(
+      map((categorias) => {
+        return categorias.map((categoria: any) => {
+          return {
+            name: categoria.id,
+            select: false,
+            children: categoria.categories.map((categoria:any) => {
+              return {
+                name: categoria.idcategory,
+                code: categoria.idcategory,
+                date: categoria.date,
+                select: false
+              }
+            })
+          }
+        })
+      }),
+      catchError((err) => of(false))
+    );
+    /* return [
         {
           name: 'Categoria Uber',
           code: 'cu',
@@ -281,10 +249,7 @@ export class MenuService {
             { name: 'Categoria Otros 3', code: 'co3', select: false },
           ],
         },
-      ];
-    } else {
-      return [];
-    }
+      ]; */
   }
 
   getProductosCategoriasToSelectCheckbox(
@@ -409,10 +374,10 @@ export class MenuService {
   requestAggregators(lastConfiguration: any): Observable<any> {
     return this.httpClient.get<any>(`${environment.url}/aggregators`).pipe(
       map((aggregators) => {
-        const newConfiguration: any = {
+        const newConfiguration: automaticSync = {
           syncMaxPoint: false,
           syncTime: this.setNow(),
-          newAggregators: [],
+          aggregators: [],
         };
         if (lastConfiguration) {
           if (lastConfiguration.last.syncMaxPoint) {
@@ -425,9 +390,9 @@ export class MenuService {
                 }
               );
               if (validAggregator) {
-                newConfiguration.newAggregators.push({
-                  name: validAggregator.aggregator.name,
+                newConfiguration.aggregators.push({
                   code: validAggregator.aggregator.code,
+                  name: validAggregator.aggregator.name,
                   time: lastConfiguration.last.syncTime,
                   select: false,
                 });
@@ -446,21 +411,20 @@ export class MenuService {
                 }
               );
               if (validAggregator)
-                newConfiguration.newAggregators.push({
-                  name: validAggregator.aggregator.name,
+                newConfiguration.aggregators.push({
                   code: validAggregator.aggregator.code,
+                  name: validAggregator.aggregator.name,
                   time: validAggregator.syncTime,
                   select: false,
                 });
             });
           }
-
           return newConfiguration;
         } else {
           aggregators.forEach((aggregator: any) => {
-            newConfiguration.newAggregators.push({
-              name: aggregator.name,
+            newConfiguration.aggregators.push({
               code: aggregator.code,
+              name: aggregator.name,
               time: this.setNow(),
               select: false,
             });
@@ -476,7 +440,7 @@ export class MenuService {
     return this.httpClient.get<any>(`${environment.url}/configurations/last`);
   }
 
-  sendAutomaticSync(automaticSync: any): Observable<any> {
+  sendAutomaticSync(automaticSync: automaticSync): Observable<any> {
     return this.httpClient.put<any>(
       `${environment.url}/configurations`,
       automaticSync
