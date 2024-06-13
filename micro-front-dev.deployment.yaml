@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-front-kfc
+  namespace: integration-aggregators
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-front-kfc
+  template:
+    metadata:
+      labels:
+        app: micro-front-kfc
+    spec:
+      containers:
+        - name: micro-front-kfc
+          image: kfcregistry.azurecr.io/integrations-aggregators/micro-front-kfc:latest
+          ports:
+            - name: micro-front-kfc
+              containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-front-kfc
+  namespace: integration-aggregators
+spec:
+  selector:
+    app: micro-front-kfc
+  ports:
+    - protocol: TCP
+      port: 80
+      nodePort: 30000
+  type: LoadBalancer
+  loadBalancerIP: 52.252.69.10
