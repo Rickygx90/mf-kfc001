@@ -33,4 +33,3 @@ spec:
       port: 80
       nodePort: 30000
   type: LoadBalancer
-  loadBalancerIP: 52.252.69.10
