@@ -1,8 +1,13 @@
 <p-toast />
+<p-dialog [(visible)]="showLoading" [modal]="true" [closable]="false">
+    <div class="loader"></div>
+</p-dialog>
+
 <section class="flex w-full max-h-full flex-col justify-center px-6 py-32 lg:px-8">
     <div>
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-            <img class="mx-auto h-10 w-auto" src="https://assets.prod.deuna.io/assets/2bb258f4-051d-4a46-9321-b0a7a857cd71/kfc-logo-4712cdc128a8f9435acee236e7178eeb3efb61239732f0563e600f097703106d.png"
+            <img class="mx-auto h-10 w-auto"
+                src="https://assets.prod.deuna.io/assets/2bb258f4-051d-4a46-9321-b0a7a857cd71/kfc-logo-4712cdc128a8f9435acee236e7178eeb3efb61239732f0563e600f097703106d.png"
                 alt="Your Company">
             <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Iniciar Sesion</h2>
         </div>

@@ -84,13 +84,12 @@ export class FilterMenuComponent implements OnInit {
         console.log(err);
       },
       complete: () => {
-        console.log('complete!!!');
+        //console.log('complete!!!');
       },
     });
   }
 
   onPanelHideCadenas() {
-    console.log('onPanelHideCadenas');
     this.menuService
       .getRestaurantesToSelect(this.cadenasSeleccionadas.value)
       .subscribe({
@@ -107,9 +106,7 @@ export class FilterMenuComponent implements OnInit {
         error: (err) => {
           console.log(err);
         },
-        complete: () => {
-          console.log('complete!!!');
-        },
+        complete: () => {},
       });
   }
 
@@ -124,7 +121,7 @@ export class FilterMenuComponent implements OnInit {
           console.log(err);
         },
         complete: () => {
-          console.log('complete!!!');
+          //console.log('complete!!!');
         },
       });
 

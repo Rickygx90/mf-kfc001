@@ -21,7 +21,7 @@ export interface optionsToSelectI {
   id?: string;
   parent?: string;
   select: boolean;
-  time?: Date;
+  syncTime?: Date;
   date?: string;
   allCompleteSubCategoria?: boolean;
   allCompleteSubProducto?: boolean;
@@ -54,7 +54,7 @@ export interface AggregatorI {
   id?: string;
   code: number;
   name: Aggregator;
-  time?: string;
+  syncTime?: string;
   select?: boolean;
 }
 

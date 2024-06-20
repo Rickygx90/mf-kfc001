@@ -7,9 +7,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { FilterMenuComponent } from '../filter-menu/filter-menu.component';
 import { MenuService } from '../../../services/menu.service';
 import { multiSelectI, optionsToSelectI } from '../../../models/interfaces';
+
 import { MatButtonModule } from '@angular/material/button';
+
 import { CanalEnvioComponent } from '../canal-envio/canal-envio.component';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { CanComponentDeactivate } from '../../../guards/can-deactivate.guard';
+import { Observable } from 'rxjs';
+
 
 @Component({
   selector: 'app-envio-menu',
@@ -25,7 +30,13 @@ import { MatExpansionModule } from '@angular/material/expansion';
   templateUrl: './envio-menu.component.html',
   styleUrl: './envio-menu.component.css',
 })
-export class EnvioMenuComponent {
+export class EnvioMenuComponent implements CanComponentDeactivate {
+
+  canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
+    const confirmacion = window.confirm('¿Estás seguro de que deseas salir de esta página? Los cambios no guardados se perderán.');
+    return confirmacion;
+  }
+  
   constructor(public dialog: MatDialog) {}
   menuService = inject(MenuService);
 
@@ -167,17 +178,15 @@ export class EnvioMenuComponent {
       .getCategoriasMenuToSelectCheckbox(menusSelected)
       .subscribe({
         next: (categorias) => {
-          console.log(categorias)
           this.listSelectableCategories.children = categorias;
         },
         error: (err) => {
           console.log(err);
         },
         complete: () => {
-          console.log('complete!!!');
+          this.restartCategoriasProductos('menu');
         },
       });
-    this.restartCategoriasProductos('menu');
   }
 
   someCompleteMenu(): boolean {
@@ -203,17 +212,16 @@ export class EnvioMenuComponent {
       .getCategoriasMenuToSelectCheckbox(menusSelected)
       .subscribe({
         next: (categorias) => {
-          console.log(categorias)
+          console.log(categorias);
           this.listSelectableCategories.children = categorias;
         },
         error: (err) => {
           console.log(err);
         },
         complete: () => {
-          console.log('complete!!!');
+          this.restartCategoriasProductos('menu');
         },
       });
-    this.restartCategoriasProductos('menu');
   }
 
   updateAllCompleteCategorias(): void {
@@ -253,20 +261,38 @@ export class EnvioMenuComponent {
         if (subcategoria.select) this.subCategoriasSelected.push(subcategoria);
       });
     });
-    this.listSelectableProducts.children =
-      this.menuService.getProductosCategoriasToSelectCheckbox(
-        this.subCategoriasSelected
-      );
-    this.restartCategoriasProductos('categoria');
+    this.menuService
+      .getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected)
+      .subscribe({
+        next: (categorias) => {
+          console.log(categorias);
+          this.listSelectableProducts.children = categorias;
+        },
+        error: (err) => {
+          console.log(err);
+        },
+        complete: () => {
+          this.restartCategoriasProductos('categoria');
+        },
+      });
   }
 
   updateAllCompleteSubCategorias(categoria: optionsToSelectI): void {
     this.updateAllCompleteSubOptions(categoria, 'categoria');
-    this.listSelectableProducts.children =
-      this.menuService.getProductosCategoriasToSelectCheckbox(
-        this.subCategoriasSelected
-      );
-    this.restartCategoriasProductos('categoria');
+    this.menuService
+      .getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected)
+      .subscribe({
+        next: (categorias) => {
+          console.log(categorias);
+          this.listSelectableProducts.children = categorias;
+        },
+        error: (err) => {
+          console.log(err);
+        },
+        complete: () => {
+          this.restartCategoriasProductos('categoria');
+        },
+      });
   }
 
   someCompleteSubCategorias(categoria: optionsToSelectI): boolean {
@@ -281,11 +307,20 @@ export class EnvioMenuComponent {
 
   setAllSubCategorias(select: boolean, categoria: any): void {
     this.setAllSubOptions(categoria, 'categoria', select);
-    this.listSelectableProducts.children =
-      this.menuService.getProductosCategoriasToSelectCheckbox(
-        this.subCategoriasSelected
-      );
-    this.restartCategoriasProductos('categoria');
+    this.menuService
+      .getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected)
+      .subscribe({
+        next: (categorias) => {
+          console.log(categorias);
+          this.listSelectableProducts.children = categorias;
+        },
+        error: (err) => {
+          console.log(err);
+        },
+        complete: () => {
+          this.restartCategoriasProductos('categoria');
+        },
+      });
   }
 
   updateAllCompleteProductos(): void {
@@ -354,6 +389,7 @@ export class EnvioMenuComponent {
       width: '460px',
     });
     dialogRef.afterClosed().subscribe((result) => {
+      console.log(result);
       this.listSelectableMenu.children = this.menuService.menuList;
     });
   }

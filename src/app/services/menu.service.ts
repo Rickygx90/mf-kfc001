@@ -1,13 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
-  CadenaI,
-  RestauranteI,
   automaticSync,
   menuItemI,
   optionsToSelectI,
 } from '../models/interfaces';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 
 @Injectable({
@@ -175,193 +173,83 @@ export class MenuService {
   getCategoriasMenuToSelectCheckbox(
     menus: Array<optionsToSelectI>
   ): Observable<any> {
-    console.log(menus);
     let idMenus = [];
     idMenus = menus.map((menu) => menu.id);
-    console.log(idMenus);
-    return this.httpClient.post<any>(
-      `http://192.168.101.29:3001/api/sincronization/getcategoriesbymenu`,
-      {
-        ids: idMenus,
-      }
-    ).pipe(
-      map((categorias) => {
-        return categorias.map((categoria: any) => {
-          return {
-            name: categoria.id,
-            select: false,
-            children: categoria.categories.map((categoria:any) => {
-              return {
-                name: categoria.idcategory,
-                code: categoria.idcategory,
-                date: categoria.date,
-                select: false
-              }
-            })
-          }
+    return this.httpClient
+      .post<any>(
+        `http://192.168.101.29:3001/api/sincronization/getcategoriesbymenu`,
+        {
+          ids: idMenus,
+        }
+      )
+      .pipe(
+        map((categorias) => {
+          return categorias.map((categoria: any) => {
+            return {
+              name: categoria.id,
+              select: false,
+              children: categoria.categories.map((categoria: any) => {
+                return {
+                  name: categoria.idcategory,
+                  code: categoria.idcategory,
+                  date: categoria.date,
+                  select: false,
+                };
+              }),
+            };
+          });
         })
-      }),
-      catchError((err) => of(false))
-    );
-    /* return [
-        {
-          name: 'Categoria Uber',
-          code: 'cu',
-          parent: 'muber',
-          select: false,
-          allCompleteSubCategoria: false,
-          children: [
-            { name: 'Categoria Uber 1', code: 'cu1', select: false },
-            { name: 'Categoria Uber 2', code: 'cu2', select: false },
-            { name: 'Categoria Uber 3', code: 'cu3', select: false },
-            { name: 'Categoria Uber 4', code: 'cu4', select: false },
-            { name: 'Categoria Uber 5', code: 'cu5', select: false },
-            { name: 'Categoria Uber 6', code: 'cu6', select: false },
-            { name: 'Categoria Uber 7', code: 'cu7', select: false },
-            { name: 'Categoria Uber 8', code: 'cu8', select: false },
-            { name: 'Categoria Uber 9', code: 'cu9', select: false },
-            { name: 'Categoria Uber 10', code: 'cu10', select: false },
-            { name: 'Categoria Uber 11', code: 'cu11', select: false },
-            { name: 'Categoria Uber 12', code: 'cu12', select: false },
-            { name: 'Categoria Uber 13', code: 'cu13', select: false },
-          ],
-        },
-        {
-          name: 'Categoria Peya',
-          code: 'cp',
-          parent: 'mpeya',
-          select: false,
-          allCompleteSubCategoria: false,
-          children: [
-            { name: 'Categoria Peya 1', code: 'cp1', select: false },
-            { name: 'Categoria Peya 2', code: 'cp2', select: false },
-          ],
-        },
-        {
-          name: 'Categoria Otros',
-          code: 'co',
-          parent: 'motros',
-          select: false,
-          allCompleteSubCategoria: false,
-          children: [
-            { name: 'Categoria Otros 1', code: 'co1', select: false },
-            { name: 'Categoria Otros 2', code: 'co2', select: false },
-            { name: 'Categoria Otros 3', code: 'co3', select: false },
-          ],
-        },
-      ]; */
+      );
   }
 
   getProductosCategoriasToSelectCheckbox(
     categorias: Array<optionsToSelectI>
-  ): Array<optionsToSelectI> {
+  ): Observable<any> {
     console.log(categorias);
-    if (categorias.length > 0) {
-      return [
+
+    let codeCategorias = [];
+    codeCategorias = categorias.map((categoria) => categoria.code);
+    console.log(codeCategorias);
+    return this.httpClient
+      .post<any>(
+        `http://192.168.101.29:3001/api/sincronization/getproductbycategories`,
         {
-          name: 'Producto Categoria Uber',
-          code: 'pcu',
-          parent: 'muber',
-          select: false,
-          allCompleteSubProducto: false,
-          children: [
-            { name: 'Producto Categoria Uber 1', code: 'pcu1', select: false },
-            { name: 'Producto Categoria Uber 2', code: 'pcu1', select: false },
-            { name: 'Producto Categoria Uber 3', code: 'pcu1', select: false },
-            { name: 'Producto Categoria Uber 4', code: 'pcu1', select: false },
-          ],
-        },
-        {
-          name: 'Producto Categoria Peya',
-          code: 'pcp',
-          parent: 'mpeya',
-          select: false,
-          allCompleteSubProducto: false,
-          children: [
-            { name: 'Producto Categoria Peya 1', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 2', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            { name: 'Producto Categoria Peya 3', code: 'pcp1', select: false },
-            {
-              name: 'Producto Categoria Peya ***********',
-              code: 'pcp1',
+          ids: codeCategorias,
+        }
+      )
+      .pipe(
+        map((productos) => {
+          console.log(productos);
+          return productos.map((producto: any) => {
+            return {
+              name: producto.idcategory,
               select: false,
-            },
-          ],
-        },
-      ];
-    } else {
-      return [];
-    }
+              children: producto.products.map((product: any) => {
+                return {
+                  name: product.product,
+                  code: product.idproduct,
+                  date: product.date,
+                  select: false,
+                };
+              }),
+            };
+          });
+        })
+      );
   }
 
-  getCanalesVentaToSelectCheckbox(): Array<optionsToSelectI> {
-    return [
-      { name: 'UBER', code: 'cvuber', select: false },
-      { name: 'PEYA', code: 'cvpeya', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-      { name: 'OTROS', code: 'cvotros', select: false },
-    ];
-  }
-
-  getRestaurantesToSelectCheckbox(
-    cadenas: Array<CadenaI>
-  ): Array<optionsToSelectI> {
-    let codigoCadenas = [];
-    codigoCadenas = cadenas.map((cadena) => cadena.code);
-    if (cadenas.length > 0)
-      return [
-        { name: 'k001', code: 'k001', select: false },
-        { name: 't001', code: 't001', select: false },
-        { name: 'p001', code: 'p001', select: false },
-      ];
-    return [];
+  getCanalesVentaToSelectCheckbox(): Observable<any> {
+    return this.httpClient
+      .post<any>(
+        `http://192.168.101.29:3001/api/sincronization/getchannels`,
+        {}
+      )
+      .pipe(
+        map((canales) => {
+          console.log(canales);
+          return canales;
+        })
+      );
   }
 
   setNow(): string {
@@ -371,7 +259,7 @@ export class MenuService {
     return hours + ':' + minutes;
   }
 
-  requestAggregators(lastConfiguration: any): Observable<any> {
+  requestAggregators(): Observable<any> {
     return this.httpClient.get<any>(`${environment.url}/aggregators`).pipe(
       map((aggregators) => {
         const newConfiguration: automaticSync = {
@@ -379,71 +267,67 @@ export class MenuService {
           syncTime: this.setNow(),
           aggregators: [],
         };
-        if (lastConfiguration) {
-          if (lastConfiguration.last.syncMaxPoint) {
-            aggregators.forEach((aggregator: any) => {
-              const validAggregator = lastConfiguration.last.aggregators.find(
-                (e: any) => {
-                  if (e.aggregator.code === aggregator.code) {
-                    return e;
-                  }
-                }
-              );
-              if (validAggregator) {
-                newConfiguration.aggregators.push({
-                  code: validAggregator.aggregator.code,
-                  name: validAggregator.aggregator.name,
-                  time: lastConfiguration.last.syncTime,
-                  select: false,
-                });
-                newConfiguration.syncMaxPoint =
-                  lastConfiguration.last.syncMaxPoint;
-                newConfiguration.syncTime = lastConfiguration.last.syncTime;
-              }
-            });
-          } else {
-            aggregators.forEach((aggregator: any) => {
-              const validAggregator = lastConfiguration.last.aggregators.find(
-                (e: any) => {
-                  if (e.aggregator.code === aggregator.code) {
-                    return e;
-                  }
-                }
-              );
-              if (validAggregator)
-                newConfiguration.aggregators.push({
-                  code: validAggregator.aggregator.code,
-                  name: validAggregator.aggregator.name,
-                  time: validAggregator.syncTime,
-                  select: false,
-                });
-            });
-          }
-          return newConfiguration;
-        } else {
+        if (aggregators) {
           aggregators.forEach((aggregator: any) => {
             newConfiguration.aggregators.push({
               code: aggregator.code,
               name: aggregator.name,
-              time: this.setNow(),
+              syncTime: this.setNow(),
               select: false,
             });
           });
-          return newConfiguration;
         }
-      }),
-      catchError((err) => of(false))
+        return newConfiguration;
+      })
     );
   }
 
   requestLastConfiguration(): Observable<any> {
-    return this.httpClient.get<any>(`${environment.url}/configurations/last`);
+    return this.httpClient
+      .get<any>(`${environment.url}/configurations/last`)
+      .pipe(
+        map((lastConfiguration) => {
+          const newConfiguration: automaticSync = {
+            syncMaxPoint: false,
+            syncTime: this.setNow(),
+            aggregators: [],
+          };
+          if (lastConfiguration) {
+            newConfiguration.syncMaxPoint = lastConfiguration.last.syncMaxPoint;
+            newConfiguration.syncTime = lastConfiguration.last.syncTime
+              ? lastConfiguration.last.syncTime
+              : newConfiguration.syncTime;
+
+            lastConfiguration.last.aggregators.forEach(
+              (validAggregator: any) => {
+                if (validAggregator) {
+                  newConfiguration.aggregators.push({
+                    code: validAggregator.code,
+                    name: validAggregator.name,
+                    syncTime: validAggregator.syncTime, //lastConfiguration.last.syncTime, //validAggregator.syncTime
+                    select: validAggregator.select,
+                  });
+                }
+              }
+            );
+          }
+          return newConfiguration;
+        })
+      );
   }
 
   sendAutomaticSync(automaticSync: automaticSync): Observable<any> {
     return this.httpClient.put<any>(
       `${environment.url}/configurations`,
       automaticSync
+    );
+  }
+
+  sendManualSync(req: any): Observable<any> {
+    console.log(req);
+    return this.httpClient.post<any>(
+      `http://192.168.101.29:3001/api/sincronization/sendmanual`,
+      { req }
     );
   }
 }

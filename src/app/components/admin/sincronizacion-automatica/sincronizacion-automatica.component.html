@@ -8,49 +8,46 @@
             <p>/Sincronización automática</p>
         </span>
         <div class="h-[calc(100%-112px)] p-5 bg-gray-100 rounded-lg shadow-md ">
-            <div class="w-full h-full flex justify-center items-center border-2 rounded-lg">
-
-                <div class="w-11/12 h-[calc(100%-40px)] p-5 flex justify-center border-2 rounded-lg">
-                    @if (showLoading) {
-                    <div class="flex justify-center items-center">
-                        <div class="loader"></div>
-                    </div>
-                    } @else {
-                    <div class="w-3/6 mx-2 flex flex-col">
-                        <mat-checkbox [disabled]="checkSincronizarDisabled" [checked]="allCompleteAgregadores"
-                            (change)="setAllAgregadores($event.checked)">
-                            <h3 class="text-sm lg:text-2xl">{{listSelectableAgregadores.name}}</h3>
-                        </mat-checkbox>
-                        <p-calendar class="text-lg" [disabled]="false" [(ngModel)]="listSelectableAgregadores.time"
-                            (change)="changeMainSync()" [timeOnly]="true" (onClose)="closeCalendar()" />
-
-                        <button [disabled]="btnSincronizarDisabled" mat-flat-button color="primary"
-                            (click)="enviarSincronizacionAutomatica()">Guardar&emsp;<i
-                                class="ri-loop-right-line"></i></button>
-                    </div>
-
-                    <div class="w-3/6 mx-2 flex flex-col">
-                        <h3 class="text-sm lg:text-2xl text-center">Sincronización Agregadores</h3>
-                        <div class="w-full">
-                            @for (aggregator of listSelectableAgregadores.children; track aggregator) {
-                            @if (aggregator) {
-                            <div class="w-full px-4 py-2 my-1 flex flex-col border-2 rounded-lg">
-                                <mat-checkbox [disabled]="allCompleteAgregadores" [(ngModel)]="aggregator.select"
-                                    (ngModelChange)="updateAllCompleteAgregadores()" class="-left-2">
-                                    <h3 class="text-sm xl:text-2xl">{{aggregator.name}}</h3>
-                                </mat-checkbox>
-
-                                <p-calendar class="text-lg" [disabled]="allCompleteAgregadores"
-                                    [(ngModel)]="aggregator.time" [timeOnly]="true" />
-                            </div>
-                            }
-                            }
-                        </div>
-                    </div>
-                    }
+            <div class="w-full h-[calc(100%-50px)] flex flex-col md:justify-center md:flex-row p-5 border-2 rounded-lg">
+                @if (showLoading) {
+                <div class="w-full h-full flex justify-center items-center">
+                    <div class="loader"></div>
+                </div>
+                } @else {
+                <div class="w-full mx-2 flex flex-col">
+                    <mat-checkbox [disabled]="checkSincronizarDisabled" [checked]="allCompleteAgregadores"
+                        (change)="setAllAgregadores($event.checked)">
+                        <h3 class="text-sm lg:text-2xl">{{listSelectableAgregadores.name}}</h3>
+                    </mat-checkbox>
+                    <p-calendar [required]="true" class="text-lg" [disabled]="false"
+                        [(ngModel)]="listSelectableAgregadores.time" (change)="changeMainSync()"
+                        (onClose)="changeMainSync()" [timeOnly]="true" />
                 </div>
 
+                <div class="w-full mx-2 flex flex-col">
+                    <h3 class="text-sm lg:text-2xl text-center">Sincronización Agregadores</h3>
+                    <div class="w-full">
+                        @for (aggregator of listSelectableAgregadores.children; track aggregator) {
+                        @if (aggregator) {
+                        <div class="w-full px-4 py-2 my-1 flex flex-col border-2 rounded-lg">
+                            <mat-checkbox [disabled]="allCompleteAgregadores" [(ngModel)]="aggregator.select"
+                                (ngModelChange)="updateAllCompleteAgregadores()" class="-left-2">
+                                <h3 class="text-sm xl:text-2xl">{{aggregator.name}}</h3>
+                            </mat-checkbox>
+
+                            <p-calendar [required]="true" class="text-lg" [disabled]="allCompleteAgregadores"
+                                [(ngModel)]="aggregator.syncTime" [timeOnly]="true"
+                                (change)="aggregator.syncTime = dateIsNotNull(aggregator.syncTime)" (onFocus)="onFocus(aggregator.select)"/>
+                        </div>
+                        }
+                        }
+                    </div>
+                </div>
+                }
             </div>
+            <button [disabled]="btnSincronizarDisabled" mat-flat-button color="primary"
+                (click)="enviarSincronizacionAutomatica()" class="mt-4 w-72">GUARDAR&emsp;<i
+                    class="ri-loop-right-line"></i></button>
         </div>
     </div>
 </div>

@@ -3,12 +3,17 @@
     <div class="w-full h-full pt-2 md:-ml-12 pl-4 pr-4">
         <app-navbar></app-navbar>
 
-        <span class="flex text-sm">
+        <div class="example-button-rowcard flex flex-wrap gap-2 justify-content-center">
+            <button mat-raised-button style="background-color: #147fa6f6;" mat-flat-button color="primary">SINCRONIZACION PERSONALIZADA (MAXPOINT)</button>
+            <button mat-raised-button style="background-color: #1fa44f;" mat-flat-button color="primary">SINCRONIZAR CON MAXPOINT</button>
+        </div>
+
+        <span class="flex text-sm mt-3">
             <i class="ri-file-list-3-line"></i>
             <p>/Envio de Menú </p>
         </span>
 
-        <div class="h-[calc(100%-112px)] p-5 bg-gray-100 rounded-lg shadow-md ">
+        <div class="h-[calc(100%-145px)] p-5 bg-gray-100 rounded-lg shadow-md ">
 
             <div class="w-full h-[calc(100%-50px)] flex border-2 rounded-lg">
                 <div class="w-full h-full border-r-2">
@@ -129,7 +134,7 @@
                                         (ngModelChange)="updateAllCompleteSubProductos(producto)">
                                         <div class="border border-gray-300 py-1 px-5 text-xs">
                                             <p>{{subproducto.name}}</p>
-                                            <p>2024-04-10 16:00:00</p>
+                                            <p>{{subproducto.date}}</p>
                                         </div>
                                     </mat-checkbox>
                                 </div>
@@ -139,20 +144,20 @@
                         }
                     </div>
                     } @else if (showCategorias && !showProductos) {
-                        <div class="w-full h-full flex items-center animacion">
-                            <div class="basis-1/8 h-full flex flex-col">
-                                <div class="w-full h-full border-l-8 border-red-500"></div>
-                                <div class="w-full h-full basis-1/6">
-                                    <div class="triProd">
-                                        <div class="triProd2"></div>
-                                    </div>
+                    <div class="w-full h-full flex items-center animacion">
+                        <div class="basis-1/8 h-full flex flex-col">
+                            <div class="w-full h-full border-l-8 border-red-500"></div>
+                            <div class="w-full h-full basis-1/6">
+                                <div class="triProd">
+                                    <div class="triProd2"></div>
                                 </div>
-                                <div class="w-full h-full border-l-8 border-red-500"></div>
                             </div>
-                            <div class="w-full">
-                                <p class="text-3xl font-medium text-red-500 text-center">Selecciona una categoria</p>
-                            </div>
+                            <div class="w-full h-full border-l-8 border-red-500"></div>
                         </div>
+                        <div class="w-full">
+                            <p class="text-3xl font-medium text-red-500 text-center">Selecciona una categoria</p>
+                        </div>
+                    </div>
                     }
                 </div>
 

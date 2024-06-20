@@ -7,10 +7,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { multiSelectI } from '../../../models/interfaces';
 import { MenuService } from '../../../services/menu.service';
-import { catchError, of, switchMap } from 'rxjs';
 import { CalendarModule } from 'primeng/calendar';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import {
+  formatearFechaAHora,
+  formatearHoraAFecha,
+  validateResponse,
+} from '../../../shared/utils';
 
 @Component({
   selector: 'app-sincronizacion-automatica',
@@ -42,39 +46,57 @@ export class SincronizacionAutomaticaComponent {
   };
   menuService = inject(MenuService);
 
+  constructor(private messageService: MessageService) {
+    this.getLastConfiguration();
+  }
+
   getLastConfiguration() {
-    this.menuService
-      .requestLastConfiguration()
-      .pipe(
-        switchMap((lastConfiguration) => {
-          return this.menuService.requestAggregators(lastConfiguration);
-        }),
-        catchError((error) => of(console.error(error)))
-      )
-      .subscribe({
-        next: (newConfiguration) => {
-          console.log(newConfiguration);
-          this.allCompleteAgregadores = false;
-          this.listSelectableAgregadores.time = this.formatearHoraAFecha(
+    this.menuService.requestLastConfiguration().subscribe({
+      next: (newConfiguration) => {
+        console.log(newConfiguration);
+        if (newConfiguration && newConfiguration.aggregators.length > 0) {
+          this.allCompleteAgregadores = newConfiguration.syncMaxPoint;
+          this.listSelectableAgregadores.time = formatearHoraAFecha(
             newConfiguration.syncTime
           );
           this.listSelectableAgregadores.children =
             newConfiguration.aggregators.map((aggregator: any) => ({
               ...aggregator,
-              time: this.formatearHoraAFecha(aggregator.time),
+              syncTime: formatearHoraAFecha(aggregator.syncTime),
             }));
-        },
-        error: (err) => {
-          console.log(err);
-        },
-        complete: () => {
           this.showLoading = false;
-        },
-      });
-  }
-
-  constructor(private messageService: MessageService) {
-    this.getLastConfiguration();
+        } else {
+          this.menuService.requestAggregators().subscribe({
+            next: (newConfiguration) => {
+              console.log(newConfiguration);
+              this.allCompleteAgregadores = newConfiguration.syncMaxPoint;
+              this.listSelectableAgregadores.time = formatearHoraAFecha(
+                newConfiguration.syncTime
+              );
+              this.listSelectableAgregadores.children =
+                newConfiguration.aggregators.map((aggregator: any) => ({
+                  ...aggregator,
+                  syncTime: formatearHoraAFecha(aggregator.syncTime),
+                }));
+              this.showLoading = false;
+            },
+            error: (err) => {
+              //this.validateErrorResponse(err);
+              this.messageService.add(validateResponse(err));
+              this.showLoading = false;
+            },
+          });
+        }
+      },
+      error: (err) => {
+        //this.validateErrorResponse(err);
+        this.messageService.add(validateResponse(err));
+        this.showLoading = false;
+      },
+      complete: () => {
+        console.log('Complete!!!');
+      },
+    });
   }
 
   getAgregadoresSelected(): any {
@@ -97,98 +119,70 @@ export class SincronizacionAutomaticaComponent {
     }
     this.listSelectableAgregadores.children.forEach((aggregator) => {
       aggregator.select = select;
-      if (select) aggregator.time = this.listSelectableAgregadores.time;
+      if (select) aggregator.syncTime = this.listSelectableAgregadores.time;
     });
     this.updateAllCompleteAgregadores();
   }
 
   changeMainSync() {
-    if (this.allCompleteAgregadores) {
-      this.listSelectableAgregadores.children.map((aggregator) => {
-        aggregator.time = this.listSelectableAgregadores.time;
-      });
-    }
-  }
-
-  closeCalendar() {
-    if (this.allCompleteAgregadores) {
-      this.listSelectableAgregadores.children.map((aggregator) => {
-        aggregator.time = this.listSelectableAgregadores.time;
-      });
-    }
-  }
-
-  addZero(value: number): string {
-    if (value <= 9) {
-      return '0' + value.toString();
-    }
-    return value.toString();
-  }
-
-  formatearFechaAHora(hora: Date = new Date()): string {
-    return (
-      this.addZero(hora.getHours()) +
-      ':' +
-      this.addZero(hora.getMinutes()) +
-      ':' +
-      this.addZero(hora.getSeconds())
+    this.listSelectableAgregadores.time = this.dateIsNotNull(
+      this.listSelectableAgregadores.time
     );
+    if (this.allCompleteAgregadores) {
+      this.listSelectableAgregadores.children.map((aggregator) => {
+        aggregator.syncTime = this.listSelectableAgregadores.time;
+      });
+    }
   }
 
-  formatearHoraAFecha(hora: string = ''): Date {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const day = now.getDate();
-    const [hour, minutes] = hora.split(':').map(Number);
-    const dateWithTime = new Date(year, month, day, hour, minutes);
-    return dateWithTime;
+  dateIsNotNull(time: any): Date {
+    if (!time) {
+      return (time = new Date());
+    }
+    return time;
+  }
+
+  /* guardarSincronizacionAutomatica(req: any) {
+    localStorage.setItem('sincronizacionAutomatica', JSON.stringify(req));
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Exito',
+      detail: 'La configuración se guardo exitosamente!',
+    });
+  } */
+
+  onFocus(select: any): void {
+    console.log('onFocus');
+    console.log(select);
+    if (select) this.btnSincronizarDisabled = false;
   }
 
   enviarSincronizacionAutomatica() {
+    this.showLoading = true;
     this.btnSincronizarDisabled = true;
     this.checkSincronizarDisabled = true;
-    /* Swal.fire({
-      title: '<div class="loader"></div>',
-      showConfirmButton: false,
-      width: 110,
-      heightAuto: false,
-    }); */
-
     const agregadoresSelected = this.getAgregadoresSelected();
     const aggregators = agregadoresSelected.map((agregador: any) => ({
       code: agregador.code,
-      syncTime: this.formatearFechaAHora(agregador.time),
+      syncTime: formatearFechaAHora(agregador.syncTime),
     }));
     const req = {
       syncMaxPoint: this.listSelectableAgregadores.select,
-      syncTime: this.formatearFechaAHora(this.listSelectableAgregadores.time),
+      syncTime: formatearFechaAHora(this.listSelectableAgregadores.time),
       aggregators,
     };
     console.log(req);
+    //this.guardarSincronizacionAutomatica(req);
     this.menuService.sendAutomaticSync(req).subscribe({
       next: (response) => {
         console.log(response);
+        //this.messageService.add(validateResponse(err));
       },
       error: (err) => {
-        this.checkSincronizarDisabled = false;
-        console.log(err);
-        /* Swal.fire({
-          title: 'Error',
-          text: 'Error al momento de enviar la sincronizacion',
-          icon: 'error',
-          confirmButtonText: 'OK',
-          heightAuto: false,
-        }); */
+        //this.validateErrorResponse(err);
+        this.messageService.add(validateResponse(err));
       },
       complete: () => {
-        /* Swal.fire({
-          title: 'Exito!',
-          text: 'La informacion se envio correctamente',
-          icon: 'success',
-          confirmButtonText: 'OK',
-          heightAuto: false,
-        }); */
         this.messageService.add({
           severity: 'success',
           summary: 'Exito',

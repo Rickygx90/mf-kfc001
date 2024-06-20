@@ -9,10 +9,7 @@ import {
 } from '@angular/forms';
 import { UsersService } from '../../../services/users.service';
 import { Router } from '@angular/router';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-import Swal from 'sweetalert2';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
@@ -26,20 +23,16 @@ import { DialogModule } from 'primeng/dialog';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    MatSlideToggleModule,
     ToastModule,
-    DialogModule
+    DialogModule,
   ],
-  providers: [MessageService]
+  providers: [MessageService],
 })
 export class LoginComponent {
-
-  visible: boolean = false;
-
+  showLoading: boolean = false;
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    public dialog: MatDialog,
     private messageService: MessageService
   ) {}
   get username() {
@@ -56,18 +49,8 @@ export class LoginComponent {
     password: ['', Validators.required],
   });
 
-  showDialog() {
-    this.visible = true;
-  }
-
   onSubmit() {
-    /* Swal.fire({
-      title: '<div class="loader"></div>',
-      showConfirmButton: false,
-      width: 110,
-    }); */
-
-    
+    this.showLoading = true;
     this.usersService.getToken(this.formularioLogin.value).subscribe({
       next: (token) => {
         localStorage.setItem('token', JSON.stringify(token));
@@ -75,17 +58,16 @@ export class LoginComponent {
       },
       error: (err) => {
         console.log(err);
+        this.showLoading = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: 'Usuario o contraseña son incorrectos',
         });
         this.formularioLogin.reset();
-        //Swal.close();
       },
       complete: () => {
-        console.info('complete');
-        //Swal.close();
+        this.showLoading = false;
       },
     });
   }

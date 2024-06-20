@@ -1,5 +1,8 @@
 :host ::ng-deep .p-component {
-   width: 300px;
    padding: 8px;
-   margin: 5px;
+   margin-bottom: 8px;
+}
+
+:host ::ng-deep .p-calendar  {
+   width: 100%;
 }

@@ -12,7 +12,8 @@ import { MenuService } from '../../../services/menu.service';
 import { CadenaI, multiSelectI } from '../../../models/interfaces';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import Swal from 'sweetalert2';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-canal-envio',
@@ -25,15 +26,19 @@ import Swal from 'sweetalert2';
     CommonModule,
     MatDialogContent,
     MatDialogClose,
+    ToastModule,
   ],
+  providers: [MessageService],
   templateUrl: './canal-envio.component.html',
   styleUrl: './canal-envio.component.css',
 })
 export class CanalEnvioComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<CanalEnvioComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private messageService: MessageService
   ) {}
+
   cadenas: Array<any> = [];
   cadenasSeleccionadas: Array<CadenaI> = [];
   menuService = inject(MenuService);
@@ -53,21 +58,27 @@ export class CanalEnvioComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.listSelectableCanalesVenta.children =
-      this.menuService.getCanalesVentaToSelectCheckbox();
-    //this.cadenas = this.menuService.getCadenasToSelect();
-
+    this.menuService.getCanalesVentaToSelectCheckbox().subscribe({
+      next: (canales) => {
+        this.listSelectableCanalesVenta.children = canales;
+      },
+      error: (err) => {
+        console.log(err);
+      },
+      complete: () => {
+        console.log('complete getCanalesVentaToSelectCheckbox!!!');
+      },
+    });
 
     this.menuService.getCadenasToSelect().subscribe({
       next: (cadenas) => {
-        console.log(cadenas);
         this.cadenas = cadenas;
       },
       error: (err) => {
         console.log(err);
       },
       complete: () => {
-        console.log('complete!!!');
+        console.log('complete getCadenasToSelect!!!');
       },
     });
   }
@@ -153,35 +164,45 @@ export class CanalEnvioComponent implements OnInit {
   }
 
   onPanelHideCadenas(): void {
-    this.listSelectableRestaurantes.children =
-      this.menuService.getRestaurantesToSelectCheckbox(
-        this.cadenasSeleccionadas
-      );
+    this.menuService
+      .getRestaurantesToSelect(this.cadenasSeleccionadas)
+      .subscribe({
+        next: (restaurantes) => {
+          this.listSelectableRestaurantes.children = restaurantes;
+        },
+        error: (err) => {
+          console.log(err);
+        },
+        complete: () => {},
+      });
   }
 
   enviarAhora() {
+    this.btnEnviarAhoraDisabled = true;
     const { canalesVentaSelected, restaurantesSelected } =
       this.getCanalesRestaurantesSelected();
-    console.log(canalesVentaSelected);
-    console.log(restaurantesSelected);
-    console.log(this.data);
-    let timerInterval: any = 0;
-    Swal.fire({
-      width: 100,
-      timer: 1000,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-      willClose: () => {
-        clearInterval(timerInterval);
-      },
-    }).then((result) => {
-      Swal.fire({
-        title: 'Datos',
-        text: 'La informacion se envio correctamente',
-        icon: 'success',
-        confirmButtonText: 'OK',
+
+    this.menuService
+      .sendManualSync({
+        canalesVentaSelected,
+        restaurantesSelected,
+        products: this.data,
+      })
+      .subscribe({
+        next: (response) => {
+          console.log(response);
+        },
+        error: (err) => {
+          console.log(err);
+        },
+        complete: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Exito',
+            detail: 'La configuración se guardo exitosamente!',
+          });
+          //this.dialogRef.close();
+        },
       });
-    });
   }
 }
