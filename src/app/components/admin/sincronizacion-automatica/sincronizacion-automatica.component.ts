@@ -53,7 +53,6 @@ export class SincronizacionAutomaticaComponent {
   getLastConfiguration() {
     this.menuService.requestLastConfiguration().subscribe({
       next: (newConfiguration) => {
-        console.log(newConfiguration);
         if (newConfiguration && newConfiguration.aggregators.length > 0) {
           this.allCompleteAgregadores = newConfiguration.syncMaxPoint;
           this.listSelectableAgregadores.time = formatearHoraAFecha(
@@ -92,10 +91,7 @@ export class SincronizacionAutomaticaComponent {
         //this.validateErrorResponse(err);
         this.messageService.add(validateResponse(err));
         this.showLoading = false;
-      },
-      complete: () => {
-        console.log('Complete!!!');
-      },
+      }
     });
   }
 

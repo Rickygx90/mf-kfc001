@@ -83,9 +83,6 @@ export class FilterMenuComponent implements OnInit {
       error: (err) => {
         console.log(err);
       },
-      complete: () => {
-        //console.log('complete!!!');
-      },
     });
   }
 
@@ -94,7 +91,6 @@ export class FilterMenuComponent implements OnInit {
       .getRestaurantesToSelect(this.cadenasSeleccionadas.value)
       .subscribe({
         next: (restaurantes) => {
-          console.log(restaurantes);
           this.restaurantes = restaurantes;
           if (this.cadenasSeleccionadas.value.length > 0) {
             this.restaurantesSeleccionados.enable();
@@ -106,7 +102,6 @@ export class FilterMenuComponent implements OnInit {
         error: (err) => {
           console.log(err);
         },
-        complete: () => {},
       });
   }
 
@@ -115,16 +110,13 @@ export class FilterMenuComponent implements OnInit {
       .getMenuToSelectCheckbox(this.formularioFiltro.value)
       .subscribe({
         next: (menus) => {
+          //console.log(menus);
+          this.dialogRef.close(menus);
           this.menuService.menuList = menus;
         },
         error: (err) => {
           console.log(err);
-        },
-        complete: () => {
-          //console.log('complete!!!');
-        },
+        }
       });
-
-    this.dialogRef.close();
   }
 }

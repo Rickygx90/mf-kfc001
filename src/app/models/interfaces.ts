@@ -17,10 +17,10 @@ export interface multiSelectI {
 
 export interface optionsToSelectI {
   name: string;
-  code: string;
+  code?: string;
   id?: string;
   parent?: string;
-  select: boolean;
+  select?: boolean;
   syncTime?: Date;
   date?: string;
   allCompleteSubCategoria?: boolean;

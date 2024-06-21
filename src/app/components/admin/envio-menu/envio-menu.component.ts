@@ -7,14 +7,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { FilterMenuComponent } from '../filter-menu/filter-menu.component';
 import { MenuService } from '../../../services/menu.service';
 import { multiSelectI, optionsToSelectI } from '../../../models/interfaces';
-
 import { MatButtonModule } from '@angular/material/button';
-
 import { CanalEnvioComponent } from '../canal-envio/canal-envio.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { CanComponentDeactivate } from '../../../guards/can-deactivate.guard';
 import { Observable } from 'rxjs';
-
 
 @Component({
   selector: 'app-envio-menu',
@@ -31,13 +28,57 @@ import { Observable } from 'rxjs';
   styleUrl: './envio-menu.component.css',
 })
 export class EnvioMenuComponent implements CanComponentDeactivate {
-
   canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
-    const confirmacion = window.confirm('¿Estás seguro de que deseas salir de esta página? Los cambios no guardados se perderán.');
-    return confirmacion;
+    console.log(this.listSelectableCategories);
+    if (
+      this.listSelectableMenu.children.length > 0 ||
+      this.listSelectableCategories.children.length > 0 ||
+      this.listSelectableProducts.children.length > 0
+    ) {
+      const confirmacion1 = window.confirm(
+        '¿Estás seguro de que deseas salir de esta página?'
+      );
+
+      if (confirmacion1) {
+        const confirmacion2 = window.confirm(
+          '¿Deseas guardar los cambios antes de salir?'
+        );
+
+        if (confirmacion2) {
+          localStorage.setItem(
+            'sincronizacionManual',
+            JSON.stringify({
+              configMenu: this.listSelectableMenu,
+              configCategoria: this.listSelectableCategories,
+              configProducto: this.listSelectableProducts,
+            })
+          );
+        } else {
+          localStorage.removeItem('sincronizacionManual');
+        }
+      }
+
+      return confirmacion1;
+    }
+    return true;
   }
-  
-  constructor(public dialog: MatDialog) {}
+
+  constructor(public dialog: MatDialog) {
+    const sincronizacionManual = localStorage.getItem('sincronizacionManual');
+    if (sincronizacionManual) {
+      const { configMenu, configCategoria, configProducto } =
+        JSON.parse(sincronizacionManual);
+      this.listSelectableMenu = configMenu;
+      if (configCategoria.children.length > 0) {
+        this.listSelectableCategories = configCategoria;
+        this.showCategorias = true;
+      }
+      if(configProducto.children.length > 0) {
+        this.listSelectableProducts = configProducto;
+        this.showProductos = true;
+      }
+    }
+  }
   menuService = inject(MenuService);
 
   allCompleteMenu: boolean = false;
@@ -389,8 +430,9 @@ export class EnvioMenuComponent implements CanComponentDeactivate {
       width: '460px',
     });
     dialogRef.afterClosed().subscribe((result) => {
-      console.log(result);
-      this.listSelectableMenu.children = this.menuService.menuList;
+      if (result && result.length > 0)
+        this.listSelectableMenu.children = result;
+      //console.log(this.menuService.menuList);
     });
   }
 

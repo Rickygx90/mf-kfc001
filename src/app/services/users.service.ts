@@ -32,7 +32,7 @@ export class UsersService {
       return of(false);
     }
     return this.httpClient
-      .get<User>(`${environment.url}/account/my-account`)
+      .get<User>(`${environment.url}/auth/account/my-account`)
       .pipe(
         tap((u) => (this.user = u)),
         map((u) => !!u),
