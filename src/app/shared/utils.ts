@@ -34,12 +34,13 @@ export function formatearFechaAHora(hora: Date = new Date()): string {
 }
 
 export function validateResponse(response: any) {
+  console.log(response)
   switch (response.status) {
     case 200: {
       return {
         severity: 'success',
         summary: 'Exito',
-        detail: 'La solicitud se proceso correctamente',
+        detail: response.message ? response.message : 'La solicitud se proceso correctamente',
       };
     }
     case 500: {

@@ -330,4 +330,8 @@ export class MenuService {
       { req }
     );
   }
+
+  sincronizarMaxpoint(): Observable<any> {
+    return this.httpClient.post<any>(`${environment.url}/sync/all`, {});
+  }
 }

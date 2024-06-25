@@ -12,6 +12,9 @@ import { CanalEnvioComponent } from '../canal-envio/canal-envio.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { CanComponentDeactivate } from '../../../guards/can-deactivate.guard';
 import { Observable } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { validateResponse } from '../../../shared/utils';
 
 @Component({
   selector: 'app-envio-menu',
@@ -23,7 +26,9 @@ import { Observable } from 'rxjs';
     NavbarComponent,
     MatButtonModule,
     MatExpansionModule,
+    ToastModule,
   ],
+  providers: [MessageService],
   templateUrl: './envio-menu.component.html',
   styleUrl: './envio-menu.component.css',
 })
@@ -63,7 +68,10 @@ export class EnvioMenuComponent implements CanComponentDeactivate {
     return true;
   }
 
-  constructor(public dialog: MatDialog) {
+  constructor(
+    public dialog: MatDialog,
+    private messageService: MessageService
+  ) {
     const sincronizacionManual = localStorage.getItem('sincronizacionManual');
     if (sincronizacionManual) {
       const { configMenu, configCategoria, configProducto } =
@@ -73,7 +81,7 @@ export class EnvioMenuComponent implements CanComponentDeactivate {
         this.listSelectableCategories = configCategoria;
         this.showCategorias = true;
       }
-      if(configProducto.children.length > 0) {
+      if (configProducto.children.length > 0) {
         this.listSelectableProducts = configProducto;
         this.showProductos = true;
       }
@@ -444,6 +452,24 @@ export class EnvioMenuComponent implements CanComponentDeactivate {
     });
     dialogRef.afterClosed().subscribe((result) => {
       console.log('The dialog was closed');
+    });
+  }
+
+  sincronizarMaxpoint() {
+    this.menuService.sincronizarMaxpoint().subscribe({
+      next: (response) => {
+        console.log(response);
+        this.messageService.add(validateResponse({...response, status: response.code}));
+      },
+      error: (err) => {
+        console.log(err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al enviar la configuracion!',
+        });
+      },
+      complete: () => {},
     });
   }
 }
