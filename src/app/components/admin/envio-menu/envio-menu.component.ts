@@ -99,6 +99,7 @@ export class EnvioMenuComponent implements CanComponentDeactivate {
   showCategorias: boolean = false;
   showProductos: boolean = false;
   btnCanalEnvioDisabled: boolean = true;
+  btnSincronizarMaxpointDisabled: boolean = false;
 
   listSelectableMenu: multiSelectI = {
     name: 'Seleccionar todos',
@@ -456,13 +457,22 @@ export class EnvioMenuComponent implements CanComponentDeactivate {
   }
 
   sincronizarMaxpoint() {
+    this.btnSincronizarMaxpointDisabled = true;
     this.menuService.sincronizarMaxpoint().subscribe({
       next: (response) => {
+        setTimeout(() => {
+          this.btnSincronizarMaxpointDisabled = false;
+        }, 3000);
         console.log(response);
-        this.messageService.add(validateResponse({...response, status: response.code}));
+        this.messageService.add(
+          validateResponse({ ...response, status: response.code })
+        );
       },
       error: (err) => {
         console.log(err);
+        setTimeout(() => {
+          this.btnSincronizarMaxpointDisabled = false;
+        }, 3000);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',

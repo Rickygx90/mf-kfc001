@@ -6,7 +6,7 @@
 
         <div class="example-button-rowcard flex flex-wrap gap-2 justify-content-center">
             <button mat-raised-button style="background-color: #147fa6f6;" mat-flat-button color="primary">SINCRONIZACION PERSONALIZADA (MAXPOINT)</button>
-            <button mat-raised-button style="background-color: #1fa44f;" mat-flat-button color="primary" (click)="sincronizarMaxpoint()">SINCRONIZAR CON MAXPOINT</button>
+            <button [disabled]="btnSincronizarMaxpointDisabled" mat-raised-button style="background-color: #1fa44f;" mat-flat-button color="primary" (click)="sincronizarMaxpoint()">SINCRONIZAR CON MAXPOINT</button>
         </div>
 
         <span class="flex text-sm mt-3">
