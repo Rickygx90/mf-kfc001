@@ -1,7 +1,7 @@
 <mat-dialog-content>
     <form [formGroup]="formularioFiltro" (ngSubmit)="onSubmit()">
 
-        <p-multiSelect [options]="cadenas" formControlName="cadenasSeleccionadas" optionLabel="name"
+        <p-multiSelect [options]="cadenas$ | async" formControlName="cadenasSeleccionadas" optionLabel="name"
             placeholder="Cadenas Seleccionadas" [panelStyle]="{'width':'100%', 'margin-bottom': '10px'}" [style]="{'width':'100%', 'margin-bottom': '10px'}"
             (onPanelHide)="onPanelHideCadenas()"></p-multiSelect>
 

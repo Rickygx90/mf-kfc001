@@ -20,6 +20,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MenuService } from '../../../services/menu.service';
 import { CadenaI, RestauranteI } from '../../../models/interfaces';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-filter-menu',
@@ -49,6 +50,7 @@ export class FilterMenuComponent implements OnInit {
   menuService = inject(MenuService);
   cadenas!: Array<any>;
   restaurantes!: Array<any>;
+  public cadenas$!: Observable<any>;
 
   get cadenasSeleccionadas() {
     return this.formularioFiltro.get('cadenasSeleccionadas') as FormControl;
@@ -76,14 +78,16 @@ export class FilterMenuComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.menuService.getCadenasToSelect().subscribe({
+    /* this.menuService.getCadenasToSelect().subscribe({
       next: (cadenas) => {
         this.cadenas = cadenas;
       },
       error: (err) => {
         console.log(err);
       },
-    });
+    }); */
+
+    this.cadenas$ = this.menuService.getCadenasToSelect();
   }
 
   onPanelHideCadenas() {
@@ -110,7 +114,6 @@ export class FilterMenuComponent implements OnInit {
       .getMenuToSelectCheckbox(this.formularioFiltro.value)
       .subscribe({
         next: (menus) => {
-          //console.log(menus);
           this.dialogRef.close(menus);
           this.menuService.menuList = menus;
         },
