@@ -29,18 +29,18 @@ export class MenuService {
   }
 
   getCadenasToSelect(): Observable<any[]> {
-    return this.httpClient.get<any>(
-      `http://192.168.101.29:3001/api/sincronization/getchains`
+    return this.httpClient.post<any>(
+      `${environment.url}/menu/chainsall`, {}
     );
   }
 
   getRestaurantesToSelect(cadenas: Array<any>): Observable<any[]> {
     let idCadenas = [];
-    idCadenas = cadenas.map((cadena) => cadena.id);
+    idCadenas = cadenas.map((cadena) => cadena.code);
     return this.httpClient.post<any>(
-      `http://192.168.101.29:3001/api/sincronization/restaurants`,
+      `${environment.url}/menu/findrestaurants`,
       {
-        ids: idCadenas,
+        id: idCadenas,
       }
     );
   }

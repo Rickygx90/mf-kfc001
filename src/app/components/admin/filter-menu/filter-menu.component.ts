@@ -80,7 +80,10 @@ export class FilterMenuComponent implements OnInit {
   ngOnInit() {
     /* this.menuService.getCadenasToSelect().subscribe({
       next: (cadenas) => {
-        this.cadenas = cadenas;
+        this.cadenas = cadenas.map(cadena => ({
+          name: cadena.description,
+          code: cadena.id
+        }));
       },
       error: (err) => {
         console.log(err);
@@ -91,11 +94,15 @@ export class FilterMenuComponent implements OnInit {
   }
 
   onPanelHideCadenas() {
+    console.log(this.cadenasSeleccionadas.value)
     this.menuService
       .getRestaurantesToSelect(this.cadenasSeleccionadas.value)
       .subscribe({
         next: (restaurantes) => {
-          this.restaurantes = restaurantes;
+          this.restaurantes = restaurantes.map(rst => ({
+            name: rst.codeStore,
+            code: rst.id
+          }));
           if (this.cadenasSeleccionadas.value.length > 0) {
             this.restaurantesSeleccionados.enable();
           } else {
