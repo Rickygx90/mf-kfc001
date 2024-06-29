@@ -72,7 +72,10 @@ export class CanalEnvioComponent implements OnInit {
 
     this.menuService.getCadenasToSelect().subscribe({
       next: (cadenas) => {
-        this.cadenas = cadenas;
+        this.cadenas = cadenas.map(cadena => ({
+          name: cadena.description,
+          code: cadena.id
+        }));
       },
       error: (err) => {
         console.log(err);
