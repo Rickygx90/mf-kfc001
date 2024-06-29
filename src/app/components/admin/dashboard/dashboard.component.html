@@ -15,10 +15,10 @@
                 <div class="grid justify-items-stretch grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-1">
                     <div *ngFor="let menuItem of menuItems" class="shadow-2xl">
                         <div [class]="menuItem.status">
-                            <b>{{menuItem.rstName}}</b>
-                            <p>{{menuItem.channelName}}</p>
-                            <p><b>Status:</b> {{menuItem.status}}</p>
-                            <p><b>Fecha: </b>{{menuItem.createdAtFormat}}</p>
+                            <b>{{menuItem.syncrosId}}</b>
+                            <p>{{menuItem.status}}</p>
+                            <p><b>startTime:</b> {{menuItem.startTime}}</p>
+                            <p><b>endTime: </b>{{menuItem.endTime}}</p>
                         </div>
                     </div>
                 </div>
@@ -29,10 +29,10 @@
                 <div class="grid justify-items-stretch grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-1">
                     <div *ngFor="let menuItem of menuItems" class="shadow-2xl">
                         <div [class]="menuItem.status" class="cursor-pointer" (click)="openMenuDetail()">
-                            <b>{{menuItem.rstName}}</b>
-                            <p>{{menuItem.channelName}}</p>
-                            <p><b>Status:</b> {{menuItem.status}}</p>
-                            <p><b>Fecha: </b>{{menuItem.createdAtFormat}}</p>
+                            <b>{{menuItem.syncrosId}}</b>
+                            <p>{{menuItem.status}}</p>
+                            <p><b>startTime:</b> {{menuItem.startTime}}</p>
+                            <p><b>endTime: </b>{{menuItem.endTime}}</p>
                         </div>
                     </div>
                 </div>

@@ -29,11 +29,11 @@ export interface optionsToSelectI {
 }
 
 export interface menuItemI {
-  id: number;
-  rstName: string;
-  channelName: string;
+  _id: Object;
+  syncrosId: string;
+  startTime: Date | null;
+  endTime?: Date | null;
   status: string;
-  createdAtFormat: string;
 }
 
 export interface User {
