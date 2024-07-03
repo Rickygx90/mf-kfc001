@@ -19,8 +19,8 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MenuService } from '../../../services/menu.service';
-import { CadenaI, RestauranteI } from '../../../models/interfaces';
 import { Observable } from 'rxjs';
+import { CadenaI, RestauranteI } from '../../../models/interfaces';
 
 @Component({
   selector: 'app-filter-menu',
@@ -48,9 +48,11 @@ export class FilterMenuComponent implements OnInit {
   ) {}
 
   menuService = inject(MenuService);
-  cadenas!: Array<any>;
-  restaurantes!: Array<any>;
+  cadenas!: Array<CadenaI>;
+  restaurantes!: Array<RestauranteI>;
+
   public cadenas$!: Observable<any>;
+  public restaurantes$!: Observable<any>;
 
   get cadenasSeleccionadas() {
     return this.formularioFiltro.get('cadenasSeleccionadas') as FormControl;
@@ -94,8 +96,7 @@ export class FilterMenuComponent implements OnInit {
   }
 
   onPanelHideCadenas() {
-    console.log(this.cadenasSeleccionadas.value)
-    this.menuService
+    /* this.menuService
       .getRestaurantesToSelect(this.cadenasSeleccionadas.value)
       .subscribe({
         next: (restaurantes) => {
@@ -113,20 +114,32 @@ export class FilterMenuComponent implements OnInit {
         error: (err) => {
           console.log(err);
         },
-      });
+      }); */
+
+    this.restaurantes$ = this.menuService.getRestaurantesToSelect(
+      this.cadenasSeleccionadas.value
+    );
+    if (this.cadenasSeleccionadas.value.length > 0) {
+      this.restaurantesSeleccionados.enable();
+    } else {
+      this.restaurantesSeleccionados.setValue([]);
+      this.restaurantesSeleccionados.disable();
+    }
   }
 
   onSubmit() {
+    console.log(this.formularioFiltro.value)
     this.menuService
       .getMenuToSelectCheckbox(this.formularioFiltro.value)
       .subscribe({
         next: (menus) => {
+          console.log(menus)
           this.dialogRef.close(menus);
           this.menuService.menuList = menus;
         },
         error: (err) => {
           console.log(err);
-        }
+        },
       });
   }
 }

@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
+  CadenaI,
+  RestauranteI,
   automaticSync,
   menuItemI,
   optionsToSelectI,
@@ -21,22 +23,203 @@ export class MenuService {
       {
         _id: '12345678',
         syncrosId: '12345678',
-        startTime: new Date,
+        startTime: new Date(),
         endTime: null,
         status: 'CREATED',
-      }
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
+      {
+        _id: '12345678',
+        syncrosId: '12345678',
+        startTime: new Date(),
+        endTime: null,
+        status: 'CREATED',
+      },
     ];
   }
 
-  getCadenasToSelect(): Observable<any[]> {
-    return this.httpClient.post<any>(
-      `${environment.url}/menu/chainsall`, {}
-    );
+  getCadenasToSelect(): Observable<CadenaI[]> {
+    return this.httpClient
+      .post<any>(`${environment.url}/menu/chainsall`, {});
   }
 
-  getRestaurantesToSelect(cadenas: Array<any>): Observable<any[]> {
+  getRestaurantesToSelect(cadenas: Array<any>): Observable<RestauranteI[]> {
     let idCadenas = [];
-    idCadenas = cadenas.map((cadena) => cadena.code);
+    idCadenas = cadenas.map((cadena) => cadena.id);
     return this.httpClient.post<any>(
       `${environment.url}/menu/findrestaurants`,
       {

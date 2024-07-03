@@ -1,12 +1,12 @@
 <mat-dialog-content>
     <form [formGroup]="formularioFiltro" (ngSubmit)="onSubmit()">
 
-        <p-multiSelect [options]="cadenas$ | async" formControlName="cadenasSeleccionadas" optionLabel="name"
-            placeholder="Cadenas Seleccionadas" [panelStyle]="{'width':'100%', 'margin-bottom': '10px'}" [style]="{'width':'100%', 'margin-bottom': '10px'}"
+        <p-multiSelect [options]="cadenas$ | async" formControlName="cadenasSeleccionadas" optionLabel="description"
+            placeholder="Cadenas Seleccionadas" [style]="{'width':'100%', 'margin-bottom': '10px'}"
             (onPanelHide)="onPanelHideCadenas()"></p-multiSelect>
 
-        <p-multiSelect [options]="restaurantes" formControlName="restaurantesSeleccionados"
-            optionLabel="name" placeholder="Restaurantes Seleccionados" [panelStyle]="{'width':'100%'}"
+        <p-multiSelect [options]="restaurantes$ | async" formControlName="restaurantesSeleccionados"
+            optionLabel="codeStore" placeholder="Restaurantes Seleccionados"
             [style]="{'width':'100%', 'margin-top': '10px', 'margin-bottom': '10px'}"></p-multiSelect>
 
         <mat-form-field class="w-full mt-4">

@@ -29,8 +29,8 @@ export class DashboardComponent implements OnInit {
 
   openMenuDetail(): void {
     const dialogRef = this.dialog.open(MenuDetailComponent, {
-      height: '370px',
-      width: '460px',
+      height: '180px',
+      width: '250px',
     });
     dialogRef.afterClosed().subscribe(() => {
      

@@ -17,7 +17,7 @@
                         <div [class]="menuItem.status">
                             <b>{{menuItem.syncrosId}}</b>
                             <p>{{menuItem.status}}</p>
-                            <p><b>startTime:</b> {{menuItem.startTime}}</p>
+                            <p><b>startTime:</b> {{menuItem.startTime | date: 'dd/MM/yyyy'}}</p>
                             <p><b>endTime: </b>{{menuItem.endTime}}</p>
                         </div>
                     </div>
@@ -31,7 +31,7 @@
                         <div [class]="menuItem.status" class="cursor-pointer" (click)="openMenuDetail()">
                             <b>{{menuItem.syncrosId}}</b>
                             <p>{{menuItem.status}}</p>
-                            <p><b>startTime:</b> {{menuItem.startTime}}</p>
+                            <p><b>startTime:</b> {{menuItem.startTime | date: 'EEEE, MMMM d, y'}}</p>
                             <p><b>endTime: </b>{{menuItem.endTime}}</p>
                         </div>
                     </div>

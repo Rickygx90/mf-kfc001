@@ -1,12 +1,26 @@
 export interface CadenaI {
-  name: string;
-  code: String;
+  id: number;
+  description: string;
+  tradename: string
 }
 
 export interface RestauranteI {
-  name: string;
-  code: String;
+  id: number;
+  codeStore: string;
+  idChain: number;
+  select?: boolean;
 }
+
+export interface multiSelect2I {
+  name: string;
+  select: boolean;
+  children: RestauranteI[];
+}
+
+
+
+
+
 
 export interface multiSelectI {
   name: string;

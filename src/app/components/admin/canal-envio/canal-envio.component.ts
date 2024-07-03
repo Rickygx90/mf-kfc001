@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { MenuService } from '../../../services/menu.service';
-import { CadenaI, multiSelectI } from '../../../models/interfaces';
+import { CadenaI, multiSelect2I, multiSelectI } from '../../../models/interfaces';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
@@ -51,7 +51,7 @@ export class CanalEnvioComponent implements OnInit {
     children: [],
   };
 
-  listSelectableRestaurantes: multiSelectI = {
+  listSelectableRestaurantes: multiSelect2I = {
     name: 'Seleccionar todos',
     select: false,
     children: [],
