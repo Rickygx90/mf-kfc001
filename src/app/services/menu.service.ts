@@ -54,6 +54,11 @@ export class MenuService {
       );
   }
 
+  getDetailMenu(id: string) {
+    return this.httpClient
+    .get<any>(`${environment.url}/dashboard/sync/error/${id}`)
+  }
+
   getCadenasToSelect(): Observable<CadenaI[]> {
     return this.httpClient.post<any>(`${environment.url}/menu/chainsall`, {});
   }

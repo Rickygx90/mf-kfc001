@@ -1,7 +1,7 @@
 export interface CadenaI {
   id: number;
   description: string;
-  tradename: string
+  tradename: string;
 }
 
 export interface RestauranteI {
@@ -45,6 +45,16 @@ export interface menuItemI {
   status: string;
 }
 
+export interface menuDetail {
+  aggregate_id: string;
+  created_at: string;
+  data: string;
+  event_type: string;
+  fecha: string;
+  id: string;
+  metadata: string;
+}
+
 export interface User {
   username: string;
   email: string;
@@ -68,6 +78,6 @@ export interface AggregatorI {
 }
 
 enum Aggregator {
-  uber = "Uber",
-  peya = "Pedidos Ya"
+  uber = 'Uber',
+  peya = 'Pedidos Ya',
 }
