@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
@@ -32,7 +32,60 @@ import { validateResponse } from '../../../shared/utils';
   templateUrl: './envio-menu.component.html',
   styleUrl: './envio-menu.component.css',
 })
-export class EnvioMenuComponent implements CanComponentDeactivate {
+export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
+  menuService = inject(MenuService);
+  allCompleteMenu: boolean = false;
+  allCompleteCategoria: boolean = false;
+  allCompleteProducto: boolean = false;
+
+  subCategoriasSelected: Array<optionsToSelectI> = [];
+  subProductoSelected: Array<optionsToSelectI> = [];
+
+  showCategorias: boolean = false;
+  showProductos: boolean = false;
+  btnCanalEnvioDisabled: boolean = true;
+  btnSincronizarMaxpointDisabled: boolean = false;
+
+  listSelectableMenu: multiSelectI = {
+    name: 'Seleccionar todos',
+    select: false,
+    children: [],
+  };
+
+  listSelectableCategories: multiSelectI = {
+    name: 'Seleccionar todos',
+    select: false,
+    children: [],
+  };
+
+  listSelectableProducts: multiSelectI = {
+    name: 'Seleccionar todos',
+    select: false,
+    children: [],
+  };
+
+  constructor(
+    public dialog: MatDialog,
+    private messageService: MessageService
+  ) {}
+
+  ngOnInit() {
+    const sincronizacionManual = localStorage.getItem('sincronizacionManual');
+    if (sincronizacionManual) {
+      const { configMenu, configCategoria, configProducto } =
+        JSON.parse(sincronizacionManual);
+      this.listSelectableMenu = configMenu;
+      if (configCategoria.children.length > 0) {
+        this.listSelectableCategories = configCategoria;
+        this.showCategorias = true;
+      }
+      if (configProducto.children.length > 0) {
+        this.listSelectableProducts = configProducto;
+        this.showProductos = true;
+      }
+    }
+  }
+
   canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
     console.log(this.listSelectableCategories);
     if (
@@ -67,57 +120,6 @@ export class EnvioMenuComponent implements CanComponentDeactivate {
     }
     return true;
   }
-
-  constructor(
-    public dialog: MatDialog,
-    private messageService: MessageService
-  ) {
-    const sincronizacionManual = localStorage.getItem('sincronizacionManual');
-    if (sincronizacionManual) {
-      const { configMenu, configCategoria, configProducto } =
-        JSON.parse(sincronizacionManual);
-      this.listSelectableMenu = configMenu;
-      if (configCategoria.children.length > 0) {
-        this.listSelectableCategories = configCategoria;
-        this.showCategorias = true;
-      }
-      if (configProducto.children.length > 0) {
-        this.listSelectableProducts = configProducto;
-        this.showProductos = true;
-      }
-    }
-  }
-  menuService = inject(MenuService);
-
-  allCompleteMenu: boolean = false;
-  allCompleteCategoria: boolean = false;
-  allCompleteProducto: boolean = false;
-
-  subCategoriasSelected: Array<optionsToSelectI> = [];
-  subProductoSelected: Array<optionsToSelectI> = [];
-
-  showCategorias: boolean = false;
-  showProductos: boolean = false;
-  btnCanalEnvioDisabled: boolean = true;
-  btnSincronizarMaxpointDisabled: boolean = false;
-
-  listSelectableMenu: multiSelectI = {
-    name: 'Seleccionar todos',
-    select: false,
-    children: [],
-  };
-
-  listSelectableCategories: multiSelectI = {
-    name: 'Seleccionar todos',
-    select: false,
-    children: [],
-  };
-
-  listSelectableProducts: multiSelectI = {
-    name: 'Seleccionar todos',
-    select: false,
-    children: [],
-  };
 
   restartCategoriasProductos(panel: string): void {
     if (panel === 'menu') {
@@ -439,9 +441,9 @@ export class EnvioMenuComponent implements CanComponentDeactivate {
       width: '460px',
     });
     dialogRef.afterClosed().subscribe((result) => {
+      console.log(result)
       if (result && result.length > 0)
         this.listSelectableMenu.children = result;
-      //console.log(this.menuService.menuList);
     });
   }
 

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
@@ -7,7 +7,7 @@ describe('UsersService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule]
+      imports: [HttpClientModule],
     });
     service = TestBed.inject(UsersService);
   });
@@ -16,17 +16,22 @@ describe('UsersService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('Debe retornar un string con los datos de inicio de sesion del usuario.', (done: DoneFn) => {
-    let sesionData = service.login({username: 'admin', password: '1234'});
-    expect(sesionData).toBeTruthy();
-    if(sesionData)
-    expect(JSON.parse(sesionData)).toBeTruthy();
+  it('Debe retornar el accessToken si el usuario y contrasena son correctos.', (done: DoneFn) => {
+    service.getToken({ username: 'admin', password: '12345' }).subscribe({
+      next: (token) => {
+        expect(!!token.accessToken).toBeTruthy();
+      },
+    });
     done();
   });
 
-  it('Debe retornar null si los datos del usuario son incorrectos', (done: DoneFn) => {
-    let sesionData = service.login({username: 'admin123', password: '4321'});
-    expect(sesionData).toBeNull();
+  it('Debe retornar error si los datos del usuario son incorrectos', (done: DoneFn) => {
+    service.getToken({ username: 'admin123', password: '4321' }).subscribe({
+      next: () => {},
+      error: (err) => {
+        expect(err.status).toEqual(401);
+      },
+    });
     done();
   });
 });

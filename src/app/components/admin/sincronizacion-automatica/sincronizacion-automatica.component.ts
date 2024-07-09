@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -33,7 +33,7 @@ import {
   templateUrl: './sincronizacion-automatica.component.html',
   styleUrl: './sincronizacion-automatica.component.css',
 })
-export class SincronizacionAutomaticaComponent {
+export class SincronizacionAutomaticaComponent implements OnInit {
   allCompleteAgregadores: boolean = false;
   btnSincronizarDisabled: boolean = true;
   checkSincronizarDisabled: boolean = false;
@@ -46,7 +46,9 @@ export class SincronizacionAutomaticaComponent {
   };
   menuService = inject(MenuService);
 
-  constructor(private messageService: MessageService) {
+  constructor(private messageService: MessageService) {}
+
+  ngOnInit() {
     this.getLastConfiguration();
   }
 
@@ -91,7 +93,7 @@ export class SincronizacionAutomaticaComponent {
         //this.validateErrorResponse(err);
         this.messageService.add(validateResponse(err));
         this.showLoading = false;
-      }
+      },
     });
   }
 

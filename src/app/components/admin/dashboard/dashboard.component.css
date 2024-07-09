@@ -1,23 +1,34 @@
-.CREATED {
+.FINISHED {
     height: 100%;
     background-color: rgb(143, 255, 143);
-    font-size: smaller;
     padding: 5px;
-    font-size: xx-small;
+    word-wrap: break-word;
 }
 
-.error {
+.ERROR {
     height: 100%;
     background-color: rgb(255, 161, 161);
-    font-size: smaller;
     padding: 5px;
-    font-size: xx-small;
+    word-wrap: break-word;
 }
 
-.in_progress {
+.CREATED {
     height: 100%;
     background-color: rgb(116, 211, 255);
-    font-size: smaller;
     padding: 5px;
-    font-size: xx-small;
+    word-wrap: break-word;
+}
+
+.SYNCING {
+    height: 100%;
+    background-color: rgb(236, 233, 56);
+    padding: 5px;
+    word-wrap: break-word;
+}
+
+.SENDING {
+    height: 100%;
+    background-color: rgb(113, 56, 236);
+    padding: 5px;
+    word-wrap: break-word;
 }

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterModule } from "@angular/router";
+import { RouterModule } from '@angular/router';
 import { DashboardComponent } from './dashboard.component';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -8,10 +9,8 @@ describe('DashboardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardComponent, RouterModule.forRoot([])]
-    })
-    .compileComponents();
-    
+      imports: [DashboardComponent, RouterModule.forRoot([]), HttpClientModule],
+    }).compileComponents();
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

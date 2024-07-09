@@ -8,36 +8,51 @@
             <p>/Dashboard</p>
         </span>
 
-        <div class="h-[calc(100%-112px)] p-5 bg-gray-100 rounded-lg shadow-md overflow-auto">
+        <div class="h-[calc(100%-96px)] p-5 bg-gray-100 rounded-lg shadow-md overflow-auto">
 
-            <div class="h-2/4">
+            <div class="h-2/4 mb-8">
                 <p class="text-xl mt-1 mb-4">Ultimos envios de menú </p>
-                <div class="grid justify-items-stretch grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-1">
-                    <div *ngFor="let menuItem of menuItems" class="shadow-2xl">
-                        <div [class]="menuItem.status">
-                            <b>{{menuItem.syncrosId}}</b>
-                            <p>{{menuItem.status}}</p>
-                            <p><b>startTime:</b> {{menuItem.startTime | date: 'dd/MM/yyyy'}}</p>
-                            <p><b>endTime: </b>{{menuItem.endTime}}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="h-2/4">
-                <p class="text-xl mt-1 mb-4">Sincronizaciones con Maxpoint</p>
-                <div class="grid justify-items-stretch grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-1">
-                    <div *ngFor="let menuItem of menuItems" class="shadow-2xl">
+                <div class="grid justify-items-stretch grid-cols-6 2xl:grid-cols-12 gap-1 text-xs">
+                    <!--    <div *ngFor="let menuItem of menuItems$ | async" class="shadow-2xl">
                         <div [class]="menuItem.status" class="cursor-pointer" (click)="openMenuDetail()">
-                            <b>{{menuItem.syncrosId}}</b>
-                            <p>{{menuItem.status}}</p>
-                            <p><b>startTime:</b> {{menuItem.startTime | date: 'EEEE, MMMM d, y'}}</p>
-                            <p><b>endTime: </b>{{menuItem.endTime}}</p>
+                            <p><b>ID: </b>{{menuItem.syncros_id}}</p>
+                            <p><b>Status: </b>{{menuItem.status}}</p>
+                            <p><b>Start Time: </b> {{menuItem.start_time | date: 'd/M/yy'}}</p>
+                            <p><b>End Time: </b>{{menuItem.end_time | date: 'd/M/yy'}}</p>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
+            <div class="h-2/4 mb-8">
+                <p class="text-xl mt-1 mb-4">Sincronizaciones con Maxpoint</p>
+                @if (showLoading) {
+                    <div class="w-full h-full flex justify-center items-center">
+                        <div class="loader"></div>
+                    </div>
+                    } @else {
+                <!-- <div *ngIf='data | async; else loading'> -->
+                    <div class="grid justify-items-stretch grid-cols-6 2xl:grid-cols-12 gap-1 text-xs">
+                        <div *ngFor="let menuItem of data" class="shadow-2xl">
+                            <div [class]="menuItem.status" class="cursor-pointer" (click)="openMenuDetail(menuItem.syncros_id)">
+                                <p><b>ID: </b>{{menuItem.syncros_id}}</p>
+                                <p><b>Status: </b>{{menuItem.status}}</p>
+                                <p><b>Start Time: </b> {{menuItem.start_time | date: 'd/M/yy'}}</p>
+                                <p><b>End Time: </b>{{menuItem.end_time | date: 'd/M/yy'}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p-paginator [rows]="rows" [totalRecords]="total_records"
+                        (onPageChange)="paginate($event)"></p-paginator>
+                }
+                <!-- </div> -->
+                <!-- <ng-template #loading>
+                    <div class="w-full h-full flex justify-center items-center">
+                        <div class="loader"></div>
+                    </div>
+                </ng-template> -->
+
+            </div>
         </div>
     </div>
 </div>

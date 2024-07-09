@@ -42,17 +42,20 @@ import { CadenaI, RestauranteI } from '../../../models/interfaces';
   styleUrl: './filter-menu.component.css',
 })
 export class FilterMenuComponent implements OnInit {
+  public cadenas$!: Observable<CadenaI[] | any>;
+  public restaurantes$!: Observable<RestauranteI[] | any>;
+  public menus$!: Observable<any[] | any>;
+
+  menuService = inject(MenuService);
+  
   constructor(
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<FilterMenuComponent>
   ) {}
-
-  menuService = inject(MenuService);
-  cadenas!: Array<CadenaI>;
-  restaurantes!: Array<RestauranteI>;
-
-  public cadenas$!: Observable<any>;
-  public restaurantes$!: Observable<any>;
+  
+  ngOnInit() {
+    this.cadenas$ = this.menuService.getCadenasToSelect();
+  }
 
   get cadenasSeleccionadas() {
     return this.formularioFiltro.get('cadenasSeleccionadas') as FormControl;
@@ -79,67 +82,34 @@ export class FilterMenuComponent implements OnInit {
     fechaFin: ['', Validators.required],
   });
 
-  ngOnInit() {
-    /* this.menuService.getCadenasToSelect().subscribe({
-      next: (cadenas) => {
-        this.cadenas = cadenas.map(cadena => ({
-          name: cadena.description,
-          code: cadena.id
-        }));
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    }); */
-
-    this.cadenas$ = this.menuService.getCadenasToSelect();
-  }
-
   onPanelHideCadenas() {
-    /* this.menuService
-      .getRestaurantesToSelect(this.cadenasSeleccionadas.value)
-      .subscribe({
-        next: (restaurantes) => {
-          this.restaurantes = restaurantes.map(rst => ({
-            name: rst.codeStore,
-            code: rst.id
-          }));
-          if (this.cadenasSeleccionadas.value.length > 0) {
-            this.restaurantesSeleccionados.enable();
-          } else {
-            this.restaurantesSeleccionados.setValue([]);
-            this.restaurantesSeleccionados.disable();
-          }
-        },
-        error: (err) => {
-          console.log(err);
-        },
-      }); */
-
-    this.restaurantes$ = this.menuService.getRestaurantesToSelect(
-      this.cadenasSeleccionadas.value
-    );
+    this.restaurantesSeleccionados.setValue([]);
     if (this.cadenasSeleccionadas.value.length > 0) {
+      this.restaurantes$ = this.menuService.getRestaurantesToSelect(
+        this.cadenasSeleccionadas.value
+      );
       this.restaurantesSeleccionados.enable();
     } else {
-      this.restaurantesSeleccionados.setValue([]);
       this.restaurantesSeleccionados.disable();
     }
   }
 
   onSubmit() {
-    console.log(this.formularioFiltro.value)
+    console.log(this.formularioFiltro.value);
     this.menuService
       .getMenuToSelectCheckbox(this.formularioFiltro.value)
       .subscribe({
         next: (menus) => {
-          console.log(menus)
+          console.log(menus);
           this.dialogRef.close(menus);
-          this.menuService.menuList = menus;
         },
         error: (err) => {
           console.log(err);
         },
       });
+
+      /* this.menus$ = this.menuService.getMenuToSelectCheckbox(this.formularioFiltro.value);
+      this.dialogRef.close(this.menus$); */
+
   }
 }

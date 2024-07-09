@@ -1,3 +1,4 @@
+import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FilterMenuComponent } from './filter-menu.component';
@@ -9,7 +10,7 @@ describe('FilterMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FilterMenuComponent, MatDialogModule],
+      imports: [FilterMenuComponent, MatDialogModule, HttpClientModule],
       providers: [{ provide: MatDialogRef, useValue: {} }, provideAnimations()],
     }).compileComponents();
 

@@ -32,6 +32,7 @@ import { ToastModule } from 'primeng/toast';
   templateUrl: './canal-envio.component.html',
   styleUrl: './canal-envio.component.css',
 })
+
 export class CanalEnvioComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<CanalEnvioComponent>,

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   CadenaI,
@@ -9,221 +9,60 @@ import {
 } from '../models/interfaces';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment.development';
+import short from 'short-uuid';
+
+interface menuObject {
+  data: menuItemI[];
+  total_records: number;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class MenuService {
   private httpClient = inject(HttpClient);
-  public menuList: Array<optionsToSelectI> = [];
 
-  getMenuItems(channelName: string): Array<menuItemI> {
-    console.log(channelName);
-    return [
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-      {
-        _id: '12345678',
-        syncrosId: '12345678',
-        startTime: new Date(),
-        endTime: null,
-        status: 'CREATED',
-      },
-    ];
+  getMenuItems(pagina: number, filas: number): Observable<menuObject> {
+    const translator = short();
+    let data: menuItemI[] = [];
+    let total_records = 0;
+    return this.httpClient
+      .get<any>(`${environment.url}/sync?page=${pagina + 1}&size=${filas}`)
+      .pipe(
+        map((menus) => {
+          //if (menus && menus.data && menus.total_records > 0) {
+            /* menus.data.map((menu: any) => {
+              console.log(menu)
+              data.push({
+                syncros_id: translator.fromUUID(menu.syncros_id),
+                start_time: menu.start_time,
+                end_time: menu.start_time,
+                error_msg: menu.start_time,
+                status: menu.status,
+              });
+            });
+            total_records = menus.total_records; */
+          //}
+         /*  console.log(menus)
+          console.log(data);
+          console.log(total_records) */
+          return {
+            data: menus.data,
+            total_records: menus.total_records
+          };
+        })
+      );
   }
 
   getCadenasToSelect(): Observable<CadenaI[]> {
-    return this.httpClient
-      .post<any>(`${environment.url}/menu/chainsall`, {});
+    return this.httpClient.post<any>(`${environment.url}/menu/chainsall`, {});
   }
 
-  getRestaurantesToSelect(cadenas: Array<any>): Observable<RestauranteI[]> {
-    let idCadenas = [];
-    idCadenas = cadenas.map((cadena) => cadena.id);
+  getRestaurantesToSelect(cadenas: CadenaI[]): Observable<RestauranteI[]> {
     return this.httpClient.post<any>(
       `${environment.url}/menu/findrestaurants`,
       {
-        id: idCadenas,
+        id: cadenas.map((cadena) => cadena.id) || [],
       }
     );
   }

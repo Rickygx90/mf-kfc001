@@ -53,6 +53,7 @@ export class LoginComponent {
     this.showLoading = true;
     this.usersService.getToken(this.formularioLogin.value).subscribe({
       next: (token) => {
+        console.log(token)
         localStorage.setItem('token', JSON.stringify(token));
         this.router.navigate(['/home/dashboard']);
       },

@@ -1,5 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { AlertInfoComponent } from './alert-info.component';
 
 describe('AlertInfoComponent', () => {
@@ -9,7 +13,10 @@ describe('AlertInfoComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AlertInfoComponent, MatDialogModule],
-      providers: [{ provide: MatDialogRef, useValue: {} }],
+      providers: [
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MatDialogRef, useValue: {} },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AlertInfoComponent);

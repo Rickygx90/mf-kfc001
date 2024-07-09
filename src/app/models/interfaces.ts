@@ -17,11 +17,6 @@ export interface multiSelect2I {
   children: RestauranteI[];
 }
 
-
-
-
-
-
 export interface multiSelectI {
   name: string;
   select: boolean;
@@ -43,10 +38,10 @@ export interface optionsToSelectI {
 }
 
 export interface menuItemI {
-  _id: Object;
-  syncrosId: string;
-  startTime: Date | null;
-  endTime?: Date | null;
+  syncros_id: string;
+  start_time: string;
+  end_time: string;
+  error_msg?: string;
   status: string;
 }
 
