@@ -31,7 +31,7 @@ export class MenuService {
       .pipe(
         map((menus) => {
           //if (menus && menus.data && menus.total_records > 0) {
-            /* menus.data.map((menu: any) => {
+          /* menus.data.map((menu: any) => {
               console.log(menu)
               data.push({
                 syncros_id: translator.fromUUID(menu.syncros_id),
@@ -43,20 +43,21 @@ export class MenuService {
             });
             total_records = menus.total_records; */
           //}
-         /*  console.log(menus)
+          /*  console.log(menus)
           console.log(data);
           console.log(total_records) */
           return {
             data: menus.data,
-            total_records: menus.total_records
+            total_records: menus.total_records,
           };
         })
       );
   }
 
   getDetailMenu(id: string) {
-    return this.httpClient
-    .get<any>(`${environment.url}/dashboard/sync/error/${id}`)
+    return this.httpClient.get<any>(
+      `${environment.url}/dashboard/sync/error/${id}`
+    );
   }
 
   getCadenasToSelect(): Observable<CadenaI[]> {
@@ -73,16 +74,29 @@ export class MenuService {
   }
 
   getMenuToSelectCheckbox(formularioFiltro: any): Observable<any[]> {
-    return this.httpClient.post<any>(
-      `http://192.168.101.29:3001/api/sincronization/getmenus`,
-      {
-        restaurantes: formularioFiltro.restaurantesSeleccionados,
-        fecha: {
-          fechaInicial: formularioFiltro.fechaInicio,
-          fechaFinal: formularioFiltro.fechaFin,
+    //  /menu/findmenus
+    return this.httpClient.post<any>(`${environment.url}/menu/findmenus`, {
+      restaurants: formularioFiltro.restaurantesSeleccionados.map(
+        (restaurant: any) => {
+          return {
+            id: restaurant.id,
+            codeStore: restaurant.codeStore,
+          };
+        }
+      ),
+      dates: {
+        startDate: formularioFiltro.fechaInicio.toISOString(),
+        endDate: formularioFiltro.fechaFin.toISOString(),
+      },
+      page: 1,
+      pageSize: 10,
+      otherFilters: {
+        searchNameMenu: {
+          enable: false,
+          nameMenu: '',
         },
-      }
-    );
+      },
+    });
   }
 
   getCategoriasMenuToSelectCheckbox(

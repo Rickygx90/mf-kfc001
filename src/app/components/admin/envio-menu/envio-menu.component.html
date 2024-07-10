@@ -35,18 +35,24 @@
                         </mat-checkbox>
                     </div>
 
-                    <div class="w-full h-[calc(100%-110px)] overflow-auto">
-                        @for (menu of listSelectableMenu.children; track menu) {
-                        <div class="m-1">
-                            <mat-checkbox [(ngModel)]="menu.select" (ngModelChange)="updateAllCompleteMenu()">
-                                <div class="border border-gray-300 py-1 px-5 text-xs">
-                                    <p>{{menu.name}}</p>
-                                    <p>{{menu.date}}</p>
-                                </div>
-                            </mat-checkbox>
+                    @if (showMenus) {
+                        <div class="w-full h-[calc(100%-110px)] overflow-auto">
+                            @for (menu of listSelectableMenu.children; track menu) {
+                            <div class="m-1">
+                                <mat-checkbox [(ngModel)]="menu.select" (ngModelChange)="updateAllCompleteMenu()">
+                                    <div class="border border-gray-300 py-1 px-5 text-xs">
+                                        <p>{{menu.syncrosId}}</p>
+                                        <p>{{menu.startTime}}</p>
+                                    </div>
+                                </mat-checkbox>
+                            </div>
+                            }
                         </div>
-                        }
-                    </div>
+                    } @else {
+                        <div>No hay Data</div>
+                    }
+
+                    
                 </div>
 
                 <div class="w-full h-full border-r-2">

@@ -38,15 +38,17 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
   allCompleteCategoria: boolean = false;
   allCompleteProducto: boolean = false;
 
+  subMenusSelected: any = [];
   subCategoriasSelected: Array<optionsToSelectI> = [];
   subProductoSelected: Array<optionsToSelectI> = [];
 
+  showMenus: boolean = false;
   showCategorias: boolean = false;
   showProductos: boolean = false;
   btnCanalEnvioDisabled: boolean = true;
   btnSincronizarMaxpointDisabled: boolean = false;
 
-  listSelectableMenu: multiSelectI = {
+  listSelectableMenu: any = {
     name: 'Seleccionar todos',
     select: false,
     children: [],
@@ -222,9 +224,9 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
   updateAllCompleteMenu(): void {
     this.allCompleteMenu =
       this.listSelectableMenu.children != null &&
-      this.listSelectableMenu.children.every((t) => t.select);
+      this.listSelectableMenu.children.every((menu: any) => menu.select);
     const menusSelected = this.listSelectableMenu.children.filter(
-      (menu) => menu.select
+      (menu: any) => menu.select
     );
     this.menuService
       .getCategoriasMenuToSelectCheckbox(menusSelected)
@@ -246,7 +248,7 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
       return false;
     }
     return (
-      this.listSelectableMenu.children.filter((t) => t.select).length > 0 &&
+      this.listSelectableMenu.children.filter((menu: any) => menu.select).length > 0 &&
       !this.allCompleteMenu
     );
   }
@@ -256,9 +258,9 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
     if (this.listSelectableMenu.children == null) {
       return;
     }
-    this.listSelectableMenu.children.forEach((t) => (t.select = select));
+    this.listSelectableMenu.children.forEach((menu: any) => (menu.select = select));
     const menusSelected = this.listSelectableMenu.children.filter(
-      (menu) => menu.select
+      (menu: any) => menu.select
     );
     this.menuService
       .getCategoriasMenuToSelectCheckbox(menusSelected)
@@ -441,9 +443,15 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
       width: '460px',
     });
     dialogRef.afterClosed().subscribe((result) => {
-      console.log(result)
-      if (result && result.length > 0)
-        this.listSelectableMenu.children = result;
+      console.log(result);
+      if (result) {
+        this.showMenus = true;
+        this.listSelectableMenu.children = result.groupSync;
+      } else {
+        this.showMenus = false;
+      }
+
+      
     });
   }
 

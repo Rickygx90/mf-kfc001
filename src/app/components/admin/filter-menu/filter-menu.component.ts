@@ -100,7 +100,6 @@ export class FilterMenuComponent implements OnInit {
       .getMenuToSelectCheckbox(this.formularioFiltro.value)
       .subscribe({
         next: (menus) => {
-          console.log(menus);
           this.dialogRef.close(menus);
         },
         error: (err) => {
