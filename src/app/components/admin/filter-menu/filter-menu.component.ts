@@ -1,9 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatDialogRef,
   MatDialogContent,
   MatDialogClose,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { MatButtonModule } from '@angular/material/button';
@@ -50,7 +51,8 @@ export class FilterMenuComponent implements OnInit {
   
   constructor(
     private formBuilder: FormBuilder,
-    public dialogRef: MatDialogRef<FilterMenuComponent>
+    public dialogRef: MatDialogRef<FilterMenuComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
   ) {}
   
   ngOnInit() {
@@ -95,20 +97,16 @@ export class FilterMenuComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log(this.formularioFiltro.value);
     this.menuService
-      .getMenuToSelectCheckbox(this.formularioFiltro.value)
+      .getMenuToSelectCheckbox({formularioFiltro: this.formularioFiltro.value, data: this.data})
       .subscribe({
         next: (menus) => {
-          this.dialogRef.close(menus);
+          console.log(menus)
+          this.dialogRef.close({menus, formularioFiltro: this.formularioFiltro.value});
         },
         error: (err) => {
           console.log(err);
         },
       });
-
-      /* this.menus$ = this.menuService.getMenuToSelectCheckbox(this.formularioFiltro.value);
-      this.dialogRef.close(this.menus$); */
-
   }
 }

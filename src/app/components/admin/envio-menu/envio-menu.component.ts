@@ -15,6 +15,7 @@ import { Observable } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { validateResponse } from '../../../shared/utils';
+import { PaginatorModule } from 'primeng/paginator';
 
 @Component({
   selector: 'app-envio-menu',
@@ -27,13 +28,20 @@ import { validateResponse } from '../../../shared/utils';
     MatButtonModule,
     MatExpansionModule,
     ToastModule,
+    PaginatorModule,
   ],
   providers: [MessageService],
   templateUrl: './envio-menu.component.html',
   styleUrl: './envio-menu.component.css',
 })
-export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
+export class EnvioMenuComponent /*  implements CanComponentDeactivate */ /* , OnInit */ {
+  public rowsMenu: number = 3;
+  public page: number = 1;
+  public total_recordsMenu: number = 0;
+  public formularioFiltro: any;
+
   menuService = inject(MenuService);
+
   allCompleteMenu: boolean = false;
   allCompleteCategoria: boolean = false;
   allCompleteProducto: boolean = false;
@@ -54,13 +62,13 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
     children: [],
   };
 
-  listSelectableCategories: multiSelectI = {
+  listSelectableCategories: any = {
     name: 'Seleccionar todos',
     select: false,
     children: [],
   };
 
-  listSelectableProducts: multiSelectI = {
+  listSelectableProducts: any = {
     name: 'Seleccionar todos',
     select: false,
     children: [],
@@ -71,7 +79,7 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
     private messageService: MessageService
   ) {}
 
-  ngOnInit() {
+  /* ngOnInit() {
     const sincronizacionManual = localStorage.getItem('sincronizacionManual');
     if (sincronizacionManual) {
       const { configMenu, configCategoria, configProducto } =
@@ -86,9 +94,42 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
         this.showProductos = true;
       }
     }
+  } */
+
+  paginate(event: any) {
+
+    console.log(this.listSelectableMenu.children)
+    this.menuService
+      .getMenuToSelectCheckbox({
+        formularioFiltro: this.formularioFiltro,
+        data: { page: event.page + 1, rowsMenu: event.rows },
+      })
+      .subscribe({
+        next: (menus) => {
+          if (menus.groupSync && menus.groupSync?.length > 0) {
+    
+            const aux = menus.groupSync.map((syncro: any) => {
+              return {
+                syncrosId: syncro.syncrosId,
+                startTime: syncro.startTime,
+                children: syncro.menus.map((menuId: any) => {
+                  return menus.groupMenu.filter(
+                    (menu: any) => menu.checksum === menuId
+                  );
+                }),
+              };
+            });
+            console.log(aux);
+            this.listSelectableMenu.children = aux;
+          }
+        },
+        error: (err) => {
+          console.log(err);
+        },
+      });
   }
 
-  canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
+  /* canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
     console.log(this.listSelectableCategories);
     if (
       this.listSelectableMenu.children.length > 0 ||
@@ -121,9 +162,12 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
       return confirmacion1;
     }
     return true;
-  }
+  } */
 
   restartCategoriasProductos(panel: string): void {
+    /* if(panel === 'syncro') {
+
+    } */
     if (panel === 'menu') {
       this.showCategorias =
         this.listSelectableCategories.children.length > 0 ? true : false;
@@ -143,10 +187,10 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
   }
 
   updateAllCompleteSubOptions(obj: optionsToSelectI, panel: string): void {
-    obj.allCompleteSubCategoria =
-      obj.children != null && obj.children.every((obj) => obj.select);
     obj.children?.map((subobj) => {
       if (panel === 'categoria') {
+        obj.allCompleteSubCategoria =
+          obj.children != null && obj.children.every((obj) => obj.select);
         if (subobj.select) {
           if (
             this.subCategoriasSelected.filter(
@@ -161,6 +205,8 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
           );
         }
       } else if (panel === 'producto') {
+        obj.allCompleteSubProducto =
+          obj.children != null && obj.children.every((obj) => obj.select);
         if (subobj.select) {
           if (
             this.subProductoSelected.filter(
@@ -222,25 +268,10 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
   }
 
   updateAllCompleteMenu(): void {
+    console.log('updateAllCompleteMenu!!!');
     this.allCompleteMenu =
       this.listSelectableMenu.children != null &&
       this.listSelectableMenu.children.every((menu: any) => menu.select);
-    const menusSelected = this.listSelectableMenu.children.filter(
-      (menu: any) => menu.select
-    );
-    this.menuService
-      .getCategoriasMenuToSelectCheckbox(menusSelected)
-      .subscribe({
-        next: (categorias) => {
-          this.listSelectableCategories.children = categorias;
-        },
-        error: (err) => {
-          console.log(err);
-        },
-        complete: () => {
-          this.restartCategoriasProductos('menu');
-        },
-      });
   }
 
   someCompleteMenu(): boolean {
@@ -248,41 +279,148 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
       return false;
     }
     return (
-      this.listSelectableMenu.children.filter((menu: any) => menu.select).length > 0 &&
-      !this.allCompleteMenu
+      this.listSelectableMenu.children.filter((menu: any) => menu.select)
+        .length > 0 && !this.allCompleteMenu
     );
   }
 
   setAllMenu(select: boolean): void {
+    console.log('setAllMenu!!!');
+    this.subMenusSelected = [];
     this.allCompleteMenu = select;
     if (this.listSelectableMenu.children == null) {
       return;
     }
-    this.listSelectableMenu.children.forEach((menu: any) => (menu.select = select));
-    const menusSelected = this.listSelectableMenu.children.filter(
-      (menu: any) => menu.select
-    );
-    this.menuService
-      .getCategoriasMenuToSelectCheckbox(menusSelected)
-      .subscribe({
-        next: (categorias) => {
-          console.log(categorias);
-          this.listSelectableCategories.children = categorias;
-        },
-        error: (err) => {
-          console.log(err);
-        },
-        complete: () => {
-          this.restartCategoriasProductos('menu');
-        },
+
+    this.listSelectableMenu.children.forEach((menu: any) => {
+      menu.select = select;
+      menu.allCompleteSubMenu = select;
+      menu.children?.forEach((subMenu: any) => (subMenu.select = menu.select));
+    });
+
+    this.listSelectableMenu.children.map((menu: any) => {
+      menu.children?.map((submenu: any) => {
+        if (submenu.select) this.subMenusSelected.push(submenu);
       });
+    });
+    console.log(this.subMenusSelected);
+    const aux = this.subMenusSelected.map((submenu: any) => {
+      return {
+        id: submenu[0].checksum,
+        children: submenu[0].categories.map((category: any) => {
+          return {
+            ...category,
+            items: category.entities.map((entity: any) => {
+              return submenu[0].items.filter(
+                (item: any) => entity.id === item.id
+              );
+            }),
+          };
+        }),
+      };
+    });
+    //console.log(aux)
+    this.listSelectableCategories.children = aux;
+    this.restartCategoriasProductos('menu');
+  }
+
+  updateAllCompleteSubMenus(menu: any): void {
+    console.log('updateAllCompleteSubMenus!!!');
+    menu.allCompleteSubMenu =
+      menu.children != null && menu.children.every((menu: any) => menu.select);
+    menu.children?.map((submenu: any) => {
+      if (submenu.select) {
+        if (
+          this.subMenusSelected.filter(
+            (submenuselected: any) => submenuselected === submenu
+          ).length === 0
+        ) {
+          this.subMenusSelected.push(submenu);
+        }
+      } else {
+        this.subMenusSelected = this.subMenusSelected.filter(
+          (submenuselected: any) => submenuselected != submenu
+        );
+      }
+    });
+    console.log(this.subMenusSelected);
+    const aux = this.subMenusSelected.map((submenu: any) => {
+      return {
+        id: submenu[0].checksum,
+        children: submenu[0].categories.map((category: any) => {
+          return {
+            ...category,
+            items: category.entities.map((entity: any) => {
+              return submenu[0].items.filter(
+                (item: any) => entity.id === item.id
+              );
+            }),
+          };
+        }),
+      };
+    });
+    console.log(aux);
+    this.listSelectableCategories.children = aux;
+    this.restartCategoriasProductos('menu');
+  }
+
+  someCompleteSubMenus(menu: any): boolean {
+    if (menu.children == null) {
+      return false;
+    }
+    return (
+      menu.children.filter((menu: any) => menu.select).length > 0 &&
+      !menu.allCompleteSubMenu
+    );
+  }
+
+  setAllSubMenus(select: boolean, menu: any): void {
+    console.log('setAllSubMenus!!!');
+    menu.allCompleteSubMenu = select;
+    if (menu.children == null) {
+      return;
+    }
+    menu.children.forEach((submenu: any) => {
+      submenu.select = select;
+      if (select) {
+        if (
+          this.subMenusSelected.filter(
+            (subMenusSelected: any) => subMenusSelected === submenu
+          ).length === 0
+        ) {
+          this.subMenusSelected.push(submenu);
+        }
+      } else {
+        this.subMenusSelected = this.subMenusSelected.filter(
+          (subMenusSelected: any) => subMenusSelected !== submenu
+        );
+      }
+    });
+    console.log(this.subMenusSelected);
+    const aux = this.subMenusSelected.map((submenu: any) => {
+      return {
+        id: submenu[0].checksum,
+        children: submenu[0].categories.map((category: any) => {
+          return {
+            ...category,
+            items: category.entities.map((entity: any) => {
+              return submenu[0].items.filter(
+                (item: any) => entity.id === item.id
+              );
+            }),
+          };
+        }),
+      };
+    });
+    this.listSelectableCategories.children = aux;
+    this.restartCategoriasProductos('menu');
   }
 
   updateAllCompleteCategorias(): void {
     this.allCompleteCategoria =
       this.listSelectableCategories.children != null &&
       this.listSelectableCategories.children.every(
-        (categoria) => categoria.select
+        (categoria: any) => categoria.select
       );
   }
 
@@ -292,7 +430,7 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
     }
     return (
       this.listSelectableCategories.children.filter(
-        (categoria) => categoria.select
+        (categoria: any) => categoria.select
       ).length > 0 && !this.allCompleteCategoria
     );
   }
@@ -303,19 +441,28 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
     if (this.listSelectableCategories.children == null) {
       return;
     }
-    this.listSelectableCategories.children.forEach((categoria) => {
+    this.listSelectableCategories.children.forEach((categoria: any) => {
       categoria.select = select;
       categoria.allCompleteSubCategoria = select;
       categoria.children?.forEach(
-        (subCategoria) => (subCategoria.select = categoria.select)
+        (subCategoria: any) => (subCategoria.select = categoria.select)
       );
     });
-    this.listSelectableCategories.children.map((categoria) => {
-      categoria.children?.map((subcategoria) => {
+    this.listSelectableCategories.children.map((categoria: any) => {
+      categoria.children?.map((subcategoria: any) => {
         if (subcategoria.select) this.subCategoriasSelected.push(subcategoria);
       });
     });
-    this.menuService
+    const aux = this.subCategoriasSelected.map((subcategoria: any) => {
+      return {
+        id: subcategoria.id,
+        title: subcategoria.title,
+        children: subcategoria.items,
+      };
+    });
+    this.listSelectableProducts.children = aux;
+    this.restartCategoriasProductos('categoria');
+    /* this.menuService
       .getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected)
       .subscribe({
         next: (categorias) => {
@@ -328,12 +475,22 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
         complete: () => {
           this.restartCategoriasProductos('categoria');
         },
-      });
+      }); */
   }
 
   updateAllCompleteSubCategorias(categoria: optionsToSelectI): void {
     this.updateAllCompleteSubOptions(categoria, 'categoria');
-    this.menuService
+    console.log(this.subCategoriasSelected);
+    const aux = this.subCategoriasSelected.map((subcategoria: any) => {
+      return {
+        id: subcategoria.id,
+        title: subcategoria.title,
+        children: subcategoria.items,
+      };
+    });
+    this.listSelectableProducts.children = aux;
+    this.restartCategoriasProductos('categoria');
+    /* this.menuService
       .getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected)
       .subscribe({
         next: (categorias) => {
@@ -346,7 +503,7 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
         complete: () => {
           this.restartCategoriasProductos('categoria');
         },
-      });
+      }); */
   }
 
   someCompleteSubCategorias(categoria: optionsToSelectI): boolean {
@@ -361,7 +518,16 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
 
   setAllSubCategorias(select: boolean, categoria: any): void {
     this.setAllSubOptions(categoria, 'categoria', select);
-    this.menuService
+    const aux = this.subCategoriasSelected.map((subcategoria: any) => {
+      return {
+        id: subcategoria.id,
+        title: subcategoria.title,
+        children: subcategoria.items,
+      };
+    });
+    this.listSelectableProducts.children = aux;
+    this.restartCategoriasProductos('categoria');
+    /*  this.menuService
       .getProductosCategoriasToSelectCheckbox(this.subCategoriasSelected)
       .subscribe({
         next: (categorias) => {
@@ -374,13 +540,15 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
         complete: () => {
           this.restartCategoriasProductos('categoria');
         },
-      });
+      }); */
   }
 
   updateAllCompleteProductos(): void {
     this.allCompleteProducto =
       this.listSelectableProducts.children != null &&
-      this.listSelectableProducts.children.every((producto) => producto.select);
+      this.listSelectableProducts.children.every(
+        (producto: any) => producto.select
+      );
   }
 
   someCompleteProductos(): boolean {
@@ -388,8 +556,9 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
       return false;
     }
     return (
-      this.listSelectableProducts.children.filter((producto) => producto.select)
-        .length > 0 && !this.allCompleteProducto
+      this.listSelectableProducts.children.filter(
+        (producto: any) => producto.select
+      ).length > 0 && !this.allCompleteProducto
     );
   }
 
@@ -399,15 +568,15 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
     if (this.listSelectableProducts.children == null) {
       return;
     }
-    this.listSelectableProducts.children.forEach((producto) => {
+    this.listSelectableProducts.children.forEach((producto: any) => {
       producto.select = select;
       producto.allCompleteSubProducto = select;
       producto.children?.forEach(
-        (subproducto) => (subproducto.select = producto.select)
+        (subproducto: any) => (subproducto.select = producto.select)
       );
     });
-    this.listSelectableProducts.children.map((producto) => {
-      producto.children?.map((subproducto) => {
+    this.listSelectableProducts.children.map((producto: any) => {
+      producto.children?.map((subproducto: any) => {
         if (subproducto.select) this.subProductoSelected.push(subproducto);
       });
     });
@@ -416,6 +585,7 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
   }
 
   updateAllCompleteSubProductos(producto: optionsToSelectI): void {
+    console.log('updateAllCompleteSubProductos');
     this.updateAllCompleteSubOptions(producto, 'producto');
     this.btnCanalEnvioDisabled =
       this.subProductoSelected.length > 0 ? false : true;
@@ -439,19 +609,43 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
 
   openFilterMenu(): void {
     const dialogRef = this.dialog.open(FilterMenuComponent, {
+      data: {
+        page: this.page,
+        rowsMenu: this.rowsMenu,
+      },
       height: '370px',
       width: '460px',
     });
     dialogRef.afterClosed().subscribe((result) => {
       console.log(result);
-      if (result) {
+      this.formularioFiltro = result.formularioFiltro;
+      if (result.menus && result.menus.groupSync?.length > 0) {
+        this.subMenusSelected = [];
+        this.listSelectableCategories.children = [];
+        this.restartCategoriasProductos('menu');
         this.showMenus = true;
-        this.listSelectableMenu.children = result.groupSync;
-      } else {
+
+        const aux = result.menus.groupSync.map((syncro: any) => {
+          return {
+            syncrosId: syncro.syncrosId,
+            startTime: syncro.startTime,
+            children: syncro.menus.map((menuId: any) => {
+              return result.menus.groupMenu.filter(
+                (menu: any) => menu.checksum === menuId
+              );
+            }),
+          };
+        });
+        this.page = result.menus.pagination.page;
+        this.total_recordsMenu = result.menus.pagination.totalRecords;
+        this.listSelectableMenu.children = aux;
+      } else if (result.menus === null) {
+        this.listSelectableMenu.children = [];
+        this.subMenusSelected = [];
+        this.listSelectableCategories.children = [];
+        this.restartCategoriasProductos('menu');
         this.showMenus = false;
       }
-
-      
     });
   }
 

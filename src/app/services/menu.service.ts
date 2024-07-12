@@ -73,8 +73,10 @@ export class MenuService {
     );
   }
 
-  getMenuToSelectCheckbox(formularioFiltro: any): Observable<any[]> {
+  getMenuToSelectCheckbox({formularioFiltro, data}: any): Observable<any> {
     //  /menu/findmenus
+    console.log('getMenuToSelectCheckbox!!!')
+    console.log(data)
     return this.httpClient.post<any>(`${environment.url}/menu/findmenus`, {
       restaurants: formularioFiltro.restaurantesSeleccionados.map(
         (restaurant: any) => {
@@ -88,8 +90,8 @@ export class MenuService {
         startDate: formularioFiltro.fechaInicio.toISOString(),
         endDate: formularioFiltro.fechaFin.toISOString(),
       },
-      page: 1,
-      pageSize: 10,
+      page: data.page,
+      pageSize: data.rowsMenu,
       otherFilters: {
         searchNameMenu: {
           enable: false,

@@ -37,8 +37,9 @@
                             <div [class]="menuItem.status" class="cursor-pointer" (click)="openMenuDetail(menuItem.syncros_id)">
                                 <p><b>ID: </b>{{menuItem.syncros_id}}</p>
                                 <p><b>Status: </b>{{menuItem.status}}</p>
-                                <p><b>Start Time: </b> {{menuItem.start_time | date: 'd/M/yy'}}</p>
-                                <p><b>End Time: </b>{{menuItem.end_time | date: 'd/M/yy'}}</p>
+                                <p><b>Tiempo Inicial: </b> {{menuItem.start_time | date: 'd/M/yy'}}</p>
+                                <p><b>Tiempo Final: </b>{{menuItem.end_time | date: 'd/M/yy'}}</p>
+                                <p><b>Tiempo Transcurrido: </b>{{menuItem.end_time | date: 'd/M/yy'}}</p>
                             </div>
                         </div>
                     </div>
