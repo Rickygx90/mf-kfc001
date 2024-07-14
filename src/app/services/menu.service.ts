@@ -74,9 +74,6 @@ export class MenuService {
   }
 
   getMenuToSelectCheckbox({formularioFiltro, data}: any): Observable<any> {
-    //  /menu/findmenus
-    console.log('getMenuToSelectCheckbox!!!')
-    console.log(data)
     return this.httpClient.post<any>(`${environment.url}/menu/findmenus`, {
       restaurants: formularioFiltro.restaurantesSeleccionados.map(
         (restaurant: any) => {

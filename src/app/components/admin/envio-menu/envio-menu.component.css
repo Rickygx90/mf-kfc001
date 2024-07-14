@@ -55,3 +55,7 @@
 :host ::ng-deep .mdc-label {
     width: 100%
 }
+
+:host ::ng-deep .p-highlight {
+    background-color: rgb(246, 167, 167);
+}

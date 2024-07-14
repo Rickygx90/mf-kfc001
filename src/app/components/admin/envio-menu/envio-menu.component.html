@@ -31,42 +31,52 @@
                         </div>
                     </div>
 
-                    <div class="m-1 border-b">
+                    <!--  <div class="m-1 border-b">
                         <mat-checkbox [checked]="allCompleteMenu" [indeterminate]="someCompleteMenu()"
                             (change)="setAllMenu($event.checked)">
                             <div class="font-semibold text-sm">{{listSelectableMenu.name}}</div>
                         </mat-checkbox>
-                    </div>
+                    </div> -->
 
                     @if (showMenus) {
-                    <div class="w-full h-[calc(100%-110px)] overflow-auto">
-                        @for (menu of listSelectableMenu.children; track menu) {
-                        <div class="m-1">
-                            <mat-checkbox [checked]="menu.allCompleteSubMenu"
-                                [indeterminate]="someCompleteSubMenus(menu)"
-                                (change)="setAllSubMenus($event.checked, menu)" [(ngModel)]="menu.select"
-                                (ngModelChange)="updateAllCompleteMenu()">
-                                <div class="font-semibold text-sm">
-                                    <p>SYNCRO ID: {{menu.syncrosId}}</p>
-                                </div>
-                            </mat-checkbox>
-                            <span>
-                                @for (submenu of menu.children; track submenu) {
-                                <div class="ml-4">
-                                    <mat-checkbox [(ngModel)]="submenu.select"
-                                        (ngModelChange)="updateAllCompleteSubMenus(menu)">
-                                        <div class="border border-gray-300 py-1 px-5 text-xs">
-                                            <p>{{submenu[0].checksum}}</p>
-                                            <p>{{submenu[0].menus[0].title}}</p>
-                                        </div>
-                                    </mat-checkbox>
-                                </div>
-                                }
-                            </span>
+                    <div class="flex flex-col justify-between w-full h-[calc(100%-110px)] overflow-auto">
+
+                        @if (loadingMenu) {
+                        <div class="w-full h-full flex justify-center items-center">
+                            <div class="loader"></div>
+                        </div>
+                        } @else {
+                        <div>
+                            @for (menu of listSelectableMenu.children; track menu) {
+                            <div class="m-1">
+                                <mat-checkbox [checked]="menu.allCompleteSubMenu"
+                                    [indeterminate]="someCompleteSubMenus(menu)"
+                                    (change)="setAllSubMenus($event.checked, menu)" [(ngModel)]="menu.select"
+                                    (ngModelChange)="updateAllCompleteMenu()">
+                                    <div class="font-semibold text-sm">
+                                        <p>SYNCRO ID: {{menu.syncrosId}}</p>
+                                    </div>
+                                </mat-checkbox>
+                                <span>
+                                    @for (submenu of menu.children; track submenu) {
+                                    <div class="ml-4">
+                                        <mat-checkbox [(ngModel)]="submenu.select"
+                                            (ngModelChange)="updateAllCompleteSubMenus(menu)">
+                                            <div class="border border-gray-300 py-1 px-5 text-xs">
+                                                <p>{{submenu[0].checksum}}</p>
+                                                <p>{{submenu[0].menus[0].title}}</p>
+                                            </div>
+                                        </mat-checkbox>
+                                    </div>
+                                    }
+                                </span>
+                            </div>
+                            }
                         </div>
                         }
-                        <p-paginator [rows]="rowsMenu" [totalRecords]="total_recordsMenu"
-                        (onPageChange)="paginate($event)"></p-paginator>
+                        <p-paginator #paginator class="sticky bottom-0 mt-1"
+                            [style]="{'background-color': 'rgb(243 244 246)'}" [rows]="rowsMenu"
+                            [totalRecords]="total_recordsMenu" (onPageChange)="paginate($event)"></p-paginator>
                     </div>
                     } @else {
                     <div>No hay Data</div>
