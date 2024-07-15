@@ -24,7 +24,7 @@
                         <div class="m-4 flex justify-between items-center">
                             <h3 class="text-lg">Menu</h3>
                             <div class="flex">
-                                <input type="text" class="w-40 rounded-lg -mr-6 pl-3 pr-8" placeholder="Buscar">
+                                <input type="text" class="w-40 rounded-lg -mr-6 pl-3 pr-8" placeholder="Buscar" [ngModel]="buscarMenu" (ngModelChange)="onChangeInput($event)">
                                 <button class="border-l pl-1"><i class="ri-filter-line"
                                         (click)="openFilterMenu()"></i></button>
                             </div>
@@ -54,7 +54,7 @@
                                     (change)="setAllSubMenus($event.checked, menu)" [(ngModel)]="menu.select"
                                     (ngModelChange)="updateAllCompleteMenu()">
                                     <div class="font-semibold text-sm">
-                                        <p>SYNCRO ID: {{menu.syncrosId}}</p>
+                                        <p>Sincro ID: {{menu.syncrosId}} - Fecha: {{menu.endTime | date: 'd/M/yy, h:mm a':'GMT'}}</p>
                                     </div>
                                 </mat-checkbox>
                                 <span>
@@ -63,7 +63,7 @@
                                         <mat-checkbox [(ngModel)]="submenu.select"
                                             (ngModelChange)="updateAllCompleteSubMenus(menu)">
                                             <div class="border border-gray-300 py-1 px-5 text-xs">
-                                                <p>{{submenu[0].checksum}}</p>
+                                               <!--  <p>{{submenu[0].checksum}}</p> -->
                                                 <p>{{submenu[0].menus[0].title}}</p>
                                             </div>
                                         </mat-checkbox>
@@ -105,7 +105,9 @@
                                 (change)="setAllSubCategorias($event.checked, categoria)" [(ngModel)]="categoria.select"
                                 (ngModelChange)="updateAllCompleteCategorias()">
                                 <div class="font-semibold text-sm">
-                                    <p>{{categoria.id}}</p>
+                                    <!-- <p>{{categoria.id}}</p> -->
+                                    <p>Sincro ID: {{categoria.syncrosId}} - Fecha: {{categoria.endTime | date: 'd/M/yy, h:mm a':'GMT'}}</p>
+                                    <p>{{categoria.title}}</p>
                                 </div>
                             </mat-checkbox>
                             <span>
@@ -114,7 +116,7 @@
                                     <mat-checkbox [(ngModel)]="subcategoria.select"
                                         (ngModelChange)="updateAllCompleteSubCategorias(categoria)">
                                         <div class="border border-gray-300 py-1 px-5 text-xs">
-                                            <p>{{subcategoria.id}}</p>
+                                           <!--  <p>{{subcategoria.id}}</p> -->
                                             <p>{{subcategoria.title}}</p>
                                         </div>
                                     </mat-checkbox>
@@ -161,7 +163,8 @@
                                 (change)="setAllSubProductos($event.checked, producto)" [(ngModel)]="producto.select"
                                 (ngModelChange)="updateAllCompleteProductos()" class="w-full flex justify-between">
                                 <div class="font-semibold text-sm">
-                                    <p>{{producto.id}}</p>
+                                    <p>Sincro ID: {{producto.syncrosId}} - Fecha: {{producto.endTime | date: 'd/M/yy, h:mm a':'GMT'}}</p>
+                                    <p>{{producto.title}}</p>
                                 </div>
                             </mat-checkbox>
                             <span>
@@ -170,7 +173,7 @@
                                     <mat-checkbox [(ngModel)]="subproducto.select"
                                         (ngModelChange)="updateAllCompleteSubProductos(producto)">
                                         <div class="border border-gray-300 py-1 px-5 text-xs">
-                                            <p>{{subproducto[0].id}}</p>
+                                            <!-- <p>{{subproducto[0].id}}</p> -->
                                             <p>{{subproducto[0].title}}</p>
                                         </div>
                                     </mat-checkbox>

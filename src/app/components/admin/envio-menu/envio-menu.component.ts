@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
@@ -21,6 +22,7 @@ import { Paginator, PaginatorModule } from 'primeng/paginator';
   selector: 'app-envio-menu',
   standalone: true,
   imports: [
+    CommonModule,
     SidebarComponent,
     MatCheckboxModule,
     FormsModule,
@@ -35,6 +37,50 @@ import { Paginator, PaginatorModule } from 'primeng/paginator';
   styleUrl: './envio-menu.component.css',
 })
 export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
+  buscarMenu: string = '';
+
+  onChangeInput(newValue: any) {
+    console.log(newValue);
+    this.buscarMenu = newValue;
+
+    this.menuService
+      .getMenuToSelectCheckbox({
+        formularioFiltro: null,
+        data: { page: 1, rowsMenu: this.rowsMenu },
+        palabra: newValue,
+      })
+      .subscribe({
+        next: (menus) => {
+          console.log(menus);
+          /* if (menus.groupSync && menus.groupSync?.length > 0) {
+              const aux = menus.groupSync.map((syncro: any) => {
+                return {
+                  syncrosId: syncro.syncrosId,
+                  startTime: syncro.startTime,
+                  children: syncro.menus.map((menuId: any) => {
+                    return menus.groupMenu.filter(
+                      (menu: any) => menu.checksum === menuId
+                    );
+                  }),
+                };
+              });
+              this.listSelectableMenu.children = aux;
+              this.listSelectableMenu.page = event.page;
+              this.menusSelected.push({ ...this.listSelectableMenu });
+              this.loadingMenu = false;
+            } */
+        },
+        error: (err) => {
+          this.loadingMenu = false;
+          console.log(err);
+        },
+      });
+
+    /*  this.Platform.ready().then(() => {
+       this.rootRef.child("users").child(this.UserID).child('buscarMenu').set(this.buscarMenu)
+    }) */
+  }
+
   @ViewChild('paginator', { static: false }) paginator!: Paginator;
   public rowsMenu: number = 3;
   public page: number = 1;
@@ -118,12 +164,25 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
             if (menus.groupSync && menus.groupSync?.length > 0) {
               const aux = menus.groupSync.map((syncro: any) => {
                 return {
-                  syncrosId: syncro.syncrosId,
+                  syncrosId: syncro.syncrosId.slice(
+                    0,
+                    syncro.syncrosId.indexOf('-')
+                  ),
                   startTime: syncro.startTime,
+                  endTime: syncro.endTime,
                   children: syncro.menus.map((menuId: any) => {
-                    return menus.groupMenu.filter(
+                    const subAux = menus.groupMenu.filter(
                       (menu: any) => menu.checksum === menuId
                     );
+                    subAux[0] = {
+                      ...subAux[0],
+                      syncrosId: syncro.syncrosId.slice(
+                        0,
+                        syncro.syncrosId.indexOf('-')
+                      ),
+                      endTime: syncro.endTime,
+                    };
+                    return subAux;
                   }),
                 };
               });
@@ -317,9 +376,14 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
     const aux = this.subMenusSelected.map((submenu: any) => {
       return {
         id: submenu[0].checksum,
+        title: submenu[0].menus[0].title,
+        syncrosId: submenu[0].syncrosId,
+        endTime: submenu[0].endTime,
         children: submenu[0].categories.map((category: any) => {
           return {
             ...category,
+            syncrosId: submenu[0].syncrosId,
+            endTime: submenu[0].endTime,
             items: category.entities.map((entity: any) => {
               return submenu[0].items.filter(
                 (item: any) => entity.id === item.id
@@ -354,11 +418,17 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
     });
     console.log(this.subMenusSelected);
     const aux = this.subMenusSelected.map((submenu: any) => {
+      console.log(submenu);
       return {
         id: submenu[0].checksum,
+        title: submenu[0].menus[0].title,
+        syncrosId: submenu[0].syncrosId,
+        endTime: submenu[0].endTime,
         children: submenu[0].categories.map((category: any) => {
           return {
             ...category,
+            syncrosId: submenu[0].syncrosId,
+            endTime: submenu[0].endTime,
             items: category.entities.map((entity: any) => {
               return submenu[0].items.filter(
                 (item: any) => entity.id === item.id
@@ -408,9 +478,14 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
     const aux = this.subMenusSelected.map((submenu: any) => {
       return {
         id: submenu[0].checksum,
+        title: submenu[0].menus[0].title,
+        syncrosId: submenu[0].syncrosId,
+        endTime: submenu[0].endTime,
         children: submenu[0].categories.map((category: any) => {
           return {
             ...category,
+            syncrosId: submenu[0].syncrosId,
+            endTime: submenu[0].endTime,
             items: category.entities.map((entity: any) => {
               return submenu[0].items.filter(
                 (item: any) => entity.id === item.id
@@ -466,6 +541,8 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
         id: subcategoria.id,
         title: subcategoria.title,
         children: subcategoria.items,
+        syncrosId: subcategoria.syncrosId,
+        endTime: subcategoria.endTime,
       };
     });
     this.listSelectableProducts.children = aux;
@@ -474,12 +551,13 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
 
   updateAllCompleteSubCategorias(categoria: optionsToSelectI): void {
     this.updateAllCompleteSubOptions(categoria, 'categoria');
-    console.log(this.subCategoriasSelected);
     const aux = this.subCategoriasSelected.map((subcategoria: any) => {
       return {
         id: subcategoria.id,
         title: subcategoria.title,
         children: subcategoria.items,
+        syncrosId: subcategoria.syncrosId,
+        endTime: subcategoria.endTime,
       };
     });
     this.listSelectableProducts.children = aux;
@@ -503,6 +581,8 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
         id: subcategoria.id,
         title: subcategoria.title,
         children: subcategoria.items,
+        syncrosId: subcategoria.syncrosId,
+        endTime: subcategoria.endTime,
       };
     });
     this.listSelectableProducts.children = aux;
@@ -586,7 +666,7 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
       console.log(result);
       if (result && result.menus && result.menus?.groupSync?.length > 0) {
         console.log(this.paginator);
-        if(this.paginator) this.paginator.changePage(0)
+        if (this.paginator) this.paginator.changePage(0);
         this.formularioFiltro = result.formularioFiltro;
         this.subMenusSelected = [];
         this.listSelectableCategories.children = [];
@@ -595,12 +675,22 @@ export class EnvioMenuComponent implements CanComponentDeactivate, OnInit {
         this.showMenus = true;
         const aux = result.menus.groupSync.map((syncro: any) => {
           return {
-            syncrosId: syncro.syncrosId,
+            syncrosId: syncro.syncrosId.slice(0, syncro.syncrosId.indexOf('-')),
             startTime: syncro.startTime,
+            endTime: new Date(syncro.endTime),
             children: syncro.menus.map((menuId: any) => {
-              return result.menus.groupMenu.filter(
+              const subAux = result.menus.groupMenu.filter(
                 (menu: any) => menu.checksum === menuId
               );
+              subAux[0] = {
+                ...subAux[0],
+                syncrosId: syncro.syncrosId.slice(
+                  0,
+                  syncro.syncrosId.indexOf('-')
+                ),
+                endTime: syncro.endTime,
+              };
+              return subAux;
             }),
           };
         });

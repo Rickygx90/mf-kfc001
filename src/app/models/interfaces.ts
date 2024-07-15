@@ -43,6 +43,9 @@ export interface menuItemI {
   end_time: string;
   error_msg?: string;
   status: string;
+  mode: string;
+  percentage: string;
+  tt: string;
 }
 
 export interface menuDetail {
