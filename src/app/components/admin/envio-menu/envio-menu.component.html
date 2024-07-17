@@ -1,11 +1,12 @@
-
 <div class="w-full h-[calc(100%-50px)] flex border-2 rounded-lg">
   <div class="w-full h-full border-r-2">
     <div class="border-b-2">
       <div class="m-4 flex justify-between items-center">
         <h3 class="text-lg">Menu</h3>
         <div class="flex">
-          <input type="text" class="w-40 rounded-lg -mr-6 pl-3 pr-8" placeholder="Buscar" [ngModel]="buscarMenu" (ngModelChange)="onChangeInput($event)">
+          <input [disabled]="formularioFiltro === null" type="text"
+                 class="w-40 rounded-lg -mr-6 pl-3 pr-8" placeholder="Buscar"
+                 [(ngModel)]="buscarMenu" (ngModelChange)="onChangeInput($event)">
           <button class="border-l pl-1"><i class="ri-filter-line"
                                            (click)="openFilterMenu()"></i></button>
         </div>
@@ -35,7 +36,8 @@
                               (change)="setAllSubMenus($event.checked, menu)" [(ngModel)]="menu.select"
                               (ngModelChange)="updateAllCompleteMenu()">
                   <div class="font-semibold text-sm">
-                    <p>Sincro ID: {{menu.syncrosId}} - Fecha: {{menu.endTime | date: 'd/M/yy, h:mm a':'GMT'}}</p>
+                    <p>Sincro: {{menu.syncrosId}} - Fecha: {{menu.endTime | date: 'd/M/yy, h:mm
+                      a':'GMT'}}</p>
                   </div>
                 </mat-checkbox>
                 <span>
@@ -44,7 +46,7 @@
                                         <mat-checkbox [(ngModel)]="submenu.select"
                                                       (ngModelChange)="updateAllCompleteSubMenus(menu)">
                                             <div class="border border-gray-300 py-1 px-5 text-xs">
-                                               <!--  <p>{{submenu[0].checksum}}</p> -->
+                                                <!--  <p>{{submenu[0].checksum}}</p> -->
                                                 <p>{{submenu[0].menus[0].title}}</p>
                                             </div>
                                         </mat-checkbox>
@@ -60,7 +62,9 @@
                      [totalRecords]="total_recordsMenu" (onPageChange)="paginate($event)"></p-paginator>
       </div>
     } @else {
-      <div>No hay Data</div>
+      <div class="w-full h-full flex justify-center items-center">
+        <div class="text-3xl text-slate-400">No hay Data</div>
+      </div>
     }
 
 
@@ -87,7 +91,8 @@
                           (ngModelChange)="updateAllCompleteCategorias()">
               <div class="font-semibold text-sm">
                 <!-- <p>{{categoria.id}}</p> -->
-                <p>Sincro ID: {{categoria.syncrosId}} - Fecha: {{categoria.endTime | date: 'd/M/yy, h:mm a':'GMT'}}</p>
+                <p>Sincro: {{categoria.syncrosId}} - Fecha: {{categoria.endTime | date: 'd/M/yy,
+                  h:mm a':'GMT'}}</p>
                 <p>{{categoria.title}}</p>
               </div>
             </mat-checkbox>
@@ -97,7 +102,7 @@
                                     <mat-checkbox [(ngModel)]="subcategoria.select"
                                                   (ngModelChange)="updateAllCompleteSubCategorias(categoria)">
                                         <div class="border border-gray-300 py-1 px-5 text-xs">
-                                           <!--  <p>{{subcategoria.id}}</p> -->
+                                            <!--  <p>{{subcategoria.id}}</p> -->
                                             <p>{{subcategoria.title}}</p>
                                         </div>
                                     </mat-checkbox>
@@ -144,7 +149,8 @@
                           (change)="setAllSubProductos($event.checked, producto)" [(ngModel)]="producto.select"
                           (ngModelChange)="updateAllCompleteProductos()" class="w-full flex justify-between">
               <div class="font-semibold text-sm">
-                <p>Sincro ID: {{producto.syncrosId}} - Fecha: {{producto.endTime | date: 'd/M/yy, h:mm a':'GMT'}}</p>
+                <p>Sincro: {{producto.syncrosId}} - Fecha: {{producto.endTime | date: 'd/M/yy,
+                  h:mm a':'GMT'}}</p>
                 <p>{{producto.title}}</p>
               </div>
             </mat-checkbox>
@@ -156,6 +162,7 @@
                                         <div class="border border-gray-300 py-1 px-5 text-xs">
                                             <!-- <p>{{subproducto[0].id}}</p> -->
                                             <p>{{subproducto[0].title}}</p>
+                                            <p>Precio: ${{subproducto[0].priceinfo.price/100}}</p>
                                         </div>
                                     </mat-checkbox>
                                 </div>

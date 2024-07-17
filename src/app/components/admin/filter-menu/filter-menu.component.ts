@@ -4,7 +4,7 @@ import {
   MatDialogRef,
   MatDialogContent,
   MatDialogClose,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,7 +16,7 @@ import {
   FormControl,
   Validators,
 } from '@angular/forms';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MenuService } from '../../../services/menu.service';
@@ -38,7 +38,7 @@ import { CadenaI, RestauranteI } from '../../../models/interfaces';
     MatDatepickerModule,
     MatButtonModule,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }],
   templateUrl: './filter-menu.component.html',
   styleUrl: './filter-menu.component.css',
 })
@@ -46,15 +46,17 @@ export class FilterMenuComponent implements OnInit {
   public cadenas$!: Observable<CadenaI[] | any>;
   public restaurantes$!: Observable<RestauranteI[] | any>;
   public menus$!: Observable<any[] | any>;
-
+  btnBuscarDisabled = false;
+  btnCancelarDisabled = false;
+  showLoading = false;
   menuService = inject(MenuService);
-  
+
   constructor(
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<FilterMenuComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
-  
+
   ngOnInit() {
     this.cadenas$ = this.menuService.getCadenasToSelect();
   }
@@ -97,12 +99,20 @@ export class FilterMenuComponent implements OnInit {
   }
 
   onSubmit() {
+    this.formularioFiltro.disable();
+    this.showLoading = true;
     this.menuService
-      .getMenuToSelectCheckbox({formularioFiltro: this.formularioFiltro.value, data: this.data})
+      .getMenuToSelectCheckbox({
+        formularioFiltro: this.formularioFiltro.value,
+        data: this.data,
+      })
       .subscribe({
         next: (menus) => {
-          console.log(menus)
-          this.dialogRef.close({menus, formularioFiltro: this.formularioFiltro.value});
+          console.log(menus);
+          this.dialogRef.close({
+            menus,
+            formularioFiltro: this.formularioFiltro.value,
+          });
         },
         error: (err) => {
           console.log(err);

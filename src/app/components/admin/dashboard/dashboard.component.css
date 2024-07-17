@@ -1,34 +1,35 @@
-.FINISHED {
-    height: 100%;
-    background-color: rgb(143, 255, 143);
-    padding: 5px;
-    word-wrap: break-word;
+.Finalizado {
+  height: 100%;
+  background-color: rgb(143, 255, 143);
+  padding: 5px;
+  word-wrap: break-word;
 }
 
-.ERROR {
-    height: 100%;
-    background-color: rgb(255, 161, 161);
-    padding: 5px;
-    word-wrap: break-word;
+.indeterminado {
+  height: 100%;
+  background-color: rgb(255, 161, 161);
+  padding: 5px;
+  word-wrap: break-word;
 }
 
-.CREATED {
-    height: 100%;
-    background-color: rgb(116, 211, 255);
-    padding: 5px;
-    word-wrap: break-word;
+.Creado {
+  height: 100%;
+  background-color: rgb(116, 211, 255);
+  padding: 5px;
+  word-wrap: break-word;
 }
 
-.SYNCING {
-    height: 100%;
-    background-color: rgb(236, 233, 56);
-    padding: 5px;
-    word-wrap: break-word;
+.Sincronizando {
+  height: 100%;
+  background-color: rgb(236, 233, 56);
+  padding: 5px;
+  word-wrap: break-word;
 }
 
-.SENDING {
-    height: 100%;
-    background-color: rgb(113, 56, 236);
-    padding: 5px;
-    word-wrap: break-word;
+:host ::ng-deep .p-progressbar  {
+  color: red;
+}
+
+:host ::ng-deep .p-highlight {
+  background-color: rgb(246, 167, 167);
 }

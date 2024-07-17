@@ -1,4 +1,5 @@
-<div class="h-2/4 mb-8">
+
+<div class="h-2/4">
   <p class="text-xl mt-1 mb-4">Ultimos envios de menú </p>
   <div class="grid justify-items-stretch grid-cols-6 2xl:grid-cols-12 gap-1 text-xs">
     <!--    <div *ngFor="let menuItem of menuItems$ | async" class="shadow-2xl">
@@ -12,36 +13,33 @@
   </div>
 </div>
 
-<div class="h-2/4 mb-8">
-  <p class="text-xl mt-1 mb-4">Sincronizaciones con Maxpoint</p>
-  @if (showLoading) {
-    <div class="w-full h-full flex justify-center items-center">
-      <div class="loader"></div>
-    </div>
-  } @else {
-    <!-- <div *ngIf='data | async; else loading'> -->
-    <div class="grid justify-items-stretch grid-cols-6 2xl:grid-cols-12 gap-1 text-xs">
-      <div *ngFor="let menuItem of data" class="shadow-2xl">
-        <div [class]="menuItem.status" class="cursor-pointer" (click)="openMenuDetail(menuItem.syncros_id)">
-          <p><b>ID: </b>{{menuItem.syncros_id}}</p>
-          <p><b>Estado: </b>{{menuItem.status}}</p>
-          <p><b>Tiempo Inicial: </b> {{menuItem.start_time | date: 'd/M/yy'}}</p>
-          <p><b>Tiempo Final: </b>{{menuItem.end_time | date: 'd/M/yy'}}</p>
-          <p><b>Tiempo Transcurrido: </b>{{menuItem.tt}}</p>
-          <p><b>Tipo de Ejecucion: </b>{{menuItem.mode}}</p>
-          <p><b>Porcentaje: </b>{{menuItem.percentage}}</p>
+<div class="h-2/4">
+  <p class="text-xl mb-2">Sincronizaciones con Maxpoint</p>
+  <div style="height: 72%;" class="overflow-auto">
+    @if (showLoading) {
+      <div class="w-full h-full flex justify-center items-center">
+        <div class="loader"></div>
+      </div>
+    } @else {
+      <!-- <div *ngIf='data | async; else loading'> -->
+      <div class="grid justify-items-stretch grid-cols-6 2xl:grid-cols-12 gap-1 text-xs">
+        <div *ngFor="let menuItem of data" class="shadow-2xl">
+          <div [class]="menuItem.status" class="cursor-pointer"
+               (click)="openMenuDetail(menuItem.syncros_id)">
+            <p><b>ID: </b>{{menuItem.syncros_id}}</p>
+            <p><b>Estado: </b>{{menuItem.status}}</p>
+            <p><b>Tiempo Inicial: </b> {{menuItem.start_time | date: 'd/M/yy, h:mm:ssa':'GMT'}}</p>
+            <p><b>Tiempo Final: </b>{{menuItem.end_time | date: 'd/M/yy, h:mm:ssa':'GMT'}}</p>
+            <p><b>Tiempo Transcurrido: </b>{{menuItem.tt}}</p>
+            <p><b>Tipo de Ejecucion: </b>{{menuItem.mode}}</p>
+            <p><b>Porcentaje: </b><p-progressBar [value]="menuItem.percentage.replace('%','')" />
+            </p>
+
+          </div>
         </div>
       </div>
-    </div>
-    <p-paginator [rows]="rows" [totalRecords]="total_records"
-                 (onPageChange)="paginate($event)"></p-paginator>
-  }
-  <!-- </div> -->
-  <!-- <ng-template #loading>
-      <div class="w-full h-full flex justify-center items-center">
-          <div class="loader"></div>
-      </div>
-  </ng-template> -->
-
+    }
+  </div>
+  <p-paginator  [rows]="rows"
+                [totalRecords]="total_records" (onPageChange)="paginate($event)"></p-paginator>
 </div>
-<!-- w-[calc(100%-256px)] ml-64 -->

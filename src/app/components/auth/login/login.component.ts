@@ -25,17 +25,13 @@ export class LoginComponent {
     private formBuilder: FormBuilder,
     private router: Router,
     private messageService: MessageService
-  ) {
-  }
-
+  ) {}
   get username() {
     return this.formularioLogin.get('username') as FormControl;
   }
-
   get password() {
     return this.formularioLogin.get('password') as FormControl;
   }
-
   public loginTokens$!: Observable<any>;
   login: any = {};
   usersService = inject(UsersService);

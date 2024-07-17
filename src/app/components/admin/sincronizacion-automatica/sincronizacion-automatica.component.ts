@@ -35,8 +35,7 @@ export class SincronizacionAutomaticaComponent implements OnInit {
   };
   menuService = inject(MenuService);
 
-  constructor(private messageService: MessageService) {
-  }
+  constructor(private messageService: MessageService) {}
 
   ngOnInit() {
     this.getLastConfiguration();

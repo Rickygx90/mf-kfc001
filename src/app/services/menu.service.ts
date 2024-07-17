@@ -22,6 +22,10 @@ interface menuObject {
 export class MenuService {
   private httpClient = inject(HttpClient);
 
+  checkActiveSync(): Observable<any> {
+    return this.httpClient.get<any>(`${environment.url}/sync/verify`);
+  }
+
   getMenuItems(pagina: number, filas: number): Observable<menuObject> {
     const translator = short();
     let data: menuItemI[] = [];
@@ -73,43 +77,34 @@ export class MenuService {
     );
   }
 
-  getMenuToSelectCheckbox({formularioFiltro, data, palabra = null}: any): Observable<any> {
-    if(!palabra) {
-      return this.httpClient.post<any>(`${environment.url}/menu/findmenus`, {
-        restaurants: formularioFiltro.restaurantesSeleccionados.map(
-          (restaurant: any) => {
-            return {
-              id: restaurant.id,
-              codeStore: restaurant.codeStore,
-            };
-          }
-        ),
-        dates: {
-          startDate: formularioFiltro.fechaInicio.toISOString(),
-          endDate: formularioFiltro.fechaFin.toISOString(),
+  getMenuToSelectCheckbox({
+    formularioFiltro,
+    data,
+    palabra = null,
+  }: any): Observable<any> {
+    console.log(palabra);
+    return this.httpClient.post<any>(`${environment.url}/menu/findmenus`, {
+      restaurants: formularioFiltro.restaurantesSeleccionados.map(
+        (restaurant: any) => {
+          return {
+            id: restaurant.id,
+            codeStore: restaurant.codeStore,
+          };
+        }
+      ),
+      dates: {
+        startDate: formularioFiltro.fechaInicio.toISOString(),
+        endDate: formularioFiltro.fechaFin.toISOString(),
+      },
+      page: data.page,
+      pageSize: data.rowsMenu,
+      otherFilters: {
+        searchNameMenu: {
+          enable: !!palabra,
+          nameMenu: palabra,
         },
-        page: data.page,
-        pageSize: data.rowsMenu,
-        otherFilters: {
-          searchNameMenu: {
-            enable: false,
-            nameMenu: '',
-          },
-        },
-      });
-    } else {
-      return this.httpClient.post<any>(`${environment.url}/menu/findmenus`, {
-        page: data.page,
-        pageSize: data.rowsMenu,
-        otherFilters: {
-          searchNameMenu: {
-            enable: true,
-            nameMenu: palabra,
-          },
-        },
-      });
-    }
-    
+      },
+    });
   }
 
   getCategoriasMenuToSelectCheckbox(
