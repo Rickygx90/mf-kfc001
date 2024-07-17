@@ -16,7 +16,7 @@ import {
   FormControl,
   Validators,
 } from '@angular/forms';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MenuService } from '../../../services/menu.service';
@@ -38,7 +38,7 @@ import { CadenaI, RestauranteI } from '../../../models/interfaces';
     MatDatepickerModule,
     MatButtonModule,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }],
   templateUrl: './filter-menu.component.html',
   styleUrl: './filter-menu.component.css',
 })
