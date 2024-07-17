@@ -81,13 +81,17 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     select: false,
     children: [],
   };
+   
+  aux2: any = [];
+  
+
   idInterval: any;
 
   constructor(
     public dialog: MatDialog,
     private messageService: MessageService
   ) {
-    this.idInterval = setInterval(() => {
+    /* this.idInterval = setInterval(() => {
       this.menuService.checkActiveSync().subscribe({
         next: (result) => {
           console.log(result);
@@ -101,7 +105,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         },
         error: (err) => {},
       });
-    }, 5000);
+    }, 5000); */
   }
 
   ngOnDestroy() {
@@ -588,22 +592,65 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       };
     });
     this.listSelectableProducts.children = aux;
+    console.log(' ------ listSelectableProducts ------ ');
+    console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
   updateAllCompleteSubCategorias(categoria: optionsToSelectI): void {
+   
     this.updateAllCompleteSubOptions(categoria, 'categoria');
+
     const aux = this.subCategoriasSelected.map((subcategoria: any) => {
-      console.log(subcategoria.items);
-      return {
-        id: subcategoria.id,
-        title: subcategoria.title,
-        children: subcategoria.items,
+      console.log(subcategoria);
+
+      let aux3 = this.aux2.filter(
+        (prod: any) => prod.syncrosId === subcategoria.syncrosId
+      );
+      console.log(aux3)
+      
+      if (aux3.length === 0) {
+        this.aux2.push({
+          children: [{
+            id: subcategoria.id,
+            title: subcategoria.title,
+            children: subcategoria.items,
+          }],
+          syncrosId: subcategoria.syncrosId,
+          endTime: subcategoria.endTime,
+        });
+      } else {
+        this.aux2.forEach((ele2: any) => {
+          if(ele2.syncrosId === subcategoria.syncrosId) {
+            ele2.children.forEach((ele3: any) => {
+              if(ele3.id !== subcategoria.id) {
+                console.log('Categoria nueva!!!')
+                ele2.children.push({
+                  id: subcategoria.id,
+                  title: subcategoria.title,
+                  children: subcategoria.items,
+                })
+              }
+            })
+          }
+        })
+      }
+      console.log(this.aux2);
+      /* return {
+        children: {
+          id: subcategoria.id,
+          title: subcategoria.title,
+          childre: subcategoria.items
+        },
         syncrosId: subcategoria.syncrosId,
         endTime: subcategoria.endTime,
-      };
+      }; */
     });
     this.listSelectableProducts.children = aux;
+    /*  console.log(' ------ aux ------ ');
+    console.log(aux) */
+    console.log(' ------ listSelectableProducts ------ ');
+    console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
@@ -629,6 +676,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       };
     });
     this.listSelectableProducts.children = aux;
+    console.log(' ------ listSelectableProducts ------ ');
+    console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
