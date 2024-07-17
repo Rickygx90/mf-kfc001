@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {inject, NgModule, OnInit} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
@@ -14,6 +14,7 @@ import {AppLayoutComponent} from "./app.layout.component";
 import {SidebarComponent} from "./sidebar.component";
 import {NavbarComponent} from "./navbar.component";
 import {PaginatorModule} from "primeng/paginator";
+import {UsersService} from "../services/users.service";
 
 @NgModule({
   declarations: [
@@ -37,5 +38,26 @@ import {PaginatorModule} from "primeng/paginator";
   ],
   exports: [AppLayoutComponent]
 })
-export class AppLayoutModule {
+export class AppLayoutModule implements OnInit {
+  usersService = inject(UsersService);
+
+  constructor() {
+    console.log("ngOnInit layout")
+    this.usersService.checkStatusAutenticacion()
+      .subscribe({
+        next: data => {
+          if (data) {
+            console.log("logged");
+          }
+        },
+        error: err => {
+          console.log("error while logging", err);
+        }
+      })
+  }
+
+  ngOnInit(): void {
+
+  }
+
 }

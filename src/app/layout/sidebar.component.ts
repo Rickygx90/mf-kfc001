@@ -22,6 +22,6 @@ export class SidebarComponent {
 
   logOut() {
     this.usersService.clear();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 }

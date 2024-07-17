@@ -20,18 +20,6 @@ import { Paginator, PaginatorModule } from 'primeng/paginator';
 
 @Component({
   selector: 'app-envio-menu',
-  standalone: true,
-  imports: [
-    CommonModule,
-    SidebarComponent,
-    MatCheckboxModule,
-    FormsModule,
-    NavbarComponent,
-    MatButtonModule,
-    MatExpansionModule,
-    ToastModule,
-    PaginatorModule,
-  ],
   providers: [MessageService],
   templateUrl: './envio-menu.component.html',
   styleUrl: './envio-menu.component.css',

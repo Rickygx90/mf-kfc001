@@ -50,7 +50,18 @@ export class LoginComponent {
       next: (token) => {
         console.log(token)
         localStorage.setItem('token', JSON.stringify(token));
-        this.router.navigate(['/home/dashboard']);
+        this.usersService.checkStatusAutenticacion()
+          .subscribe({
+            next: data => {
+              if (data) {
+                this.router.navigate(['/home/dashboard']);
+                console.log("logged");
+              }
+            },
+            error: err => {
+              console.log("error while logging", err);
+            }
+          })
       },
       error: (err) => {
         console.log(err);
