@@ -1,0 +1,32 @@
+<div class="w-full h-full bg-gray-300 flex overflow-auto">
+  <app-sidebar></app-sidebar>
+  <div class="w-full h-full pt-2 md:-ml-12 pl-4 pr-4">
+    <app-navbar></app-navbar>
+
+    <span class="flex items-start text-sm">
+            <i class="ri-home-2-line"></i>
+            <p>/Dashboard</p>
+        </span>
+
+    <div class="h-[calc(100%-96px)] p-5 bg-gray-100 rounded-lg shadow-md overflow-auto">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div><!-- w-[calc(100%-256px)] ml-64 -->
+
+
+<!--
+<div class="layout-wrapper" [ngClass]="containerClass">
+
+  <app-navbar></app-navbar>
+  <div class="layout-sidebar">
+    <app-sidebar></app-sidebar>
+  </div>
+  <div class="layout-main-container">
+    <div class="layout-main">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  <div class="layout-mask"></div>
+</div>
+-->

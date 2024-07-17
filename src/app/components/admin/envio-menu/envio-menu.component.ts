@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../sidebar/sidebar.component';
+import { SidebarComponent } from '../../../layout/sidebar.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
-import { NavbarComponent } from '../navbar/navbar.component';
+import { NavbarComponent } from '../../../layout/navbar.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FilterMenuComponent } from '../filter-menu/filter-menu.component';
 import { MenuService } from '../../../services/menu.service';

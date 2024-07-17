@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientModule } from '@angular/common/http';
-import { NavbarComponent } from './navbar.component';
+import { NavbarComponent } from '../../../layout/navbar.component';
 
 describe('NavbarComponent', () => {
   let component: NavbarComponent;
@@ -11,7 +11,7 @@ describe('NavbarComponent', () => {
       imports: [NavbarComponent, HttpClientModule]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(NavbarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

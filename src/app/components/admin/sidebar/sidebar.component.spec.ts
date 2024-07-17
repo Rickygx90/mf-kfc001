@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from "@angular/router";
-import { SidebarComponent } from './sidebar.component';
+import { SidebarComponent } from '../../../layout/sidebar.component';
 import { HttpClientModule } from '@angular/common/http';
 
 describe('SidebarComponent', () => {
@@ -12,7 +12,7 @@ describe('SidebarComponent', () => {
       imports: [SidebarComponent, RouterModule.forRoot([]), HttpClientModule]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(SidebarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

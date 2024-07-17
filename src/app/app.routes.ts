@@ -1,6 +1,6 @@
-import { Routes } from '@angular/router';
-import { LoginGuard } from './guards/login-guards';
-import { AuthGuard } from './guards/auth-guard';
+import {Routes} from '@angular/router';
+import {LoginGuard} from './guards/login-guards';
+import {AuthGuard} from './guards/auth-guard';
 
 export const routes: Routes = [
   {
@@ -17,7 +17,7 @@ export const routes: Routes = [
       import('./components/admin/home/home.routes').then((m) => m.HOME_ROUTES),
     canActivate: [AuthGuard],
   },
-  { path: '', redirectTo: '/home/dashboard', pathMatch: 'full' },
+  {path: '', redirectTo: '/home/dashboard', pathMatch: 'full'},
   {
     path: '**',
     loadComponent: () =>

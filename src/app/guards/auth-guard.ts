@@ -12,7 +12,7 @@ function checkAuthStatus(): boolean | Observable<boolean> {
   return usersService.checkStatusAutenticacion().pipe(
     tap((estaAutenticado) => {
       console.log('estaAutenticado: ' + estaAutenticado);
-      if (!estaAutenticado) router.navigate(['/login']);
+      if (!estaAutenticado) router.navigate(['/auth/login']);
     })
   );
 }

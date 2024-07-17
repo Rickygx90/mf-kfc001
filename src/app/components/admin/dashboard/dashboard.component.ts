@@ -1,13 +1,13 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
-import { SidebarComponent } from '../sidebar/sidebar.component';
-import { CommonModule } from '@angular/common';
-import { MenuService } from '../../../services/menu.service';
-import { NavbarComponent } from '../navbar/navbar.component';
-import { menuItemI } from '../../../models/interfaces';
-import { MatDialog } from '@angular/material/dialog';
-import { MenuDetailComponent } from '../menu-detail/menu-detail.component';
-import { Observable } from 'rxjs';
-import { PaginatorModule } from 'primeng/paginator';
+import {Component, OnInit, ViewChild, inject} from '@angular/core';
+import {SidebarComponent} from '../../../layout/sidebar.component';
+import {CommonModule} from '@angular/common';
+import {MenuService} from '../../../services/menu.service';
+import {NavbarComponent} from '../../../layout/navbar.component';
+import {menuItemI} from '../../../models/interfaces';
+import {MatDialog} from '@angular/material/dialog';
+import {MenuDetailComponent} from '../menu-detail/menu-detail.component';
+import {Observable} from 'rxjs';
+import {PaginatorModule} from 'primeng/paginator';
 
 interface menuObject {
   data: menuItemI[];
@@ -17,8 +17,6 @@ interface menuObject {
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
-  imports: [SidebarComponent, CommonModule, NavbarComponent, PaginatorModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -32,7 +30,8 @@ export class DashboardComponent implements OnInit {
   currentPage: number = 0;
   idInterval: any;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog) {
+  }
 
   ngOnInit(): void {
     //this.menuItems$ = this.menuService.getMenuItems(0, this.rows);
@@ -66,7 +65,8 @@ export class DashboardComponent implements OnInit {
       error: (err) => {
         this.showLoading = false;
       },
-      complete: () => {},
+      complete: () => {
+      },
     });
   }
 
@@ -127,7 +127,8 @@ export class DashboardComponent implements OnInit {
       error: (err) => {
         this.showLoading = false;
       },
-      complete: () => {},
+      complete: () => {
+      },
     });
   }
 
@@ -138,6 +139,7 @@ export class DashboardComponent implements OnInit {
       height: '380px',
       width: '450px',
     });
-    dialogRef.afterClosed().subscribe(() => {});
+    dialogRef.afterClosed().subscribe(() => {
+    });
   }
 }
