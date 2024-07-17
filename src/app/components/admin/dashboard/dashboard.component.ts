@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { MenuService } from '../../../services/menu.service';
@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MenuDetailComponent } from '../menu-detail/menu-detail.component';
 import { Observable } from 'rxjs';
 import { PaginatorModule } from 'primeng/paginator';
+import { ProgressBarModule } from 'primeng/progressbar';
 
 interface menuObject {
   data: menuItemI[];
@@ -18,19 +19,27 @@ interface menuObject {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [SidebarComponent, CommonModule, NavbarComponent, PaginatorModule],
+  imports: [
+    SidebarComponent,
+    CommonModule,
+    NavbarComponent,
+    PaginatorModule,
+    ProgressBarModule,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
   public menuItems$!: Observable<menuObject>;
-  public rows: number = 10;
+  public rows: number = 24;
   public data!: menuItemI[];
   public total_records!: number;
   showLoading: boolean = true;
   menuService = inject(MenuService);
   currentPage: number = 0;
   idInterval: any;
+
+  public value = [{ value: 15, color: '#34d399' }];
 
   constructor(public dialog: MatDialog) {}
 
@@ -45,6 +54,37 @@ export class DashboardComponent implements OnInit {
   ngOnDestroy() {
     clearInterval(this.idInterval);
   }
+  
+  getTipoEjecucion(status: string): string {
+    switch (status) {
+      case 'MANUAL': {
+        return 'Manual';
+      }
+      case 'AUTOMATIC': {
+        return 'Automático';
+      }
+      default: {
+        return 'indeterminado';
+      }
+    }
+  }
+
+  getEstado(status: string): string {
+    switch (status) {
+      case 'CREATED': {
+        return 'Creado';
+      }
+      case 'SYNCING': {
+        return 'Sincronizando';
+      }
+      case 'FINISHED': {
+        return 'Finalizado';
+      }
+      default: {
+        return 'indeterminado';
+      }
+    }
+  }
 
   getMenus(currentPage: number) {
     this.menuService.getMenuItems(currentPage, this.rows).subscribe({
@@ -57,6 +97,9 @@ export class DashboardComponent implements OnInit {
           );
           return {
             ...e,
+            status: this.getEstado(e.status),
+            mode: this.getTipoEjecucion(e.mode),
+            syncros_id: e.syncros_id.slice(0, e.syncros_id.indexOf('-')),
             tt,
           };
         });
@@ -118,6 +161,8 @@ export class DashboardComponent implements OnInit {
           );
           return {
             ...e,
+            status: this.getEstado(e.status),
+            syncros_id: e.syncros_id.slice(0, e.syncros_id.indexOf('-')),
             tt,
           };
         });

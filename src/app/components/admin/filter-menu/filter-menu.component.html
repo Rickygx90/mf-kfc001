@@ -20,10 +20,16 @@
             <mat-date-range-picker touchUi #picker></mat-date-range-picker>
         </mat-form-field>
 
+        @if (showLoading) {
+        <div class="w-full h-full flex justify-center items-center">
+            <div class="loader"></div>
+        </div>
+        } @else {
         <div class="flex justify-end mt-16">
             <button [disabled]="formularioFiltro.invalid" type="submit" class="mr-2" mat-flat-button
                 color="primary">Buscar</button>
             <button mat-flat-button color="warn" mat-dialog-close>Cancelar</button>
         </div>
+        }
     </form>
 </mat-dialog-content>
