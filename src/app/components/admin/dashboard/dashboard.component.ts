@@ -5,7 +5,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MenuDetailComponent } from '../menu-detail/menu-detail.component';
 import { Observable } from 'rxjs';
 
-
 interface menuObject {
   data: menuItemI[];
   total_records: number;

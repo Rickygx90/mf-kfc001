@@ -1,14 +1,29 @@
-<div class="w-full h-[calc(100%-50px)] flex border-2 rounded-lg">
+<div class="mb-4 flex flex-wrap gap-2 justify-content-center">
+  <button mat-raised-button style="background-color: #147fa6f6;" mat-flat-button color="primary">{{txtBtnBlue}}</button>
+  <button [disabled]="btnSincronizarMaxpointDisabled" mat-raised-button style="background-color: #1fa44f; width: 17rem;"
+    mat-flat-button color="primary" (click)="sincronizarMaxpoint()">
+    @if (btnSincronizarMaxpointDisabled) {
+    <div class="cargando">
+      <div class="pelotas"></div>
+      <div class="pelotas"></div>
+      <div class="pelotas"></div>
+    </div>
+    } @else {
+    {{txtBtnGreen}}
+    }
+  </button>
+</div>
+
+<div class="w-full h-[calc(100%-100px)] flex border-2 rounded-lg">
   <div class="w-full h-full border-r-2">
+
     <div class="border-b-2">
       <div class="m-4 flex justify-between items-center">
         <h3 class="text-lg">Menu</h3>
         <div class="flex">
-          <input [disabled]="formularioFiltro === null" type="text"
-                 class="w-40 rounded-lg -mr-6 pl-3 pr-8" placeholder="Buscar"
-                 [(ngModel)]="buscarMenu" (ngModelChange)="onChangeInput($event)">
-          <button class="border-l pl-1"><i class="ri-filter-line"
-                                           (click)="openFilterMenu()"></i></button>
+          <input [disabled]="formularioFiltro === null" type="text" class="w-40 rounded-lg -mr-6 pl-3 pr-8"
+            placeholder="Buscar" [(ngModel)]="buscarMenu" (ngModelChange)="onChangeInput($event)">
+          <button class="border-l pl-1"><i class="ri-filter-line" (click)="openFilterMenu()"></i></button>
         </div>
       </div>
     </div>
@@ -21,50 +36,47 @@
     </div> -->
 
     @if (showMenus) {
-      <div class="flex flex-col justify-between w-full h-[calc(100%-110px)] overflow-auto">
+    <div class="flex flex-col justify-between w-full h-[calc(100%-110px)] overflow-auto">
 
-        @if (loadingMenu) {
-          <div class="w-full h-full flex justify-center items-center">
-            <div class="loader"></div>
-          </div>
-        } @else {
-          <div>
-            @for (menu of listSelectableMenu.children; track menu) {
-              <div class="m-1">
-                <mat-checkbox [checked]="menu.allCompleteSubMenu"
-                              [indeterminate]="someCompleteSubMenus(menu)"
-                              (change)="setAllSubMenus($event.checked, menu)" [(ngModel)]="menu.select"
-                              (ngModelChange)="updateAllCompleteMenu()">
-                  <div class="font-semibold text-sm">
-                    <p>Sincro: {{menu.syncrosId}} - Fecha: {{menu.endTime | date: 'd/M/yy, h:mm
-                      a':'GMT'}}</p>
-                  </div>
-                </mat-checkbox>
-                <span>
-                                    @for (submenu of menu.children; track submenu) {
-                                      <div class="ml-4">
-                                        <mat-checkbox [(ngModel)]="submenu.select"
-                                                      (ngModelChange)="updateAllCompleteSubMenus(menu)">
-                                            <div class="border border-gray-300 py-1 px-5 text-xs">
-                                                <!--  <p>{{submenu[0].checksum}}</p> -->
-                                                <p>{{submenu[0].menus[0].title}}</p>
-                                            </div>
-                                        </mat-checkbox>
-                                    </div>
-                                    }
-                                </span>
-              </div>
-            }
-          </div>
-        }
-        <p-paginator #paginator class="sticky bottom-0 mt-1"
-                     [style]="{'background-color': 'rgb(243 244 246)'}" [rows]="rowsMenu"
-                     [totalRecords]="total_recordsMenu" (onPageChange)="paginate($event)"></p-paginator>
-      </div>
-    } @else {
+      @if (loadingMenu) {
       <div class="w-full h-full flex justify-center items-center">
-        <div class="text-3xl text-slate-400">No hay Data</div>
+        <div class="loader"></div>
       </div>
+      } @else {
+      <div>
+        @for (menu of listSelectableMenu.children; track menu) {
+        <div class="m-1">
+          <mat-checkbox [checked]="menu.allCompleteSubMenu" [indeterminate]="someCompleteSubMenus(menu)"
+            (change)="setAllSubMenus($event.checked, menu)" [(ngModel)]="menu.select"
+            (ngModelChange)="updateAllCompleteMenu()">
+            <div class="font-semibold text-sm">
+              <p>Sincro: {{menu.syncrosId}} - Fecha: {{menu.endTime | date: 'd/M/yy, h:mm
+                a':'GMT'}}</p>
+            </div>
+          </mat-checkbox>
+          <span>
+            @for (submenu of menu.children; track submenu) {
+            <div class="ml-4">
+              <mat-checkbox [(ngModel)]="submenu.select" (ngModelChange)="updateAllCompleteSubMenus(menu)">
+                <div class="border border-gray-300 py-1 px-5 text-xs">
+                  <!--  <p>{{submenu[0].checksum}}</p> -->
+                  <p>{{submenu[0].menus[0].title}}</p>
+                </div>
+              </mat-checkbox>
+            </div>
+            }
+          </span>
+        </div>
+        }
+      </div>
+      }
+      <p-paginator #paginator class="sticky bottom-0 mt-1" [style]="{'background-color': 'rgb(243 244 246)'}"
+        [rows]="rowsMenu" [totalRecords]="total_recordsMenu" (onPageChange)="paginate($event)"></p-paginator>
+    </div>
+    } @else {
+    <div class="w-full h-full flex justify-center items-center">
+      <div class="text-3xl text-slate-400">No hay Data</div>
+    </div>
     }
 
 
@@ -72,124 +84,130 @@
 
   <div class="w-full h-full border-r-2">
     @if (showCategorias) {
-      <div class="border-b-2">
-        <h3 class="m-4 text-lg">Categorias</h3>
-      </div>
-      <div class="m-1 border-b">
-        <mat-checkbox [checked]="allCompleteCategoria" [indeterminate]="someCompleteCategorias()"
-                      (change)="setAllCategorias($event.checked)">
-          <div class="font-semibold text-sm">{{listSelectableCategories.name}}</div>
-        </mat-checkbox>
-      </div>
+    <div class="border-b-2">
+      <h3 class="m-4 text-lg">Categorias</h3>
+    </div>
+    <div class="m-1 border-b">
+      <mat-checkbox [checked]="allCompleteCategoria" [indeterminate]="someCompleteCategorias()"
+        (change)="setAllCategorias($event.checked)">
+        <div class="font-semibold text-sm">{{listSelectableCategories.name}}</div>
+      </mat-checkbox>
+    </div>
 
-      <div class="w-full h-[calc(100%-110px)] overflow-auto">
-        @for (categoria of listSelectableCategories.children; track categoria) {
-          <div class="m-1">
-            <mat-checkbox [checked]="categoria.allCompleteSubCategoria"
-                          [indeterminate]="someCompleteSubCategorias(categoria)"
-                          (change)="setAllSubCategorias($event.checked, categoria)" [(ngModel)]="categoria.select"
-                          (ngModelChange)="updateAllCompleteCategorias()">
-              <div class="font-semibold text-sm">
-                <!-- <p>{{categoria.id}}</p> -->
-                <p>Sincro: {{categoria.syncrosId}} - Fecha: {{categoria.endTime | date: 'd/M/yy,
-                  h:mm a':'GMT'}}</p>
-                <p>{{categoria.title}}</p>
+    <div class="w-full h-[calc(100%-110px)] overflow-auto">
+      @for (categoria of listSelectableCategories.children; track categoria) {
+      <div class="m-1" [style]="{'background-color':categoria.color}">
+        <mat-checkbox [checked]="categoria.allCompleteSubCategoria"
+          [indeterminate]="someCompleteSubCategorias(categoria)"
+          (change)="setAllSubCategorias($event.checked, categoria)" [(ngModel)]="categoria.select"
+          (ngModelChange)="updateAllCompleteCategorias()">
+          <div class="font-semibold text-sm">
+            <!-- <p>{{categoria.id}}</p> -->
+            <p>Sincro: {{categoria.syncrosId}} - Fecha: {{categoria.endTime | date: 'd/M/yy,
+              h:mm a':'GMT'}}</p>
+            <p>{{categoria.title}}</p>
+          </div>
+        </mat-checkbox>
+        <span>
+          @for (subcategoria of categoria.children; track subcategoria) {
+          <div class="ml-4">
+            <mat-checkbox [(ngModel)]="subcategoria.select"
+              (ngModelChange)="updateAllCompleteSubCategorias(categoria, subcategoria)">
+              <div class="border border-gray-300 py-1 px-5 text-xs">
+                <!--  <p>{{subcategoria.id}}</p> -->
+                <p>{{subcategoria.title}}</p>
               </div>
             </mat-checkbox>
-            <span>
-                                @for (subcategoria of categoria.children; track subcategoria) {
-                                  <div class="ml-4">
-                                    <mat-checkbox [(ngModel)]="subcategoria.select"
-                                                  (ngModelChange)="updateAllCompleteSubCategorias(categoria)">
-                                        <div class="border border-gray-300 py-1 px-5 text-xs">
-                                            <!--  <p>{{subcategoria.id}}</p> -->
-                                            <p>{{subcategoria.title}}</p>
-                                        </div>
-                                    </mat-checkbox>
-                                </div>
-                                }
-                            </span>
           </div>
-        }
+          }
+        </span>
       </div>
+      }
+    </div>
     } @else if(!showCategorias && listSelectableMenu.children.length > 0) {
-      <div class="w-full h-full flex items-center animacion">
-        <div class="basis-1/8 h-full flex flex-col">
-          <div class="w-full h-full border-l-8 border-sky-400"></div>
-          <div class="w-full h-full basis-1/6">
-            <div class="triCat">
-              <div class="triCat2"></div>
-            </div>
+    <div class="w-full h-full flex items-center animacion">
+      <div class="basis-1/8 h-full flex flex-col">
+        <div class="w-full h-full border-l-8 border-sky-400"></div>
+        <div class="w-full h-full basis-1/6">
+          <div class="triCat">
+            <div class="triCat2"></div>
           </div>
-          <div class="w-full h-full border-l-8 border-sky-400"></div>
         </div>
-        <div class="w-full">
-          <p class="text-3xl font-medium text-sky-400 text-center">Selecciona un menú</p>
-        </div>
+        <div class="w-full h-full border-l-8 border-sky-400"></div>
       </div>
+      <div class="w-full">
+        <p class="text-3xl font-medium text-sky-400 text-center">Selecciona un menú</p>
+      </div>
+    </div>
     }
   </div>
 
   <div class="w-full h-full">
     @if (showProductos) {
-      <div class="border-b-2">
-        <h3 class="m-4 text-lg">Productos</h3>
-      </div>
-      <div class="m-1 border-b">
-        <mat-checkbox [checked]="allCompleteProducto" [indeterminate]="someCompleteProductos()"
-                      (change)="setAllProductos($event.checked)">
-          <div class="font-semibold text-sm">{{listSelectableProducts.name}}</div>
-        </mat-checkbox>
-      </div>
-      <div class="w-full h-[calc(100%-110px)] overflow-auto">
-        @for (producto of listSelectableProducts.children; track producto) {
-          <div class="m-1 w-full">
-            <mat-checkbox [checked]="producto.allCompleteSubProducto"
-                          [indeterminate]="someCompleteSubProductos(producto)"
-                          (change)="setAllSubProductos($event.checked, producto)" [(ngModel)]="producto.select"
-                          (ngModelChange)="updateAllCompleteProductos()" class="w-full flex justify-between">
-              <div class="font-semibold text-sm">
-                <p>Sincro: {{producto.syncrosId}} - Fecha: {{producto.endTime | date: 'd/M/yy,
-                  h:mm a':'GMT'}}</p>
-                <p>{{producto.title}}</p>
-              </div>
-            </mat-checkbox>
-            <span>
-                                @for (subproducto of producto.children; track subproducto) {
-                                  <div class="ml-4">
-                                    <mat-checkbox [(ngModel)]="subproducto.select"
-                                                  (ngModelChange)="updateAllCompleteSubProductos(producto)">
-                                        <div class="border border-gray-300 py-1 px-5 text-xs">
-                                            <!-- <p>{{subproducto[0].id}}</p> -->
-                                            <p>{{subproducto[0].title}}</p>
-                                            <p>Precio: ${{subproducto[0].priceinfo.price/100}}</p>
-                                        </div>
-                                    </mat-checkbox>
-                                </div>
-                                }
-                            </span>
-          </div>
-        }
-      </div>
-    } @else if (showCategorias && !showProductos) {
-      <div class="w-full h-full flex items-center animacion">
-        <div class="basis-1/8 h-full flex flex-col">
-          <div class="w-full h-full border-l-8 border-red-500"></div>
-          <div class="w-full h-full basis-1/6">
-            <div class="triProd">
-              <div class="triProd2"></div>
+    <div class="border-b-2">
+      <h3 class="m-4 text-lg">Productos</h3>
+    </div>
+    <div class="m-1 border-b">
+      <mat-checkbox [checked]="allCompleteProducto" [indeterminate]="someCompleteProductos()"
+        (change)="setAllProductos($event.checked)">
+        <div class="font-semibold text-sm">{{listSelectableProducts.name}}</div>
+      </mat-checkbox>
+    </div>
+    <div class="w-full h-[calc(100%-110px)] overflow-auto">
+      @for (sincroProd of listSelectableProducts.children; track sincroProd) {
+      <div class="m-1 pl-2 pt-2 w-full" [style]="{'background-color':sincroProd.color}">
+        <div class="font-semibold text-sm">
+          <p>> Sincro: {{sincroProd.syncrosId}} - Fecha: {{sincroProd.endTime | date: 'd/M/yy,
+            h:mm a':'GMT'}}</p>
+        </div>
+        @for (catProd of sincroProd.children; track catProd) {
+        <div class="m-1 pl-2">
+          <mat-checkbox [checked]="catProd.allCompleteSubProducto" [indeterminate]="someCompleteSubProductos(catProd)"
+            (change)="setAllSubProductos($event.checked, catProd, sincroProd.syncrosId)" [(ngModel)]="catProd.select"
+            (ngModelChange)="updateAllCompleteProductos()" class="w-full flex justify-between">
+            <div class="font-semibold text-sm">
+              <p>{{catProd.title}}</p>
             </div>
-          </div>
-          <div class="w-full h-full border-l-8 border-red-500"></div>
+          </mat-checkbox>
+          <span>
+            @for (subproducto of catProd.children; track subproducto) {
+            <div class="ml-4">
+              <mat-checkbox [(ngModel)]="subproducto.select"
+                (ngModelChange)="updateAllCompleteSubProductos(catProd, sincroProd.syncrosId)">
+                <div class="border border-gray-300 py-1 px-5 text-xs">
+                  <p>{{subproducto[0].title}}</p>
+                  <p>Precio: ${{subproducto[0].priceinfo.price/100}}</p>
+                </div>
+              </mat-checkbox>
+            </div>
+            }
+          </span>
         </div>
-        <div class="w-full">
-          <p class="text-3xl font-medium text-red-500 text-center">Selecciona una categoria</p>
-        </div>
+        }
+
       </div>
+      }
+
+    </div>
+    } @else if (showCategorias && !showProductos) {
+    <div class="w-full h-full flex items-center animacion">
+      <div class="basis-1/8 h-full flex flex-col">
+        <div class="w-full h-full border-l-8 border-red-500"></div>
+        <div class="w-full h-full basis-1/6">
+          <div class="triProd">
+            <div class="triProd2"></div>
+          </div>
+        </div>
+        <div class="w-full h-full border-l-8 border-red-500"></div>
+      </div>
+      <div class="w-full">
+        <p class="text-3xl font-medium text-red-500 text-center">Selecciona una categoria</p>
+      </div>
+    </div>
     }
   </div>
 
 </div>
 
 <button [disabled]="btnCanalEnvioDisabled" (click)="canalEnvio()" class="mt-4" mat-flat-button
-        color="primary">SELECCIONAR CANAL DE ENVIO</button>
+  color="primary">SELECCIONAR CANAL DE ENVIO</button>

@@ -1,22 +1,15 @@
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../../../layout/sidebar.component';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FormsModule } from '@angular/forms';
-import { NavbarComponent } from '../../../layout/navbar.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FilterMenuComponent } from '../filter-menu/filter-menu.component';
 import { MenuService } from '../../../services/menu.service';
 import { multiSelectI, optionsToSelectI } from '../../../models/interfaces';
-import { MatButtonModule } from '@angular/material/button';
 import { CanalEnvioComponent } from '../canal-envio/canal-envio.component';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { CanComponentDeactivate } from '../../../guards/can-deactivate.guard';
 import { Observable } from 'rxjs';
 import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { validateResponse } from '../../../shared/utils';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
+import { isEqual } from 'lodash';
 
 @Component({
   selector: 'app-envio-menu',
@@ -48,8 +41,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   showProductos: boolean = false;
   btnCanalEnvioDisabled: boolean = true;
   btnSincronizarMaxpointDisabled: boolean = true;
-  txtBtnBlue: string = 'EXTRACCIÓN DE MENÚS';
-  txtBtnGreen: string = 'SINCRONIZANDO...';
+  txtBtnBlue: string = 'EXTRACCIÓN PERSONALIZADA';
+  txtBtnGreen: string = 'EXTRACCIÓN DE MENÚS';
 
   listSelectableMenu: any = {
     name: 'Seleccionar todos',
@@ -72,27 +65,15 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
   aux2: any = [];
 
-
   idInterval: any;
 
   constructor(
     public dialog: MatDialog,
     private messageService: MessageService
   ) {
+    this.checkActiveSync();
     /* this.idInterval = setInterval(() => {
-      this.menuService.checkActiveSync().subscribe({
-        next: (result) => {
-          console.log(result);
-          if (result.status === 200 && result.valueSync === false) {
-            this.btnSincronizarMaxpointDisabled = false;
-            this.txtBtnGreen = 'EXTRACCIÓN PERSONALIZADA';
-          } else {
-            this.btnSincronizarMaxpointDisabled = true;
-            this.txtBtnGreen = 'SINCRONIZANDO...';
-          }
-        },
-        error: (err) => {},
-      });
+      this.checkActiveSync()
     }, 5000); */
   }
 
@@ -116,6 +97,22 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       }
     }
   } */
+
+  checkActiveSync() {
+    this.menuService.checkActiveSync().subscribe({
+      next: (result) => {
+        console.log(result);
+        if (result.status === 200 && result.valueSync === false) {
+          this.btnSincronizarMaxpointDisabled = false;
+          this.txtBtnGreen = 'EXTRACCIÓN DE MENÚS';
+        } else {
+          this.btnSincronizarMaxpointDisabled = true;
+          this.txtBtnGreen = 'SINCRONIZANDO...';
+        }
+      },
+      error: (err) => {},
+    });
+  }
 
   onChangeInput(buscarMenu2: any) {
     console.log(buscarMenu2);
@@ -280,19 +277,34 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         this.listSelectableProducts.children.length > 0
           ? true
           : false;
+      this.subProductoSelected = [];
+      this.btnCanalEnvioDisabled = true;
     } else if (panel === 'categoria') {
       this.showProductos =
         this.listSelectableProducts.children.length > 0 ? true : false;
     }
-    this.subProductoSelected = [];
-    this.btnCanalEnvioDisabled = true;
+    /* this.subProductoSelected = [];
+    this.btnCanalEnvioDisabled = true; */
   }
 
-  updateAllCompleteSubOptions(obj: optionsToSelectI, panel: string): void {
-    obj.children?.map((subobj) => {
+  updateAllCompleteSubOptions(
+    obj: any,
+    panel: string,
+    sincroId: string = ''
+  ): void {
+    console.log(' ------------ subProductoSelected ------------');
+    console.log(this.subProductoSelected);
+    console.log(' ------------ subCategoriasSelected ------------');
+    console.log(this.subCategoriasSelected);
+
+    console.log(' ------------------ obj ------------------');
+    console.log(obj);
+    //con este map recorremos las categorias y los productos
+    obj.children.forEach((subobj: any) => {
+      //subobj.select = select;
       if (panel === 'categoria') {
         obj.allCompleteSubCategoria =
-          obj.children != null && obj.children.every((obj) => obj.select);
+          obj.children != null && obj.children.every((obj: any) => obj.select);
         if (subobj.select) {
           if (
             this.subCategoriasSelected.filter(
@@ -306,22 +318,47 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             (subcategoriaselected) => subcategoriaselected != subobj
           );
         }
+        console.log(' ------------ subCategoriasSelected final ------------');
+        console.log(this.subCategoriasSelected);
       } else if (panel === 'producto') {
         obj.allCompleteSubProducto =
-          obj.children != null && obj.children.every((obj) => obj.select);
+          obj.children != null &&
+          obj.children.every((subObj: any) => subObj.select);
+        //se verifica que el producto este seleccionado
         if (subobj.select) {
+          console.log(subobj);
           if (
-            this.subProductoSelected.filter(
-              (subproductoselected) => subproductoselected === subobj
+            this.subProductoSelected.filter((subproductoselected) =>
+              isEqual(subproductoselected, {
+                ...subobj,
+                sincroId: sincroId,
+                catId: obj.id,
+              })
             ).length === 0
           ) {
-            this.subProductoSelected.push(subobj);
+            this.subProductoSelected.push({
+              ...subobj,
+              sincroId: sincroId,
+              catId: obj.id,
+            });
           }
-        } else {
+        }
+        //si no esta seleccionado significa que se debe eliminar del array de subproductoselected
+        else {
+          const productToDelete = {
+            ...subobj,
+            sincroId: sincroId,
+            catId: obj.id,
+            select: !subobj.select,
+          };
+          console.log(productToDelete);
           this.subProductoSelected = this.subProductoSelected.filter(
-            (subproductoselected) => subproductoselected != subobj
+            (subproductoselected) =>
+              !isEqual(subproductoselected, productToDelete)
           );
         }
+        console.log(' ------------ subProductoSelected final ------------');
+        console.log(this.subProductoSelected);
       }
     });
   }
@@ -329,15 +366,21 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   setAllSubOptions(
     obj: optionsToSelectI,
     panel: string,
-    select: boolean
+    select: boolean,
+    sincroId: string = ''
   ): void {
-    obj.allCompleteSubCategoria = select;
+    console.log(' ------------ subProductoSelected ------------');
+    console.log(this.subProductoSelected);
+    console.log(' ------------------ obj ------------------');
+    console.log(obj);
+
     if (obj.children == null) {
       return;
     }
-    obj.children.forEach((subobj) => {
+    obj.children.forEach((subobj: any) => {
       subobj.select = select;
       if (panel === 'categoria') {
+        obj.allCompleteSubCategoria = select;
         if (select) {
           if (
             this.subCategoriasSelected.filter(
@@ -352,19 +395,38 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           );
         }
       } else if (panel === 'producto') {
+        obj.allCompleteSubProducto = select;
+        console.log(subobj);
         if (select) {
           if (
-            this.subProductoSelected.filter(
-              (subproductoselected) => subproductoselected === subobj
+            this.subProductoSelected.filter((subproductoselected) =>
+              isEqual(subproductoselected, {
+                ...subobj,
+                sincroId: sincroId,
+                catId: obj.id,
+              })
             ).length === 0
           ) {
-            this.subProductoSelected.push(subobj);
+            this.subProductoSelected.push({
+              ...subobj,
+              sincroId: sincroId,
+              catId: obj.id,
+            });
           }
         } else {
+          const productToDelete = {
+            ...subobj,
+            sincroId: sincroId,
+            catId: obj.id,
+            select: !subobj.select,
+          };
           this.subProductoSelected = this.subProductoSelected.filter(
-            (subproductoselected) => subproductoselected != subobj
+            (subproductoselected) =>
+              !isEqual(subproductoselected, productToDelete)
           );
         }
+        console.log(' ------------ subProductoSelected ------------');
+        console.log(this.subProductoSelected);
       }
     });
   }
@@ -374,6 +436,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     this.allCompleteMenu =
       this.listSelectableMenu.children != null &&
       this.listSelectableMenu.children.every((menu: any) => menu.select);
+    console.log(this.allCompleteMenu);
   }
 
   someCompleteMenu(): boolean {
@@ -408,7 +471,9 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     });
     console.log(this.subMenusSelected);
     const aux = this.subMenusSelected.map((submenu: any) => {
+      let rc2 = `hsl(${Math.random() * 255}, 38%, 55%)`;
       return {
+        color: rc2,
         id: submenu[0].checksum,
         title: submenu[0].menus[0].title,
         syncrosId: submenu[0].syncrosId,
@@ -416,6 +481,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         children: submenu[0].categories.map((category: any) => {
           return {
             ...category,
+            color: rc2,
             syncrosId: submenu[0].syncrosId,
             endTime: submenu[0].endTime,
             items: category.entities.map((entity: any) => {
@@ -453,7 +519,9 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     console.log(this.subMenusSelected);
     const aux = this.subMenusSelected.map((submenu: any) => {
       console.log(submenu);
+      let rc2 = `hsl(${Math.random() * 255}, 38%, 55%)`;
       return {
+        color: rc2,
         id: submenu[0].checksum,
         title: submenu[0].menus[0].title,
         syncrosId: submenu[0].syncrosId,
@@ -461,6 +529,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         children: submenu[0].categories.map((category: any) => {
           return {
             ...category,
+            color: rc2,
             syncrosId: submenu[0].syncrosId,
             endTime: submenu[0].endTime,
             items: category.entities.map((entity: any) => {
@@ -510,7 +579,9 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     });
     console.log(this.subMenusSelected);
     const aux = this.subMenusSelected.map((submenu: any) => {
+      let rc2 = `hsl(${Math.random() * 255}, 38%, 55%)`;
       return {
+        color: rc2,
         id: submenu[0].checksum,
         title: submenu[0].menus[0].title,
         syncrosId: submenu[0].syncrosId,
@@ -518,6 +589,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         children: submenu[0].categories.map((category: any) => {
           return {
             ...category,
+            color: rc2,
             syncrosId: submenu[0].syncrosId,
             endTime: submenu[0].endTime,
             items: category.entities.map((entity: any) => {
@@ -553,12 +625,14 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   }
 
   setAllCategorias(select: boolean): void {
+    console.log('setAllCategorias!!!')
     this.subCategoriasSelected = [];
     this.allCompleteCategoria = select;
     if (this.listSelectableCategories.children == null) {
       return;
     }
     this.listSelectableCategories.children.forEach((categoria: any) => {
+      console.log(categoria)
       categoria.select = select;
       categoria.allCompleteSubCategoria = select;
       categoria.children?.forEach(
@@ -570,73 +644,111 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         if (subcategoria.select) this.subCategoriasSelected.push(subcategoria);
       });
     });
-    const aux = this.subCategoriasSelected.map((subcategoria: any) => {
-      return {
-        id: subcategoria.id,
-        title: subcategoria.title,
-        children: subcategoria.items,
-        syncrosId: subcategoria.syncrosId,
-        endTime: subcategoria.endTime,
-      };
-    });
-    this.listSelectableProducts.children = aux;
+
+    //si select es true se agrega a listSelectableProducts la categoria con el id de la sincro y sus productos
+    if (select) {
+      this.subCategoriasSelected.forEach((subcategoria: any) => {
+        if (
+          this.listSelectableProducts.children.filter(
+            (sincroProd: any) => sincroProd.syncrosId === subcategoria.syncrosId
+          ).length === 0
+        ) {
+          this.listSelectableProducts.children.push({
+            children: [
+              {
+                id: subcategoria.id,
+                title: subcategoria.title,
+                children: subcategoria.items,
+              },
+            ],
+            syncrosId: subcategoria.syncrosId,
+            endTime: subcategoria.endTime,
+            color: subcategoria.color
+          });
+        } else {
+          this.listSelectableProducts.children.forEach((sincroProd: any) => {
+            if (sincroProd.syncrosId === subcategoria.syncrosId) {
+              if (
+                sincroProd.children.filter(
+                  (catProd: any) => catProd.id === subcategoria.id
+                ).length === 0
+              ) {
+                sincroProd.children.push({
+                  id: subcategoria.id,
+                  title: subcategoria.title,
+                  children: subcategoria.items,
+                });
+              }
+            }
+          });
+        }
+      });
+    } else {
+      this.listSelectableProducts.children = [];
+    }
+
     console.log(' ------ listSelectableProducts ------ ');
     console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
-  updateAllCompleteSubCategorias(categoria: optionsToSelectI): void {
-
+  updateAllCompleteSubCategorias(
+    categoria: any,
+    subcategoriaAux: any
+  ): void {
     this.updateAllCompleteSubOptions(categoria, 'categoria');
-
-    const aux = this.subCategoriasSelected.map((subcategoria: any) => {
-      console.log(subcategoria);
-
-      let aux3 = this.aux2.filter(
-        (prod: any) => prod.syncrosId === subcategoria.syncrosId
-      );
-      console.log(aux3)
-
-      if (aux3.length === 0) {
-        this.aux2.push({
-          children: [{
-            id: subcategoria.id,
-            title: subcategoria.title,
-            children: subcategoria.items,
-          }],
-          syncrosId: subcategoria.syncrosId,
-          endTime: subcategoria.endTime,
-        });
-      } else {
-        this.aux2.forEach((ele2: any) => {
-          if(ele2.syncrosId === subcategoria.syncrosId) {
-            ele2.children.forEach((ele3: any) => {
-              if(ele3.id !== subcategoria.id) {
-                console.log('Categoria nueva!!!')
-                ele2.children.push({
+    console.log(subcategoriaAux);
+    //verificar si se agrega o se elimina una categoria
+    if (subcategoriaAux.select) {
+      this.subCategoriasSelected.forEach((subcategoria: any) => {
+        //if que verifica si existe la sincro en listSelectableProducts, sino existe la agrega junto a la categoria y los productos
+        if (
+          this.listSelectableProducts.children.filter(
+            (sincroProd: any) => sincroProd.syncrosId === subcategoria.syncrosId
+          ).length === 0
+        ) {
+          this.listSelectableProducts.children.push({
+            children: [
+              {
+                id: subcategoria.id,
+                title: subcategoria.title,
+                children: subcategoria.items,
+              },
+            ],
+            syncrosId: subcategoria.syncrosId,
+            endTime: subcategoria.endTime,
+            color: categoria.color
+          });
+        }
+        // si la sincro existe agrego la categoria y los productos en dicha sincro
+        else {
+          this.listSelectableProducts.children.forEach((sincroProd: any) => {
+            if (sincroProd.syncrosId === subcategoria.syncrosId) {
+              if (
+                sincroProd.children.filter(
+                  (catProd: any) => catProd.id === subcategoria.id
+                ).length === 0
+              ) {
+                sincroProd.children.push({
                   id: subcategoria.id,
                   title: subcategoria.title,
                   children: subcategoria.items,
-                })
+                });
               }
-            })
-          }
-        })
-      }
-      console.log(this.aux2);
-      /* return {
-        children: {
-          id: subcategoria.id,
-          title: subcategoria.title,
-          childre: subcategoria.items
-        },
-        syncrosId: subcategoria.syncrosId,
-        endTime: subcategoria.endTime,
-      }; */
-    });
-    this.listSelectableProducts.children = aux;
-    /*  console.log(' ------ aux ------ ');
-    console.log(aux) */
+            }
+          });
+        }
+      });
+    } else {
+      this.listSelectableProducts.children.forEach((sincroProd: any) => {
+        if (sincroProd.syncrosId === subcategoriaAux.syncrosId) {
+          sincroProd.children = sincroProd.children.filter(
+            (catProd: any) => catProd.id !== subcategoriaAux.id
+          );
+        }
+      });
+    }
+
     console.log(' ------ listSelectableProducts ------ ');
     console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
@@ -654,7 +766,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
   setAllSubCategorias(select: boolean, categoria: any): void {
     this.setAllSubOptions(categoria, 'categoria', select);
-    const aux = this.subCategoriasSelected.map((subcategoria: any) => {
+    /* const aux = this.subCategoriasSelected.map((subcategoria: any) => {
       return {
         id: subcategoria.id,
         title: subcategoria.title,
@@ -663,56 +775,151 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         endTime: subcategoria.endTime,
       };
     });
-    this.listSelectableProducts.children = aux;
+    this.listSelectableProducts.children = aux; */
+    if (select) {
+      this.subCategoriasSelected.forEach((subcategoria: any) => {
+        if (
+          this.listSelectableProducts.children.filter(
+            (sincroProd: any) => sincroProd.syncrosId === subcategoria.syncrosId
+          ).length === 0
+        ) {
+          this.listSelectableProducts.children.push({
+            children: [
+              {
+                id: subcategoria.id,
+                title: subcategoria.title,
+                children: subcategoria.items,
+              },
+            ],
+            syncrosId: subcategoria.syncrosId,
+            endTime: subcategoria.endTime,
+            color: categoria.color
+          });
+        } else {
+          this.listSelectableProducts.children.forEach((sincroProd: any) => {
+            if (sincroProd.syncrosId === subcategoria.syncrosId) {
+              if (
+                sincroProd.children.filter(
+                  (catProd: any) => catProd.id === subcategoria.id
+                ).length === 0
+              ) {
+                sincroProd.children.push({
+                  id: subcategoria.id,
+                  title: subcategoria.title,
+                  children: subcategoria.items,
+                });
+              }
+            }
+          });
+        }
+      });
+    } else {
+      this.listSelectableProducts.children =
+        this.listSelectableProducts.children.filter(
+          (sincroProd: any) => sincroProd.syncrosId !== categoria.syncrosId
+        );
+
+      /* if (sincroProd.syncrosId === categoria.syncrosId) {
+          sincroProd.children = sincroProd.children.filter(
+            (catProd: any) => catProd.id !== subcategoriaAux.id
+          );
+        } */
+    }
+
     console.log(' ------ listSelectableProducts ------ ');
     console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
   updateAllCompleteProductos(): void {
+    console.log('updateAllCompleteProductos!!!');
+    console.log(this.listSelectableProducts.children);
     this.allCompleteProducto =
       this.listSelectableProducts.children != null &&
-      this.listSelectableProducts.children.every(
-        (producto: any) => producto.select
+      this.listSelectableProducts.children.every((sincroProd: any) =>
+        sincroProd.children.every((catProd: any) => catProd.select)
       );
+    console.log(this.allCompleteProducto);
   }
 
   someCompleteProductos(): boolean {
+    const aux: any = [];
     if (this.listSelectableProducts.children == null) {
       return false;
     }
-    return (
-      this.listSelectableProducts.children.filter(
-        (producto: any) => producto.select
-      ).length > 0 && !this.allCompleteProducto
-    );
+
+    this.listSelectableProducts.children.forEach((sincroProd: any) => {
+      sincroProd.children.forEach((catProd: any) => {
+        if (catProd.select) {
+          aux.push(catProd);
+        }
+      });
+    });
+    //console.log(aux);
+    return aux.length > 0 && !this.allCompleteProducto;
   }
 
   setAllProductos(select: boolean): void {
+    console.log('setAllProductos!!!');
     this.subProductoSelected = [];
     this.allCompleteProducto = select;
     if (this.listSelectableProducts.children == null) {
       return;
     }
-    this.listSelectableProducts.children.forEach((producto: any) => {
-      producto.select = select;
+
+    //Selecciono todas las categorias y sus productos
+    this.listSelectableProducts.children.forEach((sincroProd: any) => {
+      /* producto.select = select;
       producto.allCompleteSubProducto = select;
       producto.children?.forEach(
         (subproducto: any) => (subproducto.select = producto.select)
-      );
+      ); */
+
+      sincroProd.children?.forEach((catProd: any) => {
+        catProd.select = select;
+        catProd.allCompleteSubProducto = select;
+        catProd.children?.forEach(
+          (subproducto: any) => (subproducto.select = catProd.select)
+        );
+      });
     });
-    this.listSelectableProducts.children.map((producto: any) => {
+
+    /* this.listSelectableProducts.children.map((producto: any) => {
       producto.children?.map((subproducto: any) => {
         if (subproducto.select) this.subProductoSelected.push(subproducto);
       });
+    }); */
+    //Agrego los producots seleccionados a subProductoSelected
+    this.listSelectableProducts.children.map((sincroProd: any) => {
+      console.log('sincroProd: ');
+      console.log(sincroProd);
+      sincroProd.children?.map((catProd: any) => {
+        console.log('catProd: ');
+        console.log(catProd);
+        catProd.children?.map((producto: any) => {
+          console.log('producto: ');
+          console.log(producto);
+          if (producto.select)
+            this.subProductoSelected.push({
+              ...producto,
+              sincroId: sincroProd.syncrosId,
+              catId: catProd.id,
+            });
+        });
+      });
     });
+    console.log('Productos seleccionados:');
+    console.log(this.subProductoSelected);
     this.btnCanalEnvioDisabled =
       this.subProductoSelected.length > 0 ? false : true;
   }
 
-  updateAllCompleteSubProductos(producto: optionsToSelectI): void {
+  updateAllCompleteSubProductos(
+    categoria: optionsToSelectI,
+    sincroId: string
+  ): void {
     console.log('updateAllCompleteSubProductos');
-    this.updateAllCompleteSubOptions(producto, 'producto');
+    this.updateAllCompleteSubOptions(categoria, 'producto', sincroId);
     this.btnCanalEnvioDisabled =
       this.subProductoSelected.length > 0 ? false : true;
   }
@@ -722,13 +929,18 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       return false;
     }
     return (
-      producto.children.filter((producto: any) => producto.select).length > 0 &&
-      !producto.allCompleteSubProducto
+      producto.children.filter((subProducto: any) => subProducto.select)
+        .length > 0 && !producto.allCompleteSubProducto
     );
   }
 
-  setAllSubProductos(select: boolean, producto: any): void {
-    this.setAllSubOptions(producto, 'producto', select);
+  setAllSubProductos(
+    select: boolean,
+    producto: any,
+    sincroId: string = ''
+  ): void {
+    console.log('setAllSubProductos');
+    this.setAllSubOptions(producto, 'producto', select, sincroId);
     this.btnCanalEnvioDisabled =
       this.subProductoSelected.length > 0 ? false : true;
   }
