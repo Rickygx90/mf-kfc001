@@ -20,7 +20,6 @@
       <div class="loader"></div>
     </div>
     } @else {
-    <!-- <div *ngIf='data | async; else loading'> -->
     <div class="grid justify-items-stretch grid-cols-6 2xl:grid-cols-12 gap-1 text-xs">
       <div *ngFor="let menuItem of data" class="shadow-2xl">
         <div [class]="menuItem.status" class="cursor-pointer" (click)="openMenuDetail(menuItem.syncros_id)">

@@ -31,7 +31,6 @@ export class DashboardComponent implements OnInit {
   constructor(public dialog: MatDialog) {}
 
   ngOnInit(): void {
-    //this.menuItems$ = this.menuService.getMenuItems(0, this.rows);
     this.getMenus(this.currentPage);
     this.idInterval = setInterval(() => {
       this.getMenus(this.currentPage);
