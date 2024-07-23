@@ -621,7 +621,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         if (subcategoria.select) this.subCategoriasSelected.push(subcategoria);
       });
     });
-
     //si select es true se agrega a listSelectableProducts la categoria con el id de la sincro y sus productos
     if (select) {
       this.subCategoriasSelected.forEach((subcategoria: any) => {
@@ -663,9 +662,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     } else {
       this.listSelectableProducts.children = [];
     }
-
-    console.log(' ------ listSelectableProducts ------ ');
-    console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
@@ -722,9 +718,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         }
       });
     }
-
-    console.log(' ------ listSelectableProducts ------ ');
-    console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
@@ -799,9 +792,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           );
         } */
     }
-
-    console.log(' ------ listSelectableProducts ------ ');
-    console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
@@ -829,7 +819,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         }
       });
     });
-    //console.log(aux);
     return aux.length > 0 && !this.allCompleteProducto;
   }
 

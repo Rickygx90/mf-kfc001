@@ -17,6 +17,7 @@ export class SidebarComponent {
   usersService = inject(UsersService);
 
   openCloseSidevar() {
+    console.log('openCloseSidevar!!!')
     this.showSidevar = !this.showSidevar;
   }
 

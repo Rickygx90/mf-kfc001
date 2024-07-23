@@ -96,7 +96,6 @@
         transform: scaleX(1.25);
     }
     to{
-        transform:
-        translateY(-13px) scaleX(1);
+        transform: translateY(-13px) scaleX(1);
     }
 }
