@@ -1,14 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SidebarComponent } from '../sidebar/sidebar.component';
-import { CommonModule } from '@angular/common';
 import { MenuService } from '../../../services/menu.service';
-import { NavbarComponent } from '../navbar/navbar.component';
 import { menuItemI } from '../../../models/interfaces';
 import { MatDialog } from '@angular/material/dialog';
 import { MenuDetailComponent } from '../menu-detail/menu-detail.component';
 import { Observable } from 'rxjs';
-import { PaginatorModule } from 'primeng/paginator';
-import { ProgressBarModule } from 'primeng/progressbar';
 
 interface menuObject {
   data: menuItemI[];
@@ -18,14 +13,6 @@ interface menuObject {
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    SidebarComponent,
-    CommonModule,
-    NavbarComponent,
-    PaginatorModule,
-    ProgressBarModule,
-  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -44,7 +31,6 @@ export class DashboardComponent implements OnInit {
   constructor(public dialog: MatDialog) {}
 
   ngOnInit(): void {
-    //this.menuItems$ = this.menuService.getMenuItems(0, this.rows);
     this.getMenus(this.currentPage);
     this.idInterval = setInterval(() => {
       this.getMenus(this.currentPage);
@@ -54,7 +40,7 @@ export class DashboardComponent implements OnInit {
   ngOnDestroy() {
     clearInterval(this.idInterval);
   }
-  
+
   getTipoEjecucion(status: string): string {
     switch (status) {
       case 'MANUAL': {

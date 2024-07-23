@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, inject} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -7,29 +7,20 @@ import {
   Validators,
   FormControl,
 } from '@angular/forms';
-import { UsersService } from '../../../services/users.service';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
+import {UsersService} from '../../../services/users.service';
+import {Router} from '@angular/router';
+import {Observable} from 'rxjs';
+import {MessageService} from 'primeng/api';
 
 @Component({
-  standalone: true,
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    ToastModule,
-    DialogModule,
-  ],
   providers: [MessageService],
 })
 export class LoginComponent {
   showLoading: boolean = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -55,7 +46,18 @@ export class LoginComponent {
       next: (token) => {
         console.log(token)
         localStorage.setItem('token', JSON.stringify(token));
-        this.router.navigate(['/home/dashboard']);
+        this.usersService.checkStatusAutenticacion()
+          .subscribe({
+            next: data => {
+              if (data) {
+                this.router.navigate(['/home/dashboard']);
+                console.log("logged");
+              }
+            },
+            error: err => {
+              console.log("error while logging", err);
+            }
+          })
       },
       error: (err) => {
         console.log(err);

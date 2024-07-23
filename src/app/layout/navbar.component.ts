@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { UsersService } from '../../../services/users.service';
-import { User } from '../../../models/interfaces';
+import { UsersService } from '../services/users.service';
+import { User } from '../models/interfaces';
 
 @Component({
   selector: 'app-navbar',
@@ -18,5 +18,5 @@ export class NavbarComponent {
   get getUser():User | undefined{
     return this.usersService.currentUser;
   }
-  
+
 }

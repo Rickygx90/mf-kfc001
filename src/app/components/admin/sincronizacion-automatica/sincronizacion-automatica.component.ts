@@ -1,15 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../sidebar/sidebar.component';
-import { NavbarComponent } from '../navbar/navbar.component';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { multiSelectI } from '../../../models/interfaces';
-import { MenuService } from '../../../services/menu.service';
-import { CalendarModule } from 'primeng/calendar';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import {Component, OnInit, inject} from '@angular/core';
+import {multiSelectI} from '../../../models/interfaces';
+import {MenuService} from '../../../services/menu.service';
+import {MessageService} from 'primeng/api';
 import {
   formatearFechaAHora,
   formatearHoraAFecha,
@@ -18,17 +10,6 @@ import {
 
 @Component({
   selector: 'app-sincronizacion-automatica',
-  standalone: true,
-  imports: [
-    SidebarComponent,
-    NavbarComponent,
-    FormsModule,
-    CommonModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    ToastModule,
-    CalendarModule,
-  ],
   providers: [MessageService],
   templateUrl: './sincronizacion-automatica.component.html',
   styleUrl: './sincronizacion-automatica.component.css',
