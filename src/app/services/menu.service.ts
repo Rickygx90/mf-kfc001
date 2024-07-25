@@ -175,20 +175,6 @@ export class MenuService {
       );
   }
 
-  getCanalesVentaToSelectCheckbox(): Observable<any> {
-    return this.httpClient
-      .post<any>(
-        `http://192.168.101.29:3001/api/sincronization/getchannels`,
-        {}
-      )
-      .pipe(
-        map((canales) => {
-          console.log(canales);
-          return canales;
-        })
-      );
-  }
-
   setNow(): string {
     let now = new Date();
     let hours = ('0' + now.getHours()).slice(-2);

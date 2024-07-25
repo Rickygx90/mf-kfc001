@@ -1,21 +1,47 @@
 <p-toast />
 <div class="w-auto h-full p-5 bg-gray-100">
     <div class="w-auto h-[calc(100%-50px)] flex border-2 rounded-lg">
+
+
         <div class="w-full h-full border-r-2">
 
             <div class="border-b-2">
+                <h3 class="m-4 text-lg">Menus Seleccionados</h3>
+            </div>
+            <div class="w-full h-[calc(100%-110px)] overflow-auto">
+                @for (menusSeleccionado of menusSeleccionados; track menusSeleccionado) {
+                <div class="m-1">
+                    <mat-checkbox>
+                        <div class="border border-gray-300 py-1 px-5 text-xs">
+                            <p>{{menusSeleccionado.sincrosId}} - {{menusSeleccionado.title}}</p>
+                        </div>
+                    </mat-checkbox>
+                </div>
+                }
+            </div>
+        </div>
+
+
+
+        <div class="w-full h-full border-r-2">
+            <div class="border-b-2">
                 <h3 class="m-4 text-lg">Canales de Venta</h3>
             </div>
+            @if (!showCanales) {
+            <div class="w-full h-full flex justify-center items-center">
+                <div class="loader"></div>
+            </div>
+            } @else {
             <div class="m-1 border-b">
-                <mat-checkbox [checked]="allCompleteCategoria" [indeterminate]="someCompleteCategorias()"
-                    (change)="setAllCategorias($event.checked)">
+                <mat-checkbox [checked]="allCompleteCanales" [indeterminate]="someCompleteCanales()"
+                    (change)="setAllCanales($event.checked)">
                     <div class="font-semibold text-sm">{{listSelectableCanalesVenta.name}}</div>
                 </mat-checkbox>
             </div>
             <div class="w-full h-[calc(100%-110px)] overflow-auto">
                 @for (canal of listSelectableCanalesVenta.children; track canal) {
                 <div class="m-1">
-                    <mat-checkbox [(ngModel)]="canal.select" (ngModelChange)="updateAllCompleteCategorias()">
+                    <mat-checkbox [(ngModel)]="canal.select" (ngModelChange)="updateAllCompleteCanales()">
                         <div class="border border-gray-300 py-1 px-5 text-xs">
                             <p>{{canal.name}}</p>
                             <p>{{canal.date}}</p>
@@ -24,14 +50,15 @@
                 </div>
                 }
             </div>
+            }
         </div>
+
+
+
         <div class="w-full h-full border-r-2">
             <div class="border-b-2">
-                <h3 class="m-4 text-lg">Cadena</h3>
+                <h3 class="m-4 text-lg">Restaurantes</h3>
             </div>
-            <p-multiSelect [options]="cadenas" optionLabel="name" [(ngModel)]="cadenasSeleccionadas"
-                placeholder="Cadenas Seleccionadas" [panelStyle]="{'width':'100%', 'margin-bottom': '10px'}"
-                (onPanelHide)="onPanelHideCadenas()"></p-multiSelect>
             <div class="m-1 border-b">
                 <mat-checkbox [checked]="allCompleteRestaurante" [indeterminate]="someCompleteRestaurantes()"
                     (change)="setAllRestaurantes($event.checked)">
@@ -50,6 +77,8 @@
                 }
             </div>
         </div>
+
+
     </div>
     <button [disabled]="btnEnviarAhoraDisabled" class="mt-4" mat-flat-button color="primary"
         (click)="enviarAhora()">ENVIAR AHORA</button>

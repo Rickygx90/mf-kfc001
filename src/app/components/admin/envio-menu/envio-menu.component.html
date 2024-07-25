@@ -50,7 +50,7 @@
             (change)="setAllSubMenus($event.checked, menu)" [(ngModel)]="menu.select"
             (ngModelChange)="updateAllCompleteMenu()">
             <div class="font-semibold text-sm">
-              <p>Sincro: {{menu.syncrosId}} - Fecha: {{menu.endTime | date: 'd/M/yy, h:mm
+              <p>Sincro: {{menu.syncrosId.slice(0, menu.syncrosId.indexOf('-'))}} - Fecha: {{menu.endTime | date: 'd/M/yy, h:mm
                 a':'GMT'}}</p>
             </div>
           </mat-checkbox>
@@ -96,14 +96,14 @@
 
     <div class="w-full h-[calc(100%-110px)] overflow-auto">
       @for (categoria of listSelectableCategories.children; track categoria) {
-      <div class="m-1" [style]="{'background-color':categoria.color}">
+      <div class="m-1" [style]="{'background-color':categoria.color, opacity: .9}">
         <mat-checkbox [checked]="categoria.allCompleteSubCategoria"
           [indeterminate]="someCompleteSubCategorias(categoria)"
           (change)="setAllSubCategorias($event.checked, categoria)" [(ngModel)]="categoria.select"
           (ngModelChange)="updateAllCompleteCategorias()">
           <div class="font-semibold text-sm">
             <!-- <p>{{categoria.id}}</p> -->
-            <p>Sincro: {{categoria.syncrosId}} - Fecha: {{categoria.endTime | date: 'd/M/yy,
+            <p>Sincro: {{categoria.syncrosId.slice(0, categoria.syncrosId.indexOf('-'))}} - Fecha: {{categoria.endTime | date: 'd/M/yy,
               h:mm a':'GMT'}}</p>
             <p>{{categoria.title}}</p>
           </div>
@@ -155,9 +155,9 @@
     </div>
     <div class="w-full h-[calc(100%-110px)] overflow-auto">
       @for (sincroProd of listSelectableProducts.children; track sincroProd) {
-      <div class="m-1 pl-2 pt-2 w-full" [style]="{'background-color':sincroProd.color}">
+      <div class="m-1 pl-2 pt-2 w-full" [style]="{'background-color':sincroProd.color, opacity: .9}">
         <div class="font-semibold text-sm">
-          <p>> Sincro: {{sincroProd.syncrosId}} - Fecha: {{sincroProd.endTime | date: 'd/M/yy,
+          <p>> Sincro: {{sincroProd.syncrosId.slice(0, sincroProd.syncrosId.indexOf('-'))}} - Fecha: {{sincroProd.endTime | date: 'd/M/yy,
             h:mm a':'GMT'}}</p>
         </div>
         @for (catProd of sincroProd.children; track catProd) {
