@@ -156,7 +156,7 @@
     <div class="w-full h-[calc(100%-110px)] overflow-auto">
       @for (sincroProd of listSelectableProducts.children; track sincroProd) {
       <div class="m-1 pl-2 pt-2 w-full">
-        <div class="font-semibold text-sm">
+        <div class="font-semibold text-lg">
           <p>> Sincro: {{sincroProd.syncrosId.slice(0, sincroProd.syncrosId.indexOf('-'))}} - Fecha: {{sincroProd.endTime | date: 'd/M/yy,
             h:mm a':'GMT'}}</p>
         </div>

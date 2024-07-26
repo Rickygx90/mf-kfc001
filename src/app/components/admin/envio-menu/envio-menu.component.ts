@@ -653,43 +653,37 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 children: subCategoriaSelected.items,
                 checksum: subCategoriaSelected.checksum,
                 titleMenu: subCategoriaSelected.titleMenu,
-                color: subCategoriaSelected.color
+                color: subCategoriaSelected.color,
               },
             ],
             syncrosId: subCategoriaSelected.syncrosId,
             endTime: subCategoriaSelected.endTime,
-            
           });
         } else {
           this.listSelectableProducts.children.forEach((sincroProd: any) => {
             if (sincroProd.syncrosId === subCategoriaSelected.syncrosId) {
-
-
-
               if (
                 sincroProd.children.filter(
-                  (catProd: any) => catProd.id === subCategoriaSelected.id && catProd.checksum === subCategoriaSelected.checksum
+                  (catProd: any) =>
+                    catProd.id === subCategoriaSelected.id &&
+                    catProd.checksum === subCategoriaSelected.checksum
                 ).length === 0
-              ) 
-              
-              
-              
-              
-              
-              {
+              ) {
                 sincroProd.children.push({
                   id: subCategoriaSelected.id,
                   title: subCategoriaSelected.title,
                   children: subCategoriaSelected.items,
                   checksum: subCategoriaSelected.checksum,
                   titleMenu: subCategoriaSelected.titleMenu,
-                  color: subCategoriaSelected.color
+                  color: subCategoriaSelected.color,
                 });
               } else {
                 console.log('ELSE!!!!');
-                console.log( sincroProd.children.filter(
-                  (catProd: any) => catProd.id === subCategoriaSelected.id
-                ))
+                console.log(
+                  sincroProd.children.filter(
+                    (catProd: any) => catProd.id === subCategoriaSelected.id
+                  )
+                );
               }
             }
           });
@@ -714,7 +708,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         //if que verifica si existe la sincro en listSelectableProducts, sino existe la agrega junto a la categoria y los productos
         if (
           this.listSelectableProducts.children.filter(
-            (sincroProd: any) => sincroProd.syncrosId === subCategoriaSelected.syncrosId
+            (sincroProd: any) =>
+              sincroProd.syncrosId === subCategoriaSelected.syncrosId
           ).length === 0
         ) {
           this.listSelectableProducts.children.push({
@@ -725,12 +720,11 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 children: subCategoriaSelected.items,
                 checksum: subCategoriaSelected.checksum,
                 titleMenu: subCategoriaSelected.titleMenu,
-                color: subCategoriaSelected.color
+                color: subCategoriaSelected.color,
               },
             ],
             syncrosId: subCategoriaSelected.syncrosId,
             endTime: subCategoriaSelected.endTime,
-            
           });
         }
         // si la sincro existe agrego la categoria y los productos en dicha sincro
@@ -739,7 +733,9 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             if (sincroProd.syncrosId === subCategoriaSelected.syncrosId) {
               if (
                 sincroProd.children.filter(
-                  (catProd: any) => catProd.id === subCategoriaSelected.id && catProd.checksum === subCategoriaSelected.checksum
+                  (catProd: any) =>
+                    catProd.id === subCategoriaSelected.id &&
+                    catProd.checksum === subCategoriaSelected.checksum
                 ).length === 0
               ) {
                 sincroProd.children.push({
@@ -748,7 +744,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                   children: subCategoriaSelected.items,
                   checksum: subCategoriaSelected.checksum,
                   titleMenu: subCategoriaSelected.titleMenu,
-                  color: subCategoriaSelected.color
+                  color: subCategoriaSelected.color,
                 });
               }
             }
@@ -778,12 +774,15 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   }
 
   setAllSubCategorias(select: boolean, categoria: any): void {
+    console.log('setAllSubCategorias!!!!!!!!!!!!!');
+    console.log(categoria);
     this.setAllSubOptions(categoria, 'categoria', select);
     if (select) {
       this.subCategoriasSelected.forEach((subCategoriaSelected: any) => {
         if (
           this.listSelectableProducts.children.filter(
-            (sincroProd: any) => sincroProd.syncrosId === subCategoriaSelected.syncrosId
+            (sincroProd: any) =>
+              sincroProd.syncrosId === subCategoriaSelected.syncrosId
           ).length === 0
         ) {
           this.listSelectableProducts.children.push({
@@ -793,20 +792,21 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 title: subCategoriaSelected.title,
                 children: subCategoriaSelected.items,
                 checksum: categoria.checksum,
-                titleMenu: categoria.titleMenu,
-                color: categoria.color
+                titleMenu: subCategoriaSelected.titleMenu,
+                color: categoria.color,
               },
             ],
             syncrosId: subCategoriaSelected.syncrosId,
             endTime: subCategoriaSelected.endTime,
-            
           });
         } else {
           this.listSelectableProducts.children.forEach((sincroProd: any) => {
             if (sincroProd.syncrosId === subCategoriaSelected.syncrosId) {
               if (
                 sincroProd.children.filter(
-                  (catProd: any) => catProd.id === subCategoriaSelected.id && catProd.checksum === subCategoriaSelected.checksum
+                  (catProd: any) =>
+                    catProd.id === subCategoriaSelected.id &&
+                    catProd.checksum === subCategoriaSelected.checksum
                 ).length === 0
               ) {
                 sincroProd.children.push({
@@ -814,8 +814,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                   title: subCategoriaSelected.title,
                   children: subCategoriaSelected.items,
                   checksum: categoria.checksum,
-                  titleMenu: categoria.titleMenu,
-                  color: categoria.color
+                  titleMenu: subCategoriaSelected.titleMenu,
+                  color: categoria.color,
                 });
               }
             }
@@ -823,11 +823,35 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         }
       });
     } else {
-      this.listSelectableProducts.children =
-        this.listSelectableProducts.children.filter(
-          (sincroProd: any) => sincroProd.syncrosId !== categoria.syncrosId
-        );
+      const arrayAux = [];
+
+      this.listSelectableProducts.children.forEach((sincroProd: any) => {
+        if (sincroProd.syncrosId === categoria.syncrosId) {
+          sincroProd.children.forEach((producto: any) => {
+            if (producto.checksum === categoria.checksum) {
+              arrayAux.push(producto);
+            }
+          });
+        }
+      });
+
+      if (arrayAux.length === 0) {
+        this.listSelectableProducts.children =
+          this.listSelectableProducts.children.filter(
+            (sincroProd: any) => sincroProd.syncrosId !== categoria.syncrosId
+          );
+      } else {
+        this.listSelectableProducts.children.forEach((sincroProd: any) => {
+          if (sincroProd.syncrosId === categoria.syncrosId) {
+            sincroProd.children = sincroProd.children.filter((producto: any) => producto.checksum !==  categoria.checksum)
+          }
+        });
+      }
+
+
     }
+    console.log(' --------------- listSelectableProducts --------------- ');
+    console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
@@ -965,7 +989,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         this.restartCategoriasProductos('menu');
         this.showMenus = true;
         const aux = result.menus.groupSync.map((syncro: any) => {
-          
           return {
             /* syncrosId: syncro.syncrosId.slice(0, syncro.syncrosId.indexOf('-')), */
             syncrosId: syncro.syncrosId,
@@ -986,7 +1009,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 endTime: syncro.endTime,
                 color: rc2,
               };
-              console.log(subAux)
+              console.log(subAux);
               return subAux;
             }),
           };
