@@ -96,7 +96,7 @@
 
     <div class="w-full h-[calc(100%-110px)] overflow-auto">
       @for (categoria of listSelectableCategories.children; track categoria) {
-      <div class="m-1" [style]="{'background-color':categoria.color, opacity: .9}">
+      <div class="m-1" [style]="{'background-color':categoria.color}">
         <mat-checkbox [checked]="categoria.allCompleteSubCategoria"
           [indeterminate]="someCompleteSubCategorias(categoria)"
           (change)="setAllSubCategorias($event.checked, categoria)" [(ngModel)]="categoria.select"
@@ -155,18 +155,18 @@
     </div>
     <div class="w-full h-[calc(100%-110px)] overflow-auto">
       @for (sincroProd of listSelectableProducts.children; track sincroProd) {
-      <div class="m-1 pl-2 pt-2 w-full" [style]="{'background-color':sincroProd.color, opacity: .9}">
+      <div class="m-1 pl-2 pt-2 w-full">
         <div class="font-semibold text-sm">
           <p>> Sincro: {{sincroProd.syncrosId.slice(0, sincroProd.syncrosId.indexOf('-'))}} - Fecha: {{sincroProd.endTime | date: 'd/M/yy,
             h:mm a':'GMT'}}</p>
         </div>
         @for (catProd of sincroProd.children; track catProd) {
-        <div class="m-1 pl-2">
+        <div class="m-1 pl-2" [style]="{'background-color':catProd.color}">
           <mat-checkbox [checked]="catProd.allCompleteSubProducto" [indeterminate]="someCompleteSubProductos(catProd)"
             (change)="setAllSubProductos($event.checked, catProd, sincroProd.syncrosId)" [(ngModel)]="catProd.select"
             (ngModelChange)="updateAllCompleteProductos()" class="w-full flex justify-between">
             <div class="font-semibold text-sm">
-              <p>{{catProd.title}}</p>
+              <p>{{catProd.titleMenu}} - {{catProd.title}}</p>
             </div>
           </mat-checkbox>
           <span>
