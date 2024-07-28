@@ -40,7 +40,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   showMenus: boolean = false;
   showCategorias: boolean = false;
   showProductos: boolean = false;
-  btnCanalEnvioDisabled: boolean = false;
+  btnCanalEnvioDisabled: boolean = true;
   btnSincronizarMaxpointDisabled: boolean = true;
   txtBtnBlue: string = 'EXTRACCIÓN PERSONALIZADA';
   txtBtnGreen: string = 'EXTRACCIÓN DE MENÚS';
@@ -137,7 +137,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               this.restartCategoriasProductos('menu');
               this.showMenus = true;
               const aux = menus.groupSync.map((syncro: any) => {
-                
                 return {
                   /* syncrosId: syncro.syncrosId.slice(
                     0,
@@ -201,7 +200,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           next: (menus) => {
             if (menus.groupSync && menus.groupSync?.length > 0) {
               const aux = menus.groupSync.map((syncro: any) => {
-                
                 return {
                   /* syncrosId: syncro.syncrosId.slice(
                     0,
@@ -334,6 +332,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 ...subobj,
                 sincroId: sincroId,
                 catId: obj.id,
+                checksum: obj.checksum,
               })
             ).length === 0
           ) {
@@ -341,6 +340,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               ...subobj,
               sincroId: sincroId,
               catId: obj.id,
+              checksum: obj.checksum,
             });
           }
         }
@@ -350,6 +350,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             ...subobj,
             sincroId: sincroId,
             catId: obj.id,
+            checksum: obj.checksum,
             select: !subobj.select,
           };
           this.subProductoSelected = this.subProductoSelected.filter(
@@ -363,7 +364,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
   //Funcion que se ejecuta cuando se selecciona todos los elementos de una sub seccion.
   setAllSubOptions(
-    obj: optionsToSelectI,
+    obj: any,
     panel: string,
     select: boolean,
     sincroId: string = '' //se necesita sincroId para poder identificar el id de la sincronizacion de cada producto
@@ -391,6 +392,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         }
       } else if (panel === 'producto') {
         obj.allCompleteSubProducto = select;
+        //Si select es true significa que agregamos el producto a subProductoSelected.
         if (select) {
           if (
             this.subProductoSelected.filter((subproductoselected) =>
@@ -398,6 +400,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 ...subobj,
                 sincroId: sincroId,
                 catId: obj.id,
+                checksum: obj.checksum,
               })
             ).length === 0
           ) {
@@ -405,6 +408,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               ...subobj,
               sincroId: sincroId,
               catId: obj.id,
+              checksum: obj.checksum,
             });
           }
         } else {
@@ -412,6 +416,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             ...subobj,
             sincroId: sincroId,
             catId: obj.id,
+            checksum: obj.checksum,
             select: !subobj.select,
           };
           this.subProductoSelected = this.subProductoSelected.filter(
@@ -845,12 +850,12 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       } else {
         this.listSelectableProducts.children.forEach((sincroProd: any) => {
           if (sincroProd.syncrosId === categoria.syncrosId) {
-            sincroProd.children = sincroProd.children.filter((producto: any) => producto.checksum !==  categoria.checksum)
+            sincroProd.children = sincroProd.children.filter(
+              (producto: any) => producto.checksum !== categoria.checksum
+            );
           }
         });
       }
-
-
     }
     console.log(' --------------- listSelectableProducts --------------- ');
     console.log(this.listSelectableProducts);
@@ -894,12 +899,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
     //Selecciono todas las categorias y sus productos
     this.listSelectableProducts.children.forEach((sincroProd: any) => {
-      /* producto.select = select;
-      producto.allCompleteSubProducto = select;
-      producto.children?.forEach(
-        (subproducto: any) => (subproducto.select = producto.select)
-      ); */
-
       sincroProd.children?.forEach((catProd: any) => {
         catProd.select = select;
         catProd.allCompleteSubProducto = select;
@@ -909,11 +908,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       });
     });
 
-    /* this.listSelectableProducts.children.map((producto: any) => {
-      producto.children?.map((subproducto: any) => {
-        if (subproducto.select) this.subProductoSelected.push(subproducto);
-      });
-    }); */
     //Agrego los producots seleccionados a subProductoSelected
     this.listSelectableProducts.children.map((sincroProd: any) => {
       console.log('sincroProd: ');
@@ -929,12 +923,11 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               ...producto,
               sincroId: sincroProd.syncrosId,
               catId: catProd.id,
+              checksum: catProd.checksum,
             });
         });
       });
     });
-    console.log('Productos seleccionados:');
-    console.log(this.subProductoSelected);
     this.btnCanalEnvioDisabled =
       this.subProductoSelected.length > 0 ? false : true;
   }
