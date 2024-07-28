@@ -248,13 +248,22 @@ export class MenuService {
 
   sendManualSync(req: any): Observable<any> {
     console.log(req);
-    return this.httpClient.post<any>(
-      `http://192.168.101.29:3001/api/sincronization/sendmanual`,
-      { req }
-    );
+    return this.httpClient.post<any>(`${environment.url}/menu/sendmenu`, req);
   }
 
   sincronizarMaxpoint(): Observable<any> {
     return this.httpClient.post<any>(`${environment.url}/sync/all`, {});
   }
+
+  getRestaurantesbyMenus(req: any): Observable<any> {
+    return this.httpClient.post<any>(
+      `${environment.url}/menu/getresturants_sincroschecksum`,
+      {
+        idSincronization: req.sincrosId,
+        menuReference: req.checksum,
+      }
+    );
+  }
 }
+
+//https://devdeunapagos.kfc.com.ec/api/v1/menus/menu/sendmenu

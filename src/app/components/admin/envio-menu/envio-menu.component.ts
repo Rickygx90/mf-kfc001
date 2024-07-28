@@ -137,7 +137,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               this.restartCategoriasProductos('menu');
               this.showMenus = true;
               const aux = menus.groupSync.map((syncro: any) => {
-                let rc2 = `hsl(${Math.random() * 255}, 38%, 55%, .5)`;
+                
                 return {
                   /* syncrosId: syncro.syncrosId.slice(
                     0,
@@ -150,6 +150,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                     const subAux = menus.groupMenu.filter(
                       (menu: any) => menu.checksum === menuId
                     );
+                    let rc2 = `hsl(${Math.random() * 255}, 38%, 55%, .5)`;
                     subAux[0] = {
                       ...subAux[0],
                       /* syncrosId: syncro.syncrosId.slice(
@@ -200,7 +201,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           next: (menus) => {
             if (menus.groupSync && menus.groupSync?.length > 0) {
               const aux = menus.groupSync.map((syncro: any) => {
-                let rc2 = `hsl(${Math.random() * 255}, 38%, 55%, .5)`;
+                
                 return {
                   /* syncrosId: syncro.syncrosId.slice(
                     0,
@@ -213,6 +214,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                     const subAux = menus.groupMenu.filter(
                       (menu: any) => menu.checksum === menuId
                     );
+                    let rc2 = `hsl(${Math.random() * 255}, 38%, 55%, .5)`;
                     subAux[0] = {
                       ...subAux[0],
                       /* syncrosId: syncro.syncrosId.slice(

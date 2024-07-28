@@ -7,13 +7,10 @@ import {
 } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { MenuService } from '../../../services/menu.service';
-import {
-  CadenaI,
-  multiSelect2I,
-  multiSelectI,
-} from '../../../models/interfaces';
+import { multiSelect2I, multiSelectI } from '../../../models/interfaces';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
@@ -31,6 +28,7 @@ import { ToastModule } from 'primeng/toast';
     MatDialogContent,
     MatDialogClose,
     ToastModule,
+    MatRadioModule,
   ],
   providers: [MessageService],
   templateUrl: './canal-envio.component.html',
@@ -44,11 +42,14 @@ export class CanalEnvioComponent implements OnInit {
   ) {}
 
   showCanales: boolean = false;
+  showRestaurantes: Boolean = false;
   menuService = inject(MenuService);
   allCompleteCanales: boolean = false;
   allCompleteRestaurante: boolean = false;
   btnEnviarAhoraDisabled: boolean = true;
   menusSeleccionados: Array<any> = [];
+
+  menuSeleccionado: any;
   listSelectableCanalesVenta: multiSelectI = {
     name: 'Seleccionar todos',
     select: false,
@@ -63,24 +64,60 @@ export class CanalEnvioComponent implements OnInit {
 
   ngOnInit(): void {
     this.getCanalesVenta();
-    console.log(this.data);
     if (this.data && this.data.menusSeleccionados) {
-      console.log(this.data.menusSeleccionados);
-
+      console.log(this.data);
       this.menusSeleccionados = this.data.menusSeleccionados.map(
         (menusSeleccionado: any) => {
           return {
             title: menusSeleccionado[0].menus[0].title,
             sincrosId: menusSeleccionado[0].syncrosId,
             checksum: menusSeleccionado[0].checksum,
+            checked: false,
           };
         }
       );
+      this.menusSeleccionados[0].checked = true;
+      this.menuSeleccionado = this.menusSeleccionados[0];
+      this.getRestaurantesbyMenus(this.menusSeleccionados[0]);
     }
+  }
 
-    //menusSeleccionados
+  getRestaurantesbyMenus(primerMenu: any) {
+    this.menuService.getRestaurantesbyMenus(primerMenu).subscribe({
+      next: (restaurantes) => {
+        if (restaurantes) {
+          this.showRestaurantes = true;
+          const aux = restaurantes.map((restaurante: any) => {
+            return {
+              ...restaurante,
+              select: false,
+            };
+          });
+          this.listSelectableRestaurantes.children = aux;
+        }
+      },
+      error: (err) => {},
+    });
+  }
 
-    //menusSeleccionados
+  radioChange($event: any) {
+    this.showRestaurantes = false;
+    this.menuService.getRestaurantesbyMenus($event.value).subscribe({
+      next: (restaurantes) => {
+        console.log(restaurantes);
+        if (restaurantes) {
+          this.showRestaurantes = true;
+          const aux = restaurantes.map((restaurante: any) => {
+            return {
+              ...restaurante,
+              select: false,
+            };
+          });
+          this.listSelectableRestaurantes.children = aux;
+        }
+      },
+      error: (err) => {},
+    });
   }
 
   getCanalesVenta() {
@@ -175,74 +212,77 @@ export class CanalEnvioComponent implements OnInit {
     this.toggleBtnEnviarAhoraDisabled();
   }
 
-  /* onPanelHideCadenas(): void {
-    this.menuService
-      .getRestaurantesToSelect(this.cadenasSeleccionadas)
-      .subscribe({
-        next: (restaurantes) => {
-          this.listSelectableRestaurantes.children = restaurantes;
-        },
-        error: (err) => {
-          console.log(err);
-        },
-        complete: () => {},
-      });
-  } */
-
   enviarAhora() {
+    console.log(' ---------------- enviarAhora ---------------- ');
     this.btnEnviarAhoraDisabled = true;
     const { canalesVentaSelected, restaurantesSelected } =
       this.getCanalesRestaurantesSelected();
 
-    const aux = {
+    console.log(canalesVentaSelected);
+    console.log(restaurantesSelected);
+    console.log(this.menuSeleccionado);
+    console.log(this.data.productosSeleccionados);
+
+    const productosPorCategorias: Array<any> = [];
+    
+    this.data.productosSeleccionados.forEach((productoSeleccionado: any) => {
+      if (productoSeleccionado.sincroId === this.menuSeleccionado.sincrosId) {
+        if (
+          productosPorCategorias.filter(
+            (e: any) => e.id === productoSeleccionado.catId
+          ).length === 0
+        ) {
+          productosPorCategorias.push({
+            id: productoSeleccionado.catId,
+            products: [productoSeleccionado[0].id],
+          });
+        } else {
+          productosPorCategorias.forEach((e: any) => {
+            if (e.id === productoSeleccionado.catId)
+              e.products.push(productoSeleccionado[0].id);
+          });
+        }
+      }
+    });
+
+    console.log(productosPorCategorias);
+
+    const request = {
       request_menu: [
         {
-          id: '01ef4966-e131-6ddd-8f2f-da6cf2af338a',
-          sync_id: '01ef4966-cf22-6798-8f2f-da6cf2af338a',
-          checksum:
-            '2efff4c1fdd09748356520e66ee46134cc04c87afe668fe989a3fe38e5bb272b',
+          sync_id: this.menuSeleccionado.sincrosId,
+          checksum: this.menuSeleccionado.checksum,
           metadata: {
-            platforms: ['platform1', 'platform2'],
-            restaurant: [
-              { id: '879', chain_id: '37' },
-              { id: '795', chain_id: '22' },
-            ],
+            platforms: canalesVentaSelected.map(
+              (canalVenta: any) => canalVenta.name
+            ),
+            restaurant: restaurantesSelected.map((restaurante: any) => {
+              return {
+                id: restaurante.id.toString(),
+                chain_id: restaurante.idChain.toString(),
+              };
+            }),
           },
-          categories: [
-            '24B5DE5C-2EE2-EE11-8076-C896655094A7',
-            '1CAD2867-6BCB-E911-80E5-000D3A019254',
-          ],
-          products: ['33869', '33877'],
+          categories: productosPorCategorias,
         },
       ],
     };
 
-
-
-
-
-    
-    this.menuService
-      .sendManualSync({
-        canalesVentaSelected,
-        restaurantesSelected,
-        products: this.data,
-      })
-      .subscribe({
-        next: (response) => {
-          console.log(response);
-        },
-        error: (err) => {
-          console.log(err);
-        },
-        complete: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Exito',
-            detail: 'La configuración se guardo exitosamente!',
-          });
-          //this.dialogRef.close();
-        },
-      });
+    this.menuService.sendManualSync(request).subscribe({
+      next: (response) => {
+        console.log(response);
+      },
+      error: (err) => {
+        console.log(err);
+      },
+      complete: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exito',
+          detail: 'La configuración se guardo exitosamente!',
+        });
+        //this.dialogRef.close();
+      },
+    });
   }
 }
