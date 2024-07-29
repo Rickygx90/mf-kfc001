@@ -27,7 +27,8 @@ export class SincronizacionAutomaticaComponent implements OnInit {
   };
   menuService = inject(MenuService);
 
-  constructor(private messageService: MessageService) {}
+  constructor(private messageService: MessageService) {
+  }
 
   ngOnInit() {
     this.getLastConfiguration();
@@ -36,8 +37,9 @@ export class SincronizacionAutomaticaComponent implements OnInit {
   getLastConfiguration() {
     this.menuService.requestLastConfiguration().subscribe({
       next: (newConfiguration) => {
-        if (newConfiguration && newConfiguration.aggregators.length > 0) {
+        if (newConfiguration) {
           this.allCompleteAgregadores = newConfiguration.syncMaxPoint;
+          this.listSelectableAgregadores.select = newConfiguration.syncMaxPoint
           this.listSelectableAgregadores.time = formatearHoraAFecha(
             newConfiguration.syncTime
           );
@@ -47,33 +49,15 @@ export class SincronizacionAutomaticaComponent implements OnInit {
               syncTime: formatearHoraAFecha(aggregator.syncTime),
             }));
           this.showLoading = false;
-        } else {
-          this.menuService.requestAggregators().subscribe({
-            next: (newConfiguration) => {
-              console.log(newConfiguration);
-              this.allCompleteAgregadores = newConfiguration.syncMaxPoint;
-              this.listSelectableAgregadores.time = formatearHoraAFecha(
-                newConfiguration.syncTime
-              );
-              this.listSelectableAgregadores.children =
-                newConfiguration.aggregators.map((aggregator: any) => ({
-                  ...aggregator,
-                  syncTime: formatearHoraAFecha(aggregator.syncTime),
-                }));
-              this.showLoading = false;
-            },
-            error: (err) => {
-              //this.validateErrorResponse(err);
-              this.messageService.add(validateResponse(err));
-              this.showLoading = false;
-            },
-          });
         }
       },
       error: (err) => {
         //this.validateErrorResponse(err);
         this.messageService.add(validateResponse(err));
         this.showLoading = false;
+      },
+      complete: () => {
+        this.btnSincronizarDisabled = false;
       },
     });
   }
@@ -91,27 +75,22 @@ export class SincronizacionAutomaticaComponent implements OnInit {
   }
 
   setAllAgregadores(select: boolean): void {
-    this.allCompleteAgregadores = select;
+    //this.allCompleteAgregadores = select;
     this.listSelectableAgregadores.select = select;
-    if (this.listSelectableAgregadores.children == null) {
-      return;
-    }
-    this.listSelectableAgregadores.children.forEach((aggregator) => {
-      aggregator.select = select;
-      if (select) aggregator.syncTime = this.listSelectableAgregadores.time;
-    });
-    this.updateAllCompleteAgregadores();
+    // if (this.listSelectableAgregadores.children == null) {
+    //   return;
+    // }
+    // this.listSelectableAgregadores.children.forEach((aggregator) => {
+    //   aggregator.select = select;
+    //   if (select) aggregator.syncTime = this.listSelectableAgregadores.time;
+    // });
+    // this.updateAllCompleteAgregadores();
   }
 
   changeMainSync() {
     this.listSelectableAgregadores.time = this.dateIsNotNull(
       this.listSelectableAgregadores.time
     );
-    if (this.allCompleteAgregadores) {
-      this.listSelectableAgregadores.children.map((aggregator) => {
-        aggregator.syncTime = this.listSelectableAgregadores.time;
-      });
-    }
   }
 
   dateIsNotNull(time: any): Date {
@@ -150,7 +129,7 @@ export class SincronizacionAutomaticaComponent implements OnInit {
       syncTime: formatearFechaAHora(this.listSelectableAgregadores.time),
       aggregators,
     };
-    console.log(req);
+    console.log(JSON.stringify(req));
     //this.guardarSincronizacionAutomatica(req);
     this.menuService.sendAutomaticSync(req).subscribe({
       next: (response) => {
