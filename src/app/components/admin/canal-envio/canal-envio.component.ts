@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-canal-envio',
@@ -29,6 +30,7 @@ import { ToastModule } from 'primeng/toast';
     MatDialogClose,
     ToastModule,
     MatRadioModule,
+    MatBadgeModule,
   ],
   providers: [MessageService],
   templateUrl: './canal-envio.component.html',
@@ -65,17 +67,32 @@ export class CanalEnvioComponent implements OnInit {
   ngOnInit(): void {
     this.getCanalesVenta();
     if (this.data && this.data.menusSeleccionados) {
-      console.log(this.data);
-      this.menusSeleccionados = this.data.menusSeleccionados.map(
-        (menusSeleccionado: any) => {
-          return {
+      //Objeto que guardara los menus filtrados sin repeticiones.
+      const menusUnificados: Array<any> = [];
+
+      //Filtramos los menus repetidos y los guardamos en menusUnificados.
+      this.data.menusSeleccionados.forEach((menusSeleccionado: any) => {
+        if (
+          menusUnificados.filter((menu: any) => {
+            if (menu.checksum === menusSeleccionado[0].checksum) {
+              if (menu.store.id === menusSeleccionado[0].store.id) {
+                return menu;
+              }
+            }
+          }).length === 0
+        ) {
+          menusUnificados.push({
             title: menusSeleccionado[0].menus[0].title,
             sincrosId: menusSeleccionado[0].syncrosId,
             checksum: menusSeleccionado[0].checksum,
+            aggregator: menusSeleccionado[0].aggregator,
+            store: menusSeleccionado[0].store,
             checked: false,
-          };
+          });
         }
-      );
+      });
+
+      this.menusSeleccionados = menusUnificados;
       this.menusSeleccionados[0].checked = true;
       this.menuSeleccionado = this.menusSeleccionados[0];
       this.getRestaurantesbyMenus(this.menusSeleccionados[0]);
@@ -224,7 +241,7 @@ export class CanalEnvioComponent implements OnInit {
     console.log(this.data.productosSeleccionados);
 
     const productosPorCategorias: Array<any> = [];
-    
+
     this.data.productosSeleccionados.forEach((productoSeleccionado: any) => {
       if (productoSeleccionado.sincroId === this.menuSeleccionado.sincrosId) {
         if (

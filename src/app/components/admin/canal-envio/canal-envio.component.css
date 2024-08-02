@@ -7,3 +7,19 @@
 :host ::ng-deep .p-checkbox-box {
     outline: 1px solid rgba(0, 0, 0, 0.113);
 }
+
+
+:host ::ng-deep .mat-badge-content {
+    width: auto !important; 
+    height: auto !important;
+    min-width: 22px;
+    min-height: 22px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+}
+
+ 
+  

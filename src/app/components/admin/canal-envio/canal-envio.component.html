@@ -11,7 +11,7 @@
                     @for (menusSeleccionado of menusSeleccionados; track menusSeleccionado) {
                     <mat-radio-button class="m-1" [checked]="menusSeleccionado.checked" [value]="menusSeleccionado">
                         <div class="border border-gray-300 py-1 px-5 text-xs">
-                            <p>{{menusSeleccionado.title}}</p>
+                            <p [matBadge]="menusSeleccionado.store.name" matBadgeOverlap="false">{{menusSeleccionado.title}}</p>
                         </div>
                     </mat-radio-button>
                     }

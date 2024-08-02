@@ -59,6 +59,14 @@ export class FilterMenuComponent implements OnInit {
 
   ngOnInit() {
     this.cadenas$ = this.menuService.getCadenasToSelect();
+
+    if(this.data && this.data.formularioFiltro) {
+      this.formularioFiltro.get('cadenasSeleccionadas')?.setValue(this.data.formularioFiltro.cadenasSeleccionadas);
+      this.onPanelHideCadenas();
+      this.formularioFiltro.get('restaurantesSeleccionados')?.setValue(this.data.formularioFiltro.restaurantesSeleccionados);
+      this.formularioFiltro.get('fechaInicio')?.setValue(new Date(this.data.formularioFiltro.fechaInicio));
+      this.formularioFiltro.get('fechaFin')?.setValue(new Date(this.data.formularioFiltro.fechaFin));
+    }
   }
 
   get cadenasSeleccionadas() {
@@ -82,8 +90,8 @@ export class FilterMenuComponent implements OnInit {
       { value: [], disabled: true },
       Validators.required,
     ],
-    fechaInicio: ['', Validators.required],
-    fechaFin: ['', Validators.required],
+    fechaInicio: [new Date(), Validators.required],
+    fechaFin: [new Date(), Validators.required],
   });
 
   onPanelHideCadenas() {
@@ -108,7 +116,6 @@ export class FilterMenuComponent implements OnInit {
       })
       .subscribe({
         next: (menus) => {
-          console.log(menus);
           this.dialogRef.close({
             menus,
             formularioFiltro: this.formularioFiltro.value,

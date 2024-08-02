@@ -23,7 +23,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   public page: number = 1;
   public total_recordsMenu: number = 0;
   public formularioFiltro: any = null;
-  public menusSelected: any = [];
+
   menuService = inject(MenuService);
   buscarMenu: string = '';
 
@@ -33,6 +33,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   allCompleteCategoria: boolean = false;
   allCompleteProducto: boolean = false;
 
+  //Objeto que va a guardar los menus de cada pagina con su seleccion actual.
+  paginasGuardadas: any = [];
   subMenusSelected: any = [];
   subCategoriasSelected: Array<optionsToSelectI> = [];
   subProductoSelected: Array<optionsToSelectI> = [];
@@ -128,45 +130,45 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           next: (menus) => {
             console.log(menus);
             if (menus && menus?.groupSync?.length > 0) {
-              console.log(this.paginator);
+              //si existe una paginacion activa, regreso a la pagina 0
               if (this.paginator) this.paginator.changePage(0);
-              //this.formularioFiltro = result.formularioFiltro;
+              //Reinicio todos los objetos que contienen informacion sobre los menus existentes
               this.subMenusSelected = [];
               this.listSelectableCategories.children = [];
-              this.menusSelected = [];
+              this.paginasGuardadas = [];
               this.restartCategoriasProductos('menu');
+              //Muestro los menus y oculto el mensaje "No Hay Data"
               this.showMenus = true;
-              const aux = menus.groupSync.map((syncro: any) => {
-                return {
-                  /* syncrosId: syncro.syncrosId.slice(
-                    0,
-                    syncro.syncrosId.indexOf('-')
-                  ), */
-                  syncrosId: syncro.syncrosId,
-                  startTime: syncro.startTime,
-                  endTime: new Date(syncro.endTime),
-                  children: syncro.menus.map((menuId: any) => {
-                    const subAux = menus.groupMenu.filter(
-                      (menu: any) => menu.checksum === menuId
-                    );
-                    let rc2 = `hsl(${Math.random() * 255}, 38%, 55%, .5)`;
-                    subAux[0] = {
-                      ...subAux[0],
-                      /* syncrosId: syncro.syncrosId.slice(
-                        0,
-                        syncro.syncrosId.indexOf('-')
-                      ), */
-                      syncrosId: syncro.syncrosId,
-                      endTime: syncro.endTime,
-                      color: rc2,
-                    };
-                    return subAux;
-                  }),
-                };
-              });
+              //Obtenemos el total de menus filtrados
               this.total_recordsMenu = menus.pagination.totalRecords;
-              this.listSelectableMenu.children = aux;
-              this.menusSelected.push({ ...this.listSelectableMenu });
+              //Con este map recorro todas las sincronizaciones que se encuentran en la prop groupSync y voy agrupando los menus pertenecientes a cada una de ellas.
+              this.listSelectableMenu.children = menus.groupSync.map(
+                (syncro: any) => {
+                  return {
+                    syncrosId: syncro.syncrosId,
+                    startTime: syncro.startTime,
+                    endTime: new Date(syncro.endTime),
+                    //En la prop children guardo todos los menus que pertenecen a una sincronizacion.
+                    children: syncro.menus.map((menuSync: any) => {
+                      //Busco los menus en la prop groupMenu y los filtro por los id que se encuentran en el objeto menuSync.menu
+                      const menuFiltrado = menus.groupMenu.filter(
+                        (menu: any) => menu.checksum === menuSync.menu
+                      );
+                      //Al menu obtenido le agrego el id, endTime de la sincronozacion a la que pertenece, adicional se agrega la tienda, su agregador y el color.
+                      menuFiltrado[0] = {
+                        ...menuFiltrado[0],
+                        aggregator: menuSync.aggregator,
+                        store: menuSync.store,
+                        syncrosId: syncro.syncrosId,
+                        endTime: syncro.endTime,
+                        color: `hsl(${Math.random() * 255}, 38%, 55%, .5)`,
+                      };
+                      return menuFiltrado;
+                    }),
+                  };
+                }
+              );
+              this.paginasGuardadas.push({ ...this.listSelectableMenu });
             }
           },
           error: (err) => {
@@ -184,11 +186,14 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   paginate(event: any) {
     console.log(event);
     console.log(this.buscarMenu);
-    if (this.menusSelected.find((aux: any) => aux.page === event.page)) {
-      this.listSelectableMenu = this.menusSelected.find(
+    console.log(this.paginasGuardadas)
+    //Busco dentro de paginasGuardadas si ya tengo la pagina guardada, sino consulto al api.
+    if (this.paginasGuardadas.find((pagina: any) => pagina.page === event.page)) {
+      this.listSelectableMenu = this.paginasGuardadas.find(
         (aux: any) => aux.page === event.page
       );
     } else {
+      //Muestro la animacion "loading" mientras se cargan los menus por paginacion.
       this.loadingMenu = true;
       this.menuService
         .getMenuToSelectCheckbox({
@@ -199,41 +204,41 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         .subscribe({
           next: (menus) => {
             if (menus.groupSync && menus.groupSync?.length > 0) {
-              const aux = menus.groupSync.map((syncro: any) => {
-                return {
-                  /* syncrosId: syncro.syncrosId.slice(
-                    0,
-                    syncro.syncrosId.indexOf('-')
-                  ), */
-                  syncrosId: syncro.syncrosId,
-                  startTime: syncro.startTime,
-                  endTime: syncro.endTime,
-                  children: syncro.menus.map((menuId: any) => {
-                    const subAux = menus.groupMenu.filter(
-                      (menu: any) => menu.checksum === menuId
-                    );
-                    let rc2 = `hsl(${Math.random() * 255}, 38%, 55%, .5)`;
-                    subAux[0] = {
-                      ...subAux[0],
-                      /* syncrosId: syncro.syncrosId.slice(
-                        0,
-                        syncro.syncrosId.indexOf('-')
-                      ), */
-                      syncrosId: syncro.syncrosId,
-                      endTime: syncro.endTime,
-                      color: rc2,
-                    };
-                    return subAux;
-                  }),
-                };
-              });
-              this.listSelectableMenu.children = aux;
+              //Con este map recorro todas las sincronizaciones que se encuentran en la prop groupSync y voy agrupando los menus pertenecientes a cada una de ellas.
+              this.listSelectableMenu.children = menus.groupSync.map(
+                (syncro: any) => {
+                  return {
+                    syncrosId: syncro.syncrosId,
+                    startTime: syncro.startTime,
+                    endTime: syncro.endTime,
+                    //En la prop children guardo todos los menus que pertenecen a una sincronizacion.
+                    children: syncro.menus.map((menuSync: any) => {
+                      //Busco los menus en la prop groupMenu y los filtro por los id que se encuentran en el objeto menuSync.menu
+                      const menuFiltrado = menus.groupMenu.filter(
+                        (menu: any) => menu.checksum === menuSync.menu
+                      );
+                      //Al menu obtenido le agrego el id, endTime de la sincronozacion a la que pertenece, adicional se agrega la tienda, su agregador y el color.
+                      menuFiltrado[0] = {
+                        ...menuFiltrado[0],
+                        aggregator: menuSync.aggregator,
+                        store: menuSync.store,
+                        syncrosId: syncro.syncrosId,
+                        endTime: syncro.endTime,
+                        color: `hsl(${Math.random() * 255}, 38%, 55%, .5)`,
+                      };
+                      return menuFiltrado;
+                    }),
+                  };
+                }
+              );
               this.listSelectableMenu.page = event.page;
-              this.menusSelected.push({ ...this.listSelectableMenu });
+              this.paginasGuardadas.push({ ...this.listSelectableMenu });
+              //Oculto la animacion "loading" despues de consultar los menus por paginacion.
               this.loadingMenu = false;
             }
           },
           error: (err) => {
+            //Oculto la animacion "loading" despues de consultar los menus por paginacion.
             this.loadingMenu = false;
             console.log(err);
           },
@@ -968,50 +973,56 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       data: {
         page: this.page,
         rowsMenu: this.rowsMenu,
+        formularioFiltro: this.formularioFiltro,
       },
       height: '370px',
       width: '460px',
     });
     dialogRef.afterClosed().subscribe((result) => {
-      console.log(result);
       if (result && result.menus && result.menus?.groupSync?.length > 0) {
-        console.log(this.paginator);
+        console.log(result.menus);
+        const { menus, formularioFiltro } = result;
+        //si existe una paginacion activa, regreso a la pagina 0
         if (this.paginator) this.paginator.changePage(0);
-        this.formularioFiltro = result.formularioFiltro;
+        //Salvo los campos del formulario de filtro.
+        this.formularioFiltro = formularioFiltro;
+        //Reinicio todos los objetos que contienen informacion sobre los menus existentes
         this.subMenusSelected = [];
         this.listSelectableCategories.children = [];
-        this.menusSelected = [];
+        this.paginasGuardadas = [];
         this.restartCategoriasProductos('menu');
+        //Muestro los menus y oculto el mensaje "No Hay Data"
         this.showMenus = true;
-        const aux = result.menus.groupSync.map((syncro: any) => {
-          return {
-            /* syncrosId: syncro.syncrosId.slice(0, syncro.syncrosId.indexOf('-')), */
-            syncrosId: syncro.syncrosId,
-            startTime: syncro.startTime,
-            endTime: new Date(syncro.endTime),
-            children: syncro.menus.map((menuId: any) => {
-              const subAux = result.menus.groupMenu.filter(
-                (menu: any) => menu.checksum === menuId
-              );
-              let rc2 = `hsl(${Math.random() * 255}, 38%, 55%, .5)`;
-              subAux[0] = {
-                ...subAux[0],
-                /* syncrosId: syncro.syncrosId.slice(
-                  0,
-                  syncro.syncrosId.indexOf('-')
-                ), */
-                syncrosId: syncro.syncrosId,
-                endTime: syncro.endTime,
-                color: rc2,
-              };
-              console.log(subAux);
-              return subAux;
-            }),
-          };
-        });
-        this.total_recordsMenu = result.menus.pagination.totalRecords;
-        this.listSelectableMenu.children = aux;
-        this.menusSelected.push({ ...this.listSelectableMenu });
+        //Obtenemos el total de menus filtrados
+        this.total_recordsMenu = menus.pagination.totalRecords;
+        //Con este map recorro todas las sincronizaciones que se encuentran en la prop groupSync y voy agrupando los menus pertenecientes a cada una de ellas.
+        this.listSelectableMenu.children = menus.groupSync.map(
+          (syncro: any) => {
+            return {
+              syncrosId: syncro.syncrosId,
+              startTime: syncro.startTime,
+              endTime: new Date(syncro.endTime),
+              //En la prop children guardo todos los menus que pertenecen a una sincronizacion.
+              children: syncro.menus.map((menuSync: any) => {
+                //Busco los menus en la prop groupMenu y los filtro por los id que se encuentran en el objeto menuSync.menu
+                const menuFiltrado = menus.groupMenu.filter(
+                  (menu: any) => menu.checksum === menuSync.menu
+                );
+                //Al menu obtenido le agrego el id, endTime de la sincronozacion a la que pertenece, adicional se agrega la tienda, su agregador y el color.
+                menuFiltrado[0] = {
+                  ...menuFiltrado[0],
+                  aggregator: menuSync.aggregator,
+                  store: menuSync.store,
+                  syncrosId: syncro.syncrosId,
+                  endTime: syncro.endTime,
+                  color: `hsl(${Math.random() * 255}, 38%, 55%, .5)`,
+                };
+                return menuFiltrado;
+              }),
+            };
+          }
+        );
+        this.paginasGuardadas.push({ ...this.listSelectableMenu });
       } else if (result && result.menus === null) {
         this.listSelectableMenu.children = [];
         this.subMenusSelected = [];
