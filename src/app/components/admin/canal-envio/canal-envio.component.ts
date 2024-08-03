@@ -49,6 +49,10 @@ export class CanalEnvioComponent implements OnInit {
   allCompleteCanales: boolean = false;
   allCompleteRestaurante: boolean = false;
   btnEnviarAhoraDisabled: boolean = true;
+  //Objetos que habilitaran el panel de canal de envio y restaurantes para poder ser modificados
+  panelCanalVentaDisabled: boolean = true;
+  panelRestauranteDisabled: boolean = true;
+  //Objeto menusSeleccionados guarda los menus filtrados para mostrarlos en la plantilla.
   menusSeleccionados: Array<any> = [];
 
   menuSeleccionado: any;
@@ -65,11 +69,9 @@ export class CanalEnvioComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.getCanalesVenta();
     if (this.data && this.data.menusSeleccionados) {
       //Objeto que guardara los menus filtrados sin repeticiones.
       const menusUnificados: Array<any> = [];
-
       //Filtramos los menus repetidos y los guardamos en menusUnificados.
       this.data.menusSeleccionados.forEach((menusSeleccionado: any) => {
         if (
@@ -93,62 +95,94 @@ export class CanalEnvioComponent implements OnInit {
       });
 
       this.menusSeleccionados = menusUnificados;
+      //Ordenamos los menus por orden alfabetico.
+      this.menusSeleccionados.sort(function (a, b) {
+        if (a.title > b.title) {
+          return 1;
+        }
+        if (a.title < b.title) {
+          return -1;
+        }
+        return 0;
+      });
       this.menusSeleccionados[0].checked = true;
       this.menuSeleccionado = this.menusSeleccionados[0];
-      this.getRestaurantesbyMenus(this.menusSeleccionados[0]);
+      this.getRestaurantesbyMenus(this.menuSeleccionado);
+      this.getCanalesVenta(this.menuSeleccionado);
     }
   }
 
-  getRestaurantesbyMenus(primerMenu: any) {
-    this.menuService.getRestaurantesbyMenus(primerMenu).subscribe({
+  //Funcion que obtiene los restaurantes segun el menu seleccionado y activa el restaurante por defecto.
+  getRestaurantesbyMenus(menuSeleccionado: any) {
+    this.menuService.getRestaurantesbyMenus(menuSeleccionado).subscribe({
       next: (restaurantes) => {
         if (restaurantes) {
           this.showRestaurantes = true;
-          const aux = restaurantes.map((restaurante: any) => {
-            return {
-              ...restaurante,
-              select: false,
-            };
+          this.listSelectableRestaurantes.children = restaurantes.map(
+            (restaurante: any) => {
+              return {
+                ...restaurante,
+                select: false,
+              };
+            }
+          );
+          //Ordenamos los restaurantes por orden alfabetico.
+          this.listSelectableRestaurantes.children.sort(function (a, b) {
+            if (a.codeStore > b.codeStore) {
+              return 1;
+            }
+            if (a.codeStore < b.codeStore) {
+              return -1;
+            }
+            return 0;
           });
-          this.listSelectableRestaurantes.children = aux;
+          //Activamos el restaurante por defecto segun el menu seleccionado.
+          this.listSelectableRestaurantes.children.forEach(
+            (restaurante: any) => {
+              if (restaurante.id === menuSeleccionado.store.id) {
+                restaurante.select = true;
+              }
+            }
+          );
         }
       },
       error: (err) => {},
     });
   }
 
-  radioChange($event: any) {
-    this.showRestaurantes = false;
-    this.menuService.getRestaurantesbyMenus($event.value).subscribe({
-      next: (restaurantes) => {
-        console.log(restaurantes);
-        if (restaurantes) {
-          this.showRestaurantes = true;
-          const aux = restaurantes.map((restaurante: any) => {
-            return {
-              ...restaurante,
-              select: false,
-            };
-          });
-          this.listSelectableRestaurantes.children = aux;
-        }
-      },
-      error: (err) => {},
-    });
-  }
-
-  getCanalesVenta() {
+  //Funcion que obtiene los canales de venta segun el menu seleccionado y activa el canal de venta por defecto.
+  getCanalesVenta(menuSeleccionado: any) {
     this.menuService.requestAggregators().subscribe({
       next: (response) => {
         if (response && response.aggregators) {
           this.showCanales = true;
           this.listSelectableCanalesVenta.children = response.aggregators;
+          //Activamos el canal de venta por defecto segun el menu seleccionado.
+          this.listSelectableCanalesVenta.children.forEach(
+            (canalVenta: any) => {
+              if (
+                canalVenta.name.toLowerCase() ===
+                menuSeleccionado.aggregator.toLowerCase()
+              ) {
+                canalVenta.select = true;
+              }
+            }
+          );
         }
       },
       error: (err) => {},
     });
   }
 
+  //Funcion que cambia el menu (radio button)
+  cambiarMenu($event: any) {
+    this.showRestaurantes = false;
+    this.showCanales = false;
+    this.getRestaurantesbyMenus($event.value);
+    this.getCanalesVenta($event.value);
+  }
+
+  //Funcion que obtiene los restaurantes y los canales de venta seleccionados.
   getCanalesRestaurantesSelected(): any {
     const canalesVentaSelected =
       this.listSelectableCanalesVenta.children.filter(
@@ -161,6 +195,7 @@ export class CanalEnvioComponent implements OnInit {
     return { canalesVentaSelected, restaurantesSelected };
   }
 
+  //Funcion que activa/desactiva el botton enviar ahora
   toggleBtnEnviarAhoraDisabled(): void {
     const { canalesVentaSelected, restaurantesSelected } =
       this.getCanalesRestaurantesSelected();
@@ -229,6 +264,7 @@ export class CanalEnvioComponent implements OnInit {
     this.toggleBtnEnviarAhoraDisabled();
   }
 
+  //Funcion que envia la informacion del menu, canal de venta y restaurante seleccionado.
   enviarAhora() {
     console.log(' ---------------- enviarAhora ---------------- ');
     this.btnEnviarAhoraDisabled = true;

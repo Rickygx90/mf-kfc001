@@ -19,6 +19,7 @@ import { isEqual } from 'lodash';
 })
 export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ {
   @ViewChild('paginator', { static: false }) paginator!: Paginator;
+  //Objeto rowsMenu guarda el numero de sincronozaciones por paginacion.
   public rowsMenu: number = 3;
   public page: number = 1;
   public total_recordsMenu: number = 0;
@@ -81,6 +82,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   }
 
   ngOnDestroy() {
+    console.log(this.idInterval)
     clearInterval(this.idInterval);
   }
 

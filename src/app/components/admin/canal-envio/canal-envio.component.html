@@ -7,11 +7,13 @@
                 <h3 class="m-4 text-lg">Menus Seleccionados</h3>
             </div>
             <div class="w-full h-[calc(100%-110px)] overflow-auto">
-                <mat-radio-group aria-label="Select an option" class="flex flex-col" (change)="radioChange($event)" [(ngModel)]="menuSeleccionado">
+                <mat-radio-group aria-label="Select an option" class="flex flex-col" (change)="cambiarMenu($event)"
+                    [(ngModel)]="menuSeleccionado">
                     @for (menusSeleccionado of menusSeleccionados; track menusSeleccionado) {
                     <mat-radio-button class="m-1" [checked]="menusSeleccionado.checked" [value]="menusSeleccionado">
-                        <div class="border border-gray-300 py-1 px-5 text-xs">
-                            <p [matBadge]="menusSeleccionado.store.name" matBadgeOverlap="false">{{menusSeleccionado.title}}</p>
+                        <div class="border border-gray-300 py-1 px-5 text-xs flex items-center">
+                            <p>{{menusSeleccionado.title}}</p>
+                            <span class="badge">{{menusSeleccionado.store.name}}</span>
                         </div>
                     </mat-radio-button>
                     }
@@ -20,8 +22,12 @@
         </div>
 
         <div class="w-full h-full border-r-2">
-            <div class="border-b-2">
+            <div class="border-b-2 flex justify-between items-center">
                 <h3 class="m-4 text-lg">Canales de Venta</h3>
+                <button mat-raised-button style="background-color: #1fa44f; margin-inline: 1rem;" mat-flat-button
+                    color="primary">
+                    Habilitar
+                </button>
             </div>
             @if (!showCanales) {
             <div class="w-full h-full flex justify-center items-center">
@@ -29,15 +35,16 @@
             </div>
             } @else {
             <div class="m-1 border-b">
-                <mat-checkbox [checked]="allCompleteCanales" [indeterminate]="someCompleteCanales()"
-                    (change)="setAllCanales($event.checked)">
+                <mat-checkbox [disabled]="panelCanalVentaDisabled" [checked]="allCompleteCanales"
+                    [indeterminate]="someCompleteCanales()" (change)="setAllCanales($event.checked)">
                     <div class="font-semibold text-sm">{{listSelectableCanalesVenta.name}}</div>
                 </mat-checkbox>
             </div>
             <div class="w-full h-[calc(100%-110px)] overflow-auto">
                 @for (canal of listSelectableCanalesVenta.children; track canal) {
                 <div class="m-1">
-                    <mat-checkbox [(ngModel)]="canal.select" (ngModelChange)="updateAllCompleteCanales()">
+                    <mat-checkbox [disabled]="panelCanalVentaDisabled" [(ngModel)]="canal.select"
+                        (ngModelChange)="updateAllCompleteCanales()">
                         <div class="border border-gray-300 py-1 px-5 text-xs">
                             <p>{{canal.name}}</p>
                             <p>{{canal.date}}</p>
@@ -50,8 +57,12 @@
         </div>
 
         <div class="w-full h-full border-r-2">
-            <div class="border-b-2">
+            <div class="border-b-2 flex justify-between items-center">
                 <h3 class="m-4 text-lg">Restaurantes</h3>
+                <button mat-raised-button style="background-color: #1fa44f; margin-inline: 1rem;" mat-flat-button
+                    color="primary">
+                    Habilitar
+                </button>
             </div>
             @if (!showRestaurantes) {
             <div class="w-full h-full flex justify-center items-center">
@@ -59,15 +70,16 @@
             </div>
             } @else {
             <div class="m-1 border-b">
-                <mat-checkbox [checked]="allCompleteRestaurante" [indeterminate]="someCompleteRestaurantes()"
-                    (change)="setAllRestaurantes($event.checked)">
+                <mat-checkbox [disabled]="panelRestauranteDisabled" [checked]="allCompleteRestaurante"
+                    [indeterminate]="someCompleteRestaurantes()" (change)="setAllRestaurantes($event.checked)">
                     <div class="font-semibold text-sm">{{listSelectableRestaurantes.name}}</div>
                 </mat-checkbox>
             </div>
             <div class="w-full h-[calc(100%-178px)] overflow-auto">
                 @for (restaurante of listSelectableRestaurantes.children; track restaurante) {
                 <div class="m-1">
-                    <mat-checkbox [(ngModel)]="restaurante.select" (ngModelChange)="updateAllCompleteRestaurantes()">
+                    <mat-checkbox [disabled]="panelRestauranteDisabled" [(ngModel)]="restaurante.select"
+                        (ngModelChange)="updateAllCompleteRestaurantes()">
                         <div class="border border-gray-300 py-1 px-5 text-xs">
                             <p>{{restaurante.codeStore}}</p>
                         </div>
