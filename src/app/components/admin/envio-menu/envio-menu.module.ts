@@ -21,6 +21,7 @@ import { ToastModule } from 'primeng/toast';
 import { EnvioMenuRoutingModule } from './envio-menu-routing.module';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
+import { MessagesModule } from 'primeng/messages';
 
 @NgModule({
   imports: [
@@ -45,6 +46,7 @@ import { MatButtonModule } from '@angular/material/button';
     ToastModule,
     MatCheckbox,
     MatButtonModule,
+    MessagesModule
   ],
   declarations: [EnvioMenuComponent],
 })

@@ -52,7 +52,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   btnCanalEnvioDisabled: boolean = true;
   btnSincronizarMaxpointDisabled: boolean = true;
   txtBtnBlue: string = 'EXTRACCIÓN PERSONALIZADA';
-  txtBtnGreen: string = 'EXTRACCIÓN DE MENÚS';
+  txtBtnGreen: string = 'SINCRONIZACIÓN EN CURSO';
 
   //Objeto q contiene la lista de menus agrupados por sincronizaciones disponibles a elegir
   listSelectableMenu: any = {
@@ -117,7 +117,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           this.txtBtnGreen = 'EXTRACCIÓN DE MENÚS';
         } else {
           this.btnSincronizarMaxpointDisabled = true;
-          this.txtBtnGreen = 'SINCRONIZANDO...';
+          this.txtBtnGreen = 'SINCRONIZACIÓN EN CURSO';
         }
       },
       error: (err) => {},
@@ -1203,20 +1203,28 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
   sincronizarMaxpoint() {
     this.btnSincronizarMaxpointDisabled = true;
+    this.txtBtnGreen = 'SINCRONIZACIÓN EN CURSO';
     this.menuService.sincronizarMaxpoint().subscribe({
       next: (response) => {
-        setTimeout(() => {
+        if (response.status === 200 && response.valueSync === false) {
           this.btnSincronizarMaxpointDisabled = false;
-        }, 3000);
+          this.txtBtnGreen = 'EXTRACCIÓN DE MENÚS';
+        }
+
         console.log(response);
         this.messageService.add(
-          validateResponse({ ...response, status: response.code })
+          validateResponse({ message: response.message, status: response.code })
         );
+        setTimeout(() => {
+          this.messageService.clear();
+        }, 3000);
+        
       },
       error: (err) => {
         console.log(err);
         setTimeout(() => {
           this.btnSincronizarMaxpointDisabled = false;
+          this.txtBtnGreen = 'EXTRACCIÓN DE MENÚS';
         }, 3000);
         this.messageService.add({
           severity: 'error',
