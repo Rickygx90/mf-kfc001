@@ -99,3 +99,12 @@
         transform: translateY(-13px) scaleX(1);
     }
 }
+
+.badge {
+    background-color: #3f51b5;
+    color: white;
+    padding: 4px 8px;
+    text-align: center;
+    border-radius: 5px;
+    margin-left: 5px;
+}

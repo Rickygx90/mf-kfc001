@@ -55,9 +55,9 @@
             @for (submenu of menu.children; track submenu) {
             <div class="ml-4">
               <mat-checkbox [(ngModel)]="submenu.select" (ngModelChange)="updateAllCompleteSubMenus(menu)">
-                <div class="border border-gray-300 py-1 px-5 text-xs">
-                  <!--  <p>{{submenu[0].checksum}}</p> -->
+                <div class="border border-gray-300 py-1 px-5 text-xs flex items-center">
                   <p>{{submenu[0].menus[0].title}}</p>
+                  <span class="badge">{{submenu[0].store.name}}</span>
                 </div>
               </mat-checkbox>
             </div>
