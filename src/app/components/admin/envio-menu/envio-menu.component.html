@@ -71,7 +71,7 @@
       </div>
       }
       <p-paginator #paginator class="sticky bottom-0 mt-1" [style]="{'background-color': 'rgb(243 244 246)'}"
-        [rows]="rowsMenu" [totalRecords]="total_recordsMenu" (onPageChange)="paginate($event)"></p-paginator>
+        [rows]="rowsMenu" [totalRecords]="total_recordsMenu" (onPageChange)="cambiarPagina($event)"></p-paginator>
     </div>
     } @else {
     <div class="w-full h-full flex justify-center items-center">

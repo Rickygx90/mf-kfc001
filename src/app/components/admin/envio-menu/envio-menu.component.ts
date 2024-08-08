@@ -20,7 +20,7 @@ import { isEqual } from 'lodash';
 export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ {
   @ViewChild('paginator', { static: false }) paginator!: Paginator;
   //Objeto rowsMenu guarda el numero de sincronozaciones por paginacion.
-  public rowsMenu: number = 3;
+  public rowsMenu: number = 5;
   public page: number = 1;
   public total_recordsMenu: number = 0;
   public formularioFiltro: any = null;
@@ -36,13 +36,19 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
   //Objeto que va a guardar los menus de cada pagina con su seleccion actual.
   paginasGuardadas: any = [];
-  subMenusSelected: any = [];
-  subCategoriasSelected: Array<optionsToSelectI> = [];
-  subProductoSelected: Array<optionsToSelectI> = [];
 
+  //Objeto que va a guardar los menus seleccionados
+  menusSeleccionados: any = [];
+  //Objeto que va a guardar las categorias seleccionadas
+  categoriasSeleccionadas: Array<optionsToSelectI> = [];
+  //Objeto que va a guardar los productos seleccionados
+  productosSeleccionados: Array<optionsToSelectI> = [];
+
+  //Booleanos que vam a mostrar/ocultar los paneles.
   showMenus: boolean = false;
   showCategorias: boolean = false;
   showProductos: boolean = false;
+  //Booleanos que vam a mostrar/ocultar los botones.
   btnCanalEnvioDisabled: boolean = true;
   btnSincronizarMaxpointDisabled: boolean = true;
   txtBtnBlue: string = 'EXTRACCIÓN PERSONALIZADA';
@@ -82,7 +88,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   }
 
   ngOnDestroy() {
-    console.log(this.idInterval)
+    console.log(this.idInterval);
     clearInterval(this.idInterval);
   }
 
@@ -118,15 +124,36 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     });
   }
 
+  //Funcion que borra las categorias y productos seleccionados ademas de la lista de menus, categorias y productos disponibles a elegir.
+  restartCategoriasProductos(panel: string): void {
+    if (panel === 'menu') {
+      this.showCategorias =
+        this.listSelectableCategories.children.length > 0 ? true : false;
+      this.categoriasSeleccionadas = [];
+      this.listSelectableProducts.children = [];
+      this.showProductos =
+        this.listSelectableCategories.children.length > 0 &&
+        this.listSelectableProducts.children.length > 0
+          ? true
+          : false;
+      this.productosSeleccionados = [];
+      this.btnCanalEnvioDisabled = true;
+    } else if (panel === 'categoria') {
+      this.showProductos =
+        this.listSelectableProducts.children.length > 0 ? true : false;
+    }
+  }
+
   //Funcion que hace un request de menus por el input
-  onChangeInput(buscarMenu2: any) {
-    console.log(buscarMenu2);
-    if (buscarMenu2.length >= 3) {
+  onChangeInput(palabraABuscar: any) {
+    console.log(palabraABuscar);
+    //Solo si palabraABuscar tiene 3 letras o mas, consulto al api.
+    if (palabraABuscar.length >= 3) {
       this.menuService
         .getMenuToSelectCheckbox({
           formularioFiltro: this.formularioFiltro,
           data: { page: 1, rowsMenu: this.rowsMenu },
-          palabra: buscarMenu2,
+          palabra: palabraABuscar,
         })
         .subscribe({
           next: (menus) => {
@@ -135,7 +162,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               //si existe una paginacion activa, regreso a la pagina 0
               if (this.paginator) this.paginator.changePage(0);
               //Reinicio todos los objetos que contienen informacion sobre los menus existentes
-              this.subMenusSelected = [];
+              this.menusSeleccionados = [];
               this.listSelectableCategories.children = [];
               this.paginasGuardadas = [];
               this.restartCategoriasProductos('menu');
@@ -185,12 +212,14 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   }
 
   //Funcion que controla la paginacion del panel de menus
-  paginate(event: any) {
+  cambiarPagina(event: any) {
     console.log(event);
     console.log(this.buscarMenu);
-    console.log(this.paginasGuardadas)
+    console.log(this.paginasGuardadas);
     //Busco dentro de paginasGuardadas si ya tengo la pagina guardada, sino consulto al api.
-    if (this.paginasGuardadas.find((pagina: any) => pagina.page === event.page)) {
+    if (
+      this.paginasGuardadas.find((pagina: any) => pagina.page === event.page)
+    ) {
       this.listSelectableMenu = this.paginasGuardadas.find(
         (aux: any) => aux.page === event.page
       );
@@ -283,47 +312,85 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     return true;
   } */
 
-  //Funcion que borra las categorias y productos seleccionados ademas de la lista de menus, categorias y productos disponibles a elegir.
-  restartCategoriasProductos(panel: string): void {
-    if (panel === 'menu') {
-      this.showCategorias =
-        this.listSelectableCategories.children.length > 0 ? true : false;
-      this.subCategoriasSelected = [];
-      this.listSelectableProducts.children = [];
-      this.showProductos =
-        this.listSelectableCategories.children.length > 0 &&
-        this.listSelectableProducts.children.length > 0
-          ? true
-          : false;
-      this.subProductoSelected = [];
-      this.btnCanalEnvioDisabled = true;
-    } else if (panel === 'categoria') {
-      this.showProductos =
-        this.listSelectableProducts.children.length > 0 ? true : false;
-    }
-  }
-
-  //Funcion que se ejecuta cuando se selecciona un elemento de una sub seccion.
+  //Funcion que obtiene los menus, las categorias y los productos seleccionados a partir de la lista "listSelectable"
   updateAllCompleteSubOptions(
     obj: any,
     panel: string,
     sincroId: string = '' //se necesita sincroId para poder identificar el id de la sincronizacion de cada producto
   ): void {
-    //Con este forEach recorremos las categorias y los productos.
+    console.log('updateAllCompleteSubOptions!!!');
+    //Con este forEach recorremos los menus, categorias y los productos.
     obj.children.forEach((subobj: any) => {
-      if (panel === 'categoria') {
-        obj.allCompleteSubCategoria =
-          obj.children != null && obj.children.every((obj: any) => obj.select);
+      if (panel === 'menu') {
+        obj.allCompleteSubMenu =
+          obj.children != null &&
+          obj.children.every((menu: any) => menu.select);
         if (subobj.select) {
           if (
-            this.subCategoriasSelected.filter(
+            this.menusSeleccionados.filter(
+              (submenuselected: any) => submenuselected === subobj
+            ).length === 0
+          ) {
+            this.menusSeleccionados.push(subobj);
+          }
+        } else {
+          this.menusSeleccionados = this.menusSeleccionados.filter(
+            (submenuselected: any) => submenuselected != subobj
+          );
+
+          //Cuando se quite la seleccion de un menu se tiene que eliminar el check de sus respectivas categorias.
+          this.categoriasSeleccionadas = this.categoriasSeleccionadas.filter(
+            (categoria: any) => {
+              if (subobj[0].syncrosId === categoria.syncrosId) {
+                if (subobj[0].checksum !== categoria.checksum) {
+                  return categoria;
+                } else {
+                  //Hay que eliminar la lista de productos y los productos seleccionados relacionados a ese menu
+                  this.productosSeleccionados =
+                    this.productosSeleccionados.filter((producto: any) => {
+                      if (subobj[0].syncrosId === producto.sincroId) {
+                        if (subobj[0].checksum !== producto.checksum) {
+                          return producto;
+                        }
+                      } else {
+                        return producto;
+                      }
+                    });
+
+                  this.listSelectableProducts.children.forEach(
+                    (producto: any) => {
+                      if (subobj[0].syncrosId === producto.syncrosId) {
+                        producto.children = producto.children.filter(
+                          (subProducto: any) => {
+                            if (subobj[0].checksum !== subProducto.checksum) {
+                              return producto;
+                            }
+                          }
+                        );
+                      }
+                    }
+                  );
+                }
+              } else {
+                return categoria;
+              }
+            }
+          );
+        }
+      } else if (panel === 'categoria') {
+        obj.allCompleteSubCategoria =
+          obj.children != null &&
+          obj.children.every((categoria: any) => categoria.select);
+        if (subobj.select) {
+          if (
+            this.categoriasSeleccionadas.filter(
               (subcategoriaselected) => subcategoriaselected === subobj
             ).length === 0
           ) {
-            this.subCategoriasSelected.push(subobj);
+            this.categoriasSeleccionadas.push(subobj);
           }
         } else {
-          this.subCategoriasSelected = this.subCategoriasSelected.filter(
+          this.categoriasSeleccionadas = this.categoriasSeleccionadas.filter(
             (subcategoriaselected) => subcategoriaselected != subobj
           );
         }
@@ -334,7 +401,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         //se verifica que el producto este seleccionado
         if (subobj.select) {
           if (
-            this.subProductoSelected.filter((subproductoselected) =>
+            this.productosSeleccionados.filter((subproductoselected) =>
               isEqual(subproductoselected, {
                 ...subobj,
                 sincroId: sincroId,
@@ -343,7 +410,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               })
             ).length === 0
           ) {
-            this.subProductoSelected.push({
+            this.productosSeleccionados.push({
               ...subobj,
               sincroId: sincroId,
               catId: obj.id,
@@ -351,7 +418,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             });
           }
         }
-        //si no esta seleccionado significa que se debe eliminar del array de subproductoselected
+        //si no esta seleccionado significa que se debe eliminar del array de productosSeleccionados
         else {
           const productToDelete = {
             ...subobj,
@@ -360,7 +427,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             checksum: obj.checksum,
             select: !subobj.select,
           };
-          this.subProductoSelected = this.subProductoSelected.filter(
+          this.productosSeleccionados = this.productosSeleccionados.filter(
             (subproductoselected) =>
               !isEqual(subproductoselected, productToDelete)
           );
@@ -382,27 +449,84 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     //Con este forEach recorremos las categorias y los productos.
     obj.children.forEach((subobj: any) => {
       subobj.select = select;
-      if (panel === 'categoria') {
+      if (panel === 'menu') {
+        obj.allCompleteSubMenu = select;
+        if (obj.children == null) {
+          return;
+        }
+        //subobj.select = select;
+        if (select) {
+          if (
+            this.menusSeleccionados.filter(
+              (menusSeleccionados: any) => menusSeleccionados === subobj
+            ).length === 0
+          ) {
+            this.menusSeleccionados.push(subobj);
+          }
+        } else {
+          this.menusSeleccionados = this.menusSeleccionados.filter(
+            (menusSeleccionados: any) => menusSeleccionados !== subobj
+          );
+          //Cuando se quite la seleccion de un menu se tiene que eliminar el check de sus respectivas categorias.
+          this.categoriasSeleccionadas = this.categoriasSeleccionadas.filter(
+            (categoria: any) => {
+              if (subobj[0].syncrosId === categoria.syncrosId) {
+                if (subobj[0].checksum !== categoria.checksum) {
+                  return categoria;
+                } else {
+                  //Hay que eliminar la lista de productos y los productos seleccionados relacionados a ese menu
+                  this.productosSeleccionados =
+                    this.productosSeleccionados.filter((producto: any) => {
+                      if (subobj[0].syncrosId === producto.sincroId) {
+                        if (subobj[0].checksum !== producto.checksum) {
+                          return producto;
+                        }
+                      } else {
+                        return producto;
+                      }
+                    });
+
+                  this.listSelectableProducts.children.forEach(
+                    (producto: any) => {
+                      if (subobj[0].syncrosId === producto.syncrosId) {
+                        producto.children = producto.children.filter(
+                          (subProducto: any) => {
+                            if (subobj[0].checksum !== subProducto.checksum) {
+                              return producto;
+                            }
+                          }
+                        );
+                      }
+                    }
+                  );
+                }
+              } else {
+                return categoria;
+              }
+            }
+          );
+        }
+      } else if (panel === 'categoria') {
         obj.allCompleteSubCategoria = select;
         if (select) {
           if (
-            this.subCategoriasSelected.filter(
+            this.categoriasSeleccionadas.filter(
               (subcategoriaselected) => subcategoriaselected === subobj
             ).length === 0
           ) {
-            this.subCategoriasSelected.push(subobj);
+            this.categoriasSeleccionadas.push(subobj);
           }
         } else {
-          this.subCategoriasSelected = this.subCategoriasSelected.filter(
+          this.categoriasSeleccionadas = this.categoriasSeleccionadas.filter(
             (subcategoriaselected) => subcategoriaselected != subobj
           );
         }
       } else if (panel === 'producto') {
         obj.allCompleteSubProducto = select;
-        //Si select es true significa que agregamos el producto a subProductoSelected.
+        //Si select es true significa que agregamos el producto a productosSeleccionados.
         if (select) {
           if (
-            this.subProductoSelected.filter((subproductoselected) =>
+            this.productosSeleccionados.filter((subproductoselected) =>
               isEqual(subproductoselected, {
                 ...subobj,
                 sincroId: sincroId,
@@ -411,7 +535,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               })
             ).length === 0
           ) {
-            this.subProductoSelected.push({
+            this.productosSeleccionados.push({
               ...subobj,
               sincroId: sincroId,
               catId: obj.id,
@@ -426,7 +550,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             checksum: obj.checksum,
             select: !subobj.select,
           };
-          this.subProductoSelected = this.subProductoSelected.filter(
+          this.productosSeleccionados = this.productosSeleccionados.filter(
             (subproductoselected) =>
               !isEqual(subproductoselected, productToDelete)
           );
@@ -453,7 +577,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
   //Funcion que selecciona todos los menus de la lista de menus disponibles(sin usar) - Refactorizar
   setAllMenu(select: boolean): void {
-    this.subMenusSelected = [];
+    this.menusSeleccionados = [];
     this.allCompleteMenu = select;
     this.listSelectableMenu.select = this.allCompleteMenu;
     if (this.listSelectableMenu.children == null) {
@@ -468,11 +592,11 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
     this.listSelectableMenu.children.map((menu: any) => {
       menu.children?.map((subMenu: any) => {
-        if (subMenu.select) this.subMenusSelected.push(subMenu);
+        if (subMenu.select) this.menusSeleccionados.push(subMenu);
       });
     });
     //Se agregan a la lista de categorias seleccionables todas las categorias relacionadas a los menus previamente seleccionados.
-    this.listSelectableCategories.children = this.subMenusSelected.map(
+    this.listSelectableCategories.children = this.menusSeleccionados.map(
       (subMenu: any) => {
         return {
           color: subMenu[0].color,
@@ -501,27 +625,30 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     this.restartCategoriasProductos('menu');
   }
 
-  //Funcion que selecciona un menu de la lista de menus disponibles y lo agrega a subMenusSelected.
-  updateAllCompleteSubMenus(menu: any): void {
-    menu.allCompleteSubMenu =
-      menu.children != null && menu.children.every((menu: any) => menu.select);
-    menu.children?.map((subMenu: any) => {
-      if (subMenu.select) {
-        if (
-          this.subMenusSelected.filter(
-            (submenuselected: any) => submenuselected === subMenu
-          ).length === 0
-        ) {
-          this.subMenusSelected.push(subMenu);
-        }
-      } else {
-        this.subMenusSelected = this.subMenusSelected.filter(
-          (submenuselected: any) => submenuselected != subMenu
-        );
+  isCheckingCategoria(
+    checksum: string,
+    syncrosId: string,
+    idCategoria: string
+  ): boolean {
+    let selectCategoria = false;
+    this.categoriasSeleccionadas.forEach((categoria: any) => {
+      if (
+        categoria.checksum === checksum &&
+        categoria.syncrosId === syncrosId &&
+        categoria.id === idCategoria
+      ) {
+        selectCategoria = categoria.select;
       }
     });
+    return selectCategoria;
+  }
+
+  //Funcion que selecciona un menu de la lista de menus disponibles y lo agrega a menusSeleccionados.
+  updateAllCompleteSubMenus(menu: any): void {
+    console.log('updateAllCompleteSubMenus!!!');
+    this.updateAllCompleteSubOptions(menu, 'menu');
     //Agregamos la lista de categorias disponibles a seleccionar en base a los menus seleccionados.
-    this.listSelectableCategories.children = this.subMenusSelected.map(
+    this.listSelectableCategories.children = this.menusSeleccionados.map(
       (subMenu: any) => {
         return {
           color: subMenu[0].color,
@@ -537,6 +664,11 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               titleMenu: subMenu[0].menus[0].title,
               syncrosId: subMenu[0].syncrosId,
               endTime: subMenu[0].endTime,
+              select: this.isCheckingCategoria(
+                subMenu[0].checksum,
+                subMenu[0].syncrosId,
+                category.id
+              ),
               items: category.entities.map((entity: any) => {
                 return subMenu[0].items.filter(
                   (item: any) => entity.id === item.id
@@ -547,7 +679,17 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         };
       }
     );
-    this.restartCategoriasProductos('menu');
+    console.log('listSelectableCategories: ');
+    console.log(this.listSelectableCategories);
+    //this.restartCategoriasProductos('menu');
+    this.showCategorias =
+      this.listSelectableCategories.children.length > 0 ? true : false;
+    this.showProductos =
+      this.listSelectableCategories.children.length > 0 &&
+      this.listSelectableProducts.children.length > 0
+        ? true
+        : false;
+    this.btnCanalEnvioDisabled = true;
   }
 
   someCompleteSubMenus(menu: any): boolean {
@@ -560,9 +702,11 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     );
   }
 
-  //Funcion que selecciona un grupo de menus agrupados por sincronizacion de la lista de menus disponibles y lo agrega a subMenusSelected.
+  //Funcion que selecciona un grupo de menus agrupados por sincronizacion de la lista de menus disponibles y lo agrega a menusSeleccionados.
   setAllSubMenus(select: boolean, menu: any): void {
-    menu.allCompleteSubMenu = select;
+    this.setAllSubOptions(menu, 'menu', select);
+
+    /* menu.allCompleteSubMenu = select;
     if (menu.children == null) {
       return;
     }
@@ -570,20 +714,20 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       subMenu.select = select;
       if (select) {
         if (
-          this.subMenusSelected.filter(
-            (subMenusSelected: any) => subMenusSelected === subMenu
+          this.menusSeleccionados.filter(
+            (menusSeleccionados: any) => menusSeleccionados === subMenu
           ).length === 0
         ) {
-          this.subMenusSelected.push(subMenu);
+          this.menusSeleccionados.push(subMenu);
         }
       } else {
-        this.subMenusSelected = this.subMenusSelected.filter(
-          (subMenusSelected: any) => subMenusSelected !== subMenu
+        this.menusSeleccionados = this.menusSeleccionados.filter(
+          (menusSeleccionados: any) => menusSeleccionados !== subMenu
         );
       }
-    });
+    }); */
     //Agregamos la lista de categorias disponibles a seleccionar en base a los menus seleccionados.
-    this.listSelectableCategories.children = this.subMenusSelected.map(
+    this.listSelectableCategories.children = this.menusSeleccionados.map(
       (subMenu: any) => {
         return {
           color: subMenu[0].color,
@@ -599,6 +743,11 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               titleMenu: subMenu[0].menus[0].title,
               syncrosId: subMenu[0].syncrosId,
               endTime: subMenu[0].endTime,
+              select: this.isCheckingCategoria(
+                subMenu[0].checksum,
+                subMenu[0].syncrosId,
+                category.id
+              ),
               items: category.entities.map((entity: any) => {
                 return subMenu[0].items.filter(
                   (item: any) => entity.id === item.id
@@ -609,7 +758,15 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         };
       }
     );
-    this.restartCategoriasProductos('menu');
+    //this.restartCategoriasProductos('menu');
+    this.showCategorias =
+      this.listSelectableCategories.children.length > 0 ? true : false;
+    this.showProductos =
+      this.listSelectableCategories.children.length > 0 &&
+      this.listSelectableProducts.children.length > 0
+        ? true
+        : false;
+    this.btnCanalEnvioDisabled = true;
   }
 
   updateAllCompleteCategorias(): void {
@@ -633,7 +790,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
   //Funcion que selecciona todas las categorias de la lista de categorias disponibles.
   setAllCategorias(select: boolean): void {
-    this.subCategoriasSelected = [];
+    this.categoriasSeleccionadas = [];
     this.allCompleteCategoria = select;
     if (this.listSelectableCategories.children == null) {
       return;
@@ -647,12 +804,13 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     });
     this.listSelectableCategories.children.map((categoria: any) => {
       categoria.children?.map((subCategoria: any) => {
-        if (subCategoria.select) this.subCategoriasSelected.push(subCategoria);
+        if (subCategoria.select)
+          this.categoriasSeleccionadas.push(subCategoria);
       });
     });
     //si select es true se agrega a listSelectableProducts la categoria con el id de la sincro y sus productos
     if (select) {
-      this.subCategoriasSelected.forEach((subCategoriaSelected: any) => {
+      this.categoriasSeleccionadas.forEach((subCategoriaSelected: any) => {
         if (
           this.listSelectableProducts.children.filter(
             (sincroProd: any) =>
@@ -706,19 +864,16 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     } else {
       this.listSelectableProducts.children = [];
     }
-    console.log(' ----------------- setAllCategorias ----------------- ');
-    console.log(' listSelectableProducts: ');
-    console.log(this.listSelectableProducts);
-
     this.restartCategoriasProductos('categoria');
   }
 
-  updateAllCompleteSubCategorias(categoria: any, subcategoriaAux: any): void {
+  updateAllCompleteSubCategorias(categoria: any, subCategoria: any): void {
+    console.log('updateAllCompleteSubCategorias!!!');
     this.updateAllCompleteSubOptions(categoria, 'categoria');
-    console.log(subcategoriaAux);
+    console.log(subCategoria);
     //verificar si se agrega o se elimina una categoria
-    if (subcategoriaAux.select) {
-      this.subCategoriasSelected.forEach((subCategoriaSelected: any) => {
+    if (subCategoria.select) {
+      this.categoriasSeleccionadas.forEach((subCategoriaSelected: any) => {
         //if que verifica si existe la sincro en listSelectableProducts, sino existe la agrega junto a la categoria y los productos
         if (
           this.listSelectableProducts.children.filter(
@@ -767,9 +922,9 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       });
     } else {
       this.listSelectableProducts.children.forEach((sincroProd: any) => {
-        if (sincroProd.syncrosId === subcategoriaAux.syncrosId) {
+        if (sincroProd.syncrosId === subCategoria.syncrosId) {
           sincroProd.children = sincroProd.children.filter(
-            (catProd: any) => catProd.id !== subcategoriaAux.id
+            (catProd: any) => catProd.id !== subCategoria.id
           );
         }
       });
@@ -788,11 +943,9 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   }
 
   setAllSubCategorias(select: boolean, categoria: any): void {
-    console.log('setAllSubCategorias!!!!!!!!!!!!!');
-    console.log(categoria);
     this.setAllSubOptions(categoria, 'categoria', select);
     if (select) {
-      this.subCategoriasSelected.forEach((subCategoriaSelected: any) => {
+      this.categoriasSeleccionadas.forEach((subCategoriaSelected: any) => {
         if (
           this.listSelectableProducts.children.filter(
             (sincroProd: any) =>
@@ -864,8 +1017,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         });
       }
     }
-    console.log(' --------------- listSelectableProducts --------------- ');
-    console.log(this.listSelectableProducts);
     this.restartCategoriasProductos('categoria');
   }
 
@@ -898,7 +1049,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
   setAllProductos(select: boolean): void {
     console.log('setAllProductos!!!');
-    this.subProductoSelected = [];
+    this.productosSeleccionados = [];
     this.allCompleteProducto = select;
     if (this.listSelectableProducts.children == null) {
       return;
@@ -915,7 +1066,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       });
     });
 
-    //Agrego los producots seleccionados a subProductoSelected
+    //Agrego los producots seleccionados a productosSeleccionados
     this.listSelectableProducts.children.map((sincroProd: any) => {
       console.log('sincroProd: ');
       console.log(sincroProd);
@@ -926,7 +1077,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           console.log('producto: ');
           console.log(producto);
           if (producto.select)
-            this.subProductoSelected.push({
+            this.productosSeleccionados.push({
               ...producto,
               sincroId: sincroProd.syncrosId,
               catId: catProd.id,
@@ -936,7 +1087,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       });
     });
     this.btnCanalEnvioDisabled =
-      this.subProductoSelected.length > 0 ? false : true;
+      this.productosSeleccionados.length > 0 ? false : true;
   }
 
   updateAllCompleteSubProductos(
@@ -946,7 +1097,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     console.log('updateAllCompleteSubProductos');
     this.updateAllCompleteSubOptions(categoria, 'producto', sincroId);
     this.btnCanalEnvioDisabled =
-      this.subProductoSelected.length > 0 ? false : true;
+      this.productosSeleccionados.length > 0 ? false : true;
   }
 
   someCompleteSubProductos(producto: optionsToSelectI): boolean {
@@ -967,7 +1118,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     console.log('setAllSubProductos');
     this.setAllSubOptions(producto, 'producto', select, sincroId);
     this.btnCanalEnvioDisabled =
-      this.subProductoSelected.length > 0 ? false : true;
+      this.productosSeleccionados.length > 0 ? false : true;
   }
 
   openFilterMenu(): void {
@@ -989,7 +1140,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         //Salvo los campos del formulario de filtro.
         this.formularioFiltro = formularioFiltro;
         //Reinicio todos los objetos que contienen informacion sobre los menus existentes
-        this.subMenusSelected = [];
+        this.menusSeleccionados = [];
         this.listSelectableCategories.children = [];
         this.paginasGuardadas = [];
         this.restartCategoriasProductos('menu');
@@ -1027,7 +1178,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         this.paginasGuardadas.push({ ...this.listSelectableMenu });
       } else if (result && result.menus === null) {
         this.listSelectableMenu.children = [];
-        this.subMenusSelected = [];
+        this.menusSeleccionados = [];
         this.listSelectableCategories.children = [];
         this.restartCategoriasProductos('menu');
         this.showMenus = false;
@@ -1038,8 +1189,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   canalEnvio(): void {
     const dialogRef = this.dialog.open(CanalEnvioComponent, {
       data: {
-        productosSeleccionados: this.subProductoSelected,
-        menusSeleccionados: this.subMenusSelected,
+        productosSeleccionados: this.productosSeleccionados,
+        menusSeleccionados: this.menusSeleccionados,
         listSelectableMenu: this.listSelectableMenu,
       },
       height: '900px',
