@@ -48,7 +48,7 @@ export class CanalEnvioComponent implements OnInit {
   menuService = inject(MenuService);
   allCompleteCanales: boolean = false;
   allCompleteRestaurante: boolean = false;
-  btnEnviarAhoraDisabled: boolean = true;
+  btnEnviarAhoraDisabled: boolean = false;
   //Objetos que habilitaran el panel de canal de envio y restaurantes para poder ser modificados
   panelCanalVentaDisabled: boolean = true;
   panelRestauranteDisabled: boolean = true;
