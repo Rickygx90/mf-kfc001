@@ -463,8 +463,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               })
             ).length === 0
           ) {
-            console.log('subobj: ')
-            console.log(subobj)
+            console.log('subobj: ');
+            console.log(subobj);
 
             this.productosSeleccionados.push({
               ...subobj,
@@ -472,19 +472,24 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               catId: obj.id,
               checksum: obj.checksum,
             });
-            console.log('================================================')
+            console.log('================================================');
             this.listSelectableProducts.children.forEach((sincroProd: any) => {
               sincroProd.children.forEach((catProd: any) => {
                 catProd.children.forEach((prod: any) => {
-                  console.log(prod)
-                  if(subobj.id === prod.id && sincroProd.syncrosId !== sincroId) {
-                    console.log('sincroProd.syncrosId: '+sincroProd.syncrosId)
-                      prod.disabled = true;
+                  console.log(prod);
+                  if (
+                    subobj.id === prod.id &&
+                    sincroProd.syncrosId !== sincroId
+                  ) {
+                    console.log(
+                      'sincroProd.syncrosId: ' + sincroProd.syncrosId
+                    );
+                    prod.disabled = true;
                   }
-                })
-              })
-            })
-            console.log('================================================')
+                });
+              });
+            });
+            console.log('================================================');
           }
         }
         //Creamos el objeto 'productToDelete' para poder identificar la producto a eliminar de productosSeleccionados
@@ -500,25 +505,19 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             (subproductoselected) =>
               !isEqual(subproductoselected, productToDelete)
           );
-          console.log('================================================')
-            this.listSelectableProducts.children.forEach((sincroProd: any) => {
-              sincroProd.children.forEach((catProd: any) => {
-                catProd.children.forEach((prod: any) => {
-                  console.log(prod)
-                  if(subobj.id === prod.id) {
-                      prod.disabled = false;
-                  }
-                })
-              })
-            })
-            console.log('================================================')
+          console.log('================================================');
+          this.listSelectableProducts.children.forEach((sincroProd: any) => {
+            sincroProd.children.forEach((catProd: any) => {
+              catProd.children.forEach((prod: any) => {
+                console.log(prod);
+                if (subobj.id === prod.id) {
+                  prod.disabled = false;
+                }
+              });
+            });
+          });
+          console.log('================================================');
         }
-      }
-      if (panel === 'producto') {
-        console.log('--------- listSelectableProducts(children): ');
-        console.log(this.listSelectableProducts.children);
-        console.log('--------- productosSeleccionados: ');
-        console.log(this.productosSeleccionados);
       }
     });
   }
@@ -648,6 +647,24 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
               checksum: obj.checksum,
             });
           }
+          console.log(subobj);
+          console.log('================================================');
+          this.listSelectableProducts.children.forEach((sincroProd: any) => {
+            sincroProd.children.forEach((catProd: any) => {
+              catProd.children.forEach((prod: any) => {
+                console.log(prod);
+                if (
+                  subobj.id === prod.id &&
+                  sincroProd.syncrosId !== sincroId
+                ) {
+                  console.log('sincroProd.syncrosId: ' + sincroProd.syncrosId);
+                  prod.disabled = true;
+                  catProd.disabled = true;
+                }
+              });
+            });
+          });
+          console.log('================================================');
         } else {
           const productToDelete = {
             ...subobj,
@@ -660,6 +677,19 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             (subproductoselected) =>
               !isEqual(subproductoselected, productToDelete)
           );
+          console.log('================================================');
+          this.listSelectableProducts.children.forEach((sincroProd: any) => {
+            sincroProd.children.forEach((catProd: any) => {
+              catProd.children.forEach((prod: any) => {
+                console.log(prod);
+                if (subobj.id === prod.id) {
+                  prod.disabled = false;
+                  catProd.disabled = false;
+                }
+              });
+            });
+          });
+          console.log('================================================');
         }
       }
     });
@@ -923,6 +953,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 children: subCategoriaSeleccionada.items.map((item: any) => {
                   return { ...item[0], disabled: false };
                 }),
+                disabled: false,
                 checksum: subCategoriaSeleccionada.checksum,
                 titleMenu: subCategoriaSeleccionada.titleMenu,
                 color: subCategoriaSeleccionada.color,
@@ -949,6 +980,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                   children: subCategoriaSeleccionada.items.map((item: any) => {
                     return { ...item[0], disabled: false };
                   }),
+                  disabled: false,
                   checksum: subCategoriaSeleccionada.checksum,
                   titleMenu: subCategoriaSeleccionada.titleMenu,
                   color: subCategoriaSeleccionada.color,
@@ -978,6 +1010,28 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     this.restartCategoriasProductos('categoria');
   }
 
+  isDisabledCategoria(idCategoria: string): boolean {
+    let isDisabled = false;
+    console.log(' --------------------- funAux --------------------- ')
+    console.log('idCategoria: ' + idCategoria)
+    //Se desactivan los productos
+    console.log('================================================');
+    this.listSelectableProducts.children.forEach((sincroProd: any) => {
+      sincroProd.children.forEach((catProd: any) => {
+        console.log(' - catProd: ')
+        console.log(catProd)
+        if(catProd.id === idCategoria && catProd.select === true) {
+          isDisabled = true;
+          return;
+        }
+        isDisabled = false;
+      });
+    });
+    console.log('================================================');
+    console.log('isDisabled: ' + isDisabled)
+    return isDisabled;
+  }
+
   updateAllCompleteSubCategorias(categoria: any, subCategoria: any): void {
     //En 'updateAllCompleteSubOptions' Preparamos categoriasSeleccionadas
     this.updateAllCompleteSubOptions(categoria, 'categoria');
@@ -999,6 +1053,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 children: subCategoriaSeleccionada.items.map((item: any) => {
                   return { ...item[0], disabled: false };
                 }),
+                disabled: this.isDisabledCategoria(subCategoriaSeleccionada.id),
                 checksum: subCategoriaSeleccionada.checksum,
                 titleMenu: subCategoriaSeleccionada.titleMenu,
                 color: subCategoriaSeleccionada.color,
@@ -1025,6 +1080,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                   children: subCategoriaSeleccionada.items.map((item: any) => {
                     return { ...item[0], disabled: false };
                   }),
+                  disabled: false,
                   checksum: subCategoriaSeleccionada.checksum,
                   titleMenu: subCategoriaSeleccionada.titleMenu,
                   color: subCategoriaSeleccionada.color,
@@ -1034,6 +1090,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           });
         }
       });
+
     } else {
       this.listSelectableProducts.children.forEach(
         (sincroProd: any, index: number) => {
@@ -1101,6 +1158,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 children: categoriaSeleccionada.items.map((item: any) => {
                   return { ...item[0], disabled: false };
                 }),
+                disabled: false,
                 checksum: categoria.checksum,
                 titleMenu: categoriaSeleccionada.titleMenu,
                 color: categoria.color,
@@ -1126,6 +1184,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                   children: categoriaSeleccionada.items.map((item: any) => {
                     return { ...item[0], disabled: false };
                   }),
+                  disabled: false,
                   checksum: categoria.checksum,
                   titleMenu: categoriaSeleccionada.titleMenu,
                   color: categoria.color,
@@ -1180,7 +1239,9 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   }
 
   updateAllCompleteProductos(): void {
-    console.log('updateAllCompleteProductos!!!');
+    console.log(
+      ' =================== updateAllCompleteProductos =================== '
+    );
     console.log(this.listSelectableProducts.children);
     this.allCompleteProducto =
       this.listSelectableProducts.children != null &&
@@ -1254,17 +1315,99 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
   - catProd(object): Contiene los productos a seleccionar agrupados a nivel de categoria.
   */
   updateAllCompleteSubProductos(
-    catProd: optionsToSelectI,
-    sincroId: string
+    catProd: any,
+    sincroId: string,
+    subproducto: any
   ): void {
     console.log(
       ' =================== updateAllCompleteSubProductos =================== '
     );
-    console.log(' === catProd:')
-    console.log(catProd)
-    console.log(' === sincroId:')
-    console.log(sincroId)
-    this.updateAllCompleteSubOptions(catProd, 'producto', sincroId);
+    console.log(' === catProd:');
+    console.log(catProd);
+    console.log(' === sincroId:');
+    console.log(sincroId);
+
+    catProd.allCompleteSubProducto =
+      catProd.children != null &&
+      catProd.children.every((producto: any) => producto.select);
+
+    console.log('--------------------------------------');
+    console.log('subproducto: ');
+    console.log(subproducto);
+    if (subproducto.select) {
+      if (
+        this.productosSeleccionados.filter((subproductoselected) =>
+          isEqual(subproductoselected, {
+            ...subproducto,
+            sincroId: sincroId,
+            catId: catProd.id,
+            checksum: catProd.checksum,
+          })
+        ).length === 0
+      ) {
+        this.productosSeleccionados.push({
+          ...subproducto,
+          sincroId: sincroId,
+          catId: catProd.id,
+          checksum: catProd.checksum,
+        });
+        console.log('================================================');
+        this.listSelectableProducts.children.forEach((sincroProd: any) => {
+          sincroProd.children.forEach((catProd: any) => {
+            catProd.children.forEach((prod: any) => {
+              console.log(prod);
+              if (
+                subproducto.id === prod.id &&
+                sincroProd.syncrosId !== sincroId
+              ) {
+                console.log('sincroProd.syncrosId: ' + sincroProd.syncrosId);
+                prod.disabled = true;
+                catProd.disabled = true;
+              }
+            });
+          });
+        });
+        console.log('================================================');
+      }
+    }
+    //Creamos el objeto 'productToDelete' para poder identificar la subproducto a eliminar de productosSeleccionados
+    else {
+      const productToDelete = {
+        ...subproducto,
+        sincroId: sincroId,
+        catId: catProd.id,
+        checksum: catProd.checksum,
+        select: !subproducto.select,
+      };
+      this.productosSeleccionados = this.productosSeleccionados.filter(
+        (subproductoselected) => !isEqual(subproductoselected, productToDelete)
+      );
+      console.log('================================================');
+      this.listSelectableProducts.children.forEach((sincroProd: any) => {
+        sincroProd.children.forEach((catProd: any) => {
+          catProd.children.forEach((prod: any) => {
+            console.log(prod);
+            if (subproducto.id === prod.id) {
+              prod.disabled = false;
+            }
+          });
+          if (
+            catProd.children.filter((prod: any) => 
+              prod.disabled === true
+            ).length === 0
+          ) {
+            catProd.disabled = false;
+          }
+        });
+      });
+      console.log('================================================');
+    }
+
+    console.log('--------- listSelectableProducts(children): ');
+    console.log(this.listSelectableProducts.children);
+    console.log('--------- productosSeleccionados: ');
+    console.log(this.productosSeleccionados);
+
     this.btnCanalEnvioDisabled =
       this.productosSeleccionados.length > 0 ? false : true;
   }
@@ -1279,13 +1422,19 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     );
   }
 
+  /*
+  Parametros:
+  - select(booleano): Bandera que indica si se ha seleccionado un conjunto de productos agrupados por categoria.
+  - catProd(object): Contiene los productos a seleccionar agrupados a nivel de categoria.
+  - sincroId(string): Id de la sincronizacion.
+  */
   setAllSubProductos(
     select: boolean,
-    producto: any,
+    catProd: any,
     sincroId: string = ''
   ): void {
-    console.log('setAllSubProductos');
-    this.setAllSubOptions(producto, 'producto', select, sincroId);
+    console.log(' =================== setAllSubProductos =================== ');
+    this.setAllSubOptions(catProd, 'producto', select, sincroId);
     this.btnCanalEnvioDisabled =
       this.productosSeleccionados.length > 0 ? false : true;
   }

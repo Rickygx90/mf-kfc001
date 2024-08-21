@@ -145,12 +145,12 @@
     <div class="border-b-2">
       <h3 class="m-4 text-lg">Productos</h3>
     </div>
-    <div class="m-1 border-b">
+    <!-- <div class="m-1 border-b">
       <mat-checkbox [checked]="allCompleteProducto" [indeterminate]="someCompleteProductos()"
         (change)="setAllProductos($event.checked)">
         <div class="font-semibold text-sm">{{listSelectableProducts.name}}</div>
       </mat-checkbox>
-    </div>
+    </div> -->
     <div class="w-full h-[calc(100%-110px)] overflow-auto">
       @for (sincroProd of listSelectableProducts.children; track sincroProd) {
       <div class="m-1 pl-2 pt-2 w-full">
@@ -161,7 +161,7 @@
         </div>
         @for (catProd of sincroProd.children; track catProd) {
         <div class="m-1 pl-2" [style]="{'background-color':catProd.color}">
-          <mat-checkbox [disabled]="false" [checked]="catProd.allCompleteSubProducto" [indeterminate]="someCompleteSubProductos(catProd)"
+          <mat-checkbox  [disabled]="catProd.disabled" [checked]="catProd.allCompleteSubProducto" [indeterminate]="someCompleteSubProductos(catProd)"
             (change)="setAllSubProductos($event.checked, catProd, sincroProd.syncrosId)" [(ngModel)]="catProd.select"
             (ngModelChange)="updateAllCompleteProductos()" class="w-full flex justify-between">
             <div class="font-semibold text-sm">
@@ -172,7 +172,7 @@
             @for (subproducto of catProd.children; track subproducto) {
             <div class="ml-4">
               <mat-checkbox [disabled]="subproducto.disabled" [(ngModel)]="subproducto.select"
-                (ngModelChange)="updateAllCompleteSubProductos(catProd, sincroProd.syncrosId)">
+                (ngModelChange)="updateAllCompleteSubProductos(catProd, sincroProd.syncrosId, subproducto)">
                 <div class="border border-gray-300 py-1 px-5 text-xs">
                   <p>{{subproducto.title}}</p>
                   <p>Precio: ${{subproducto.priceinfo.price/100}}</p>
