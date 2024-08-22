@@ -21,7 +21,8 @@ export class DashboardComponent implements OnInit {
   public rows: number = 24;
   public data!: menuItemI[];
   public total_records!: number;
-  showLoading: boolean = true;
+  showSyncs: boolean = false;
+  loadingSyncs: boolean = false;
   menuService = inject(MenuService);
   currentPage: number = 0;
   idInterval: any;
@@ -73,27 +74,31 @@ export class DashboardComponent implements OnInit {
   }
 
   getMenus(currentPage: number) {
+    this.loadingSyncs = true;
     this.menuService.getMenuItems(currentPage, this.rows).subscribe({
       next: (response) => {
-        this.data = response.data.map((e: any) => {
-          let tt = this.formatearTiempoTranscurrido(
-            e.start_time,
-            e.end_time,
-            e.status
-          );
-          return {
-            ...e,
-            status: this.getEstado(e.status),
-            mode: this.getTipoEjecucion(e.mode),
-            syncros_id: e.syncros_id.slice(0, e.syncros_id.indexOf('-')),
-            tt,
-          };
-        });
-        this.total_records = response.total_records;
-        this.showLoading = false;
+        if (response.data.length > 0) {
+          this.showSyncs = true;
+          this.data = response.data.map((e: any) => {
+            let tt = this.formatearTiempoTranscurrido(
+              e.start_time,
+              e.end_time,
+              e.status
+            );
+            return {
+              ...e,
+              status: this.getEstado(e.status),
+              mode: this.getTipoEjecucion(e.mode),
+              syncros_id: e.syncros_id.slice(0, e.syncros_id.indexOf('-')),
+              tt,
+            };
+          });
+          this.total_records = response.total_records;
+          this.loadingSyncs = false;
+        }
       },
       error: (err) => {
-        this.showLoading = false;
+        this.loadingSyncs = false;
       },
       complete: () => {},
     });
@@ -133,30 +138,33 @@ export class DashboardComponent implements OnInit {
   };
 
   paginate(event: any) {
-    this.showLoading = true;
+    this.loadingSyncs = true;
     console.log(event);
     this.currentPage = event.page;
     //this.menuItems$ = this.menuService.getMenuItems(event.page, event.rows);
     this.menuService.getMenuItems(event.page, event.rows).subscribe({
       next: (response) => {
-        this.data = response.data.map((e: any) => {
-          let tt = this.formatearTiempoTranscurrido(
-            e.start_time,
-            e.end_time,
-            e.status
-          );
-          return {
-            ...e,
-            status: this.getEstado(e.status),
-            syncros_id: e.syncros_id.slice(0, e.syncros_id.indexOf('-')),
-            tt,
-          };
-        });
-        this.total_records = response.total_records;
-        this.showLoading = false;
+        if (response.data.length > 0) {
+          this.showSyncs = true;
+          this.data = response.data.map((e: any) => {
+            let tt = this.formatearTiempoTranscurrido(
+              e.start_time,
+              e.end_time,
+              e.status
+            );
+            return {
+              ...e,
+              status: this.getEstado(e.status),
+              syncros_id: e.syncros_id.slice(0, e.syncros_id.indexOf('-')),
+              tt,
+            };
+          });
+          this.total_records = response.total_records;
+          this.loadingSyncs = false;
+        }
       },
       error: (err) => {
-        this.showLoading = false;
+        this.loadingSyncs = false;
       },
       complete: () => {},
     });

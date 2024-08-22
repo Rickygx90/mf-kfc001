@@ -14,12 +14,16 @@
 
 <div class="h-2/4">
   <p class="text-xl mb-2">Sincronizaciones con Maxpoint</p>
-  <div style="height: 72%;" class="overflow-auto">
-    @if (showLoading) {
+
+
+  @if (loadingSyncs) {
     <div class="w-full h-full flex justify-center items-center">
       <div class="loader"></div>
     </div>
-    } @else {
+
+    
+  } @else if(showSyncs){
+    <div style="height: 72%;" class="overflow-auto">
     <div class="grid justify-items-stretch grid-cols-6 2xl:grid-cols-12 gap-1 text-xs">
       <div *ngFor="let menuItem of data" class="shadow-2xl">
         <div [class]="menuItem.status" class="cursor-pointer" (click)="openMenuDetail(menuItem.syncros_id)">
@@ -35,7 +39,17 @@
         </div>
       </div>
     </div>
-    }
+    
+
   </div>
   <p-paginator [rows]="rows" [totalRecords]="total_records" (onPageChange)="paginate($event)"></p-paginator>
+
+  } @else {
+    <div class="w-full h-full flex justify-center items-center">
+      <div class="text-3xl text-slate-400">No hay Data</div>
+    </div>
+  }
+
+
+  
 </div>

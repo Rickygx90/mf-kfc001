@@ -364,7 +364,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                     });
 
                   this.listSelectableProducts.children.forEach(
-                    (producto: any) => {
+                    (producto: any, index: number) => {
                       if (subobj[0].syncrosId === producto.syncrosId) {
                         producto.children = producto.children.filter(
                           (subProducto: any) => {
@@ -373,6 +373,14 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                             }
                           }
                         );
+                      }
+                      //Si la division de productos por sincronizacion no tiene productos dentro, se elimina.
+                      if (producto.children.length === 0) {
+                        console.log('Index: ' + index);
+                        console.log(
+                          'Este elemento se debe eliminar xq esta vacio...'
+                        );
+                        this.listSelectableProducts.children.splice(index, 1);
                       }
                     }
                   );
@@ -574,7 +582,7 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                     });
 
                   this.listSelectableProducts.children.forEach(
-                    (producto: any) => {
+                    (producto: any, index: number) => {
                       if (subobj[0].syncrosId === producto.syncrosId) {
                         producto.children = producto.children.filter(
                           (subProducto: any) => {
@@ -583,6 +591,14 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                             }
                           }
                         );
+                      }
+                      //Si la division de productos por sincronizacion no tiene productos dentro, se elimina.
+                      if (producto.children.length === 0) {
+                        console.log('Index: ' + index);
+                        console.log(
+                          'Este elemento se debe eliminar xq esta vacio...'
+                        );
+                        this.listSelectableProducts.children.splice(index, 1);
                       }
                     }
                   );
@@ -1012,23 +1028,47 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
 
   isDisabledCategoria(idCategoria: string): boolean {
     let isDisabled = false;
-    console.log(' --------------------- funAux --------------------- ')
-    console.log('idCategoria: ' + idCategoria)
-    //Se desactivan los productos
-    console.log('================================================');
+    console.log(
+      ' --------------------- isDisabledCategoria --------------------- '
+    );
+    console.log('idCategoria: ' + idCategoria);
+
     this.listSelectableProducts.children.forEach((sincroProd: any) => {
       sincroProd.children.forEach((catProd: any) => {
-        console.log(' - catProd: ')
-        console.log(catProd)
-        if(catProd.id === idCategoria && catProd.select === true) {
-          isDisabled = true;
-          return;
+        console.log(' - Categoria a revisar: ');
+        console.log(catProd);
+        if (catProd.id === idCategoria) {
+          catProd.children.forEach((producto: any) => {
+            if (producto.select) isDisabled = true;
+          });
         }
-        isDisabled = false;
       });
     });
     console.log('================================================');
-    console.log('isDisabled: ' + isDisabled)
+    console.log('isDisabled Categoria: ' + isDisabled);
+    return isDisabled;
+  }
+
+  isDisabledProducto(idProducto: string): boolean {
+    console.log(
+      ' --------------------- isDisabledProducto --------------------- '
+    );
+    console.log('idProducto: ' + idProducto);
+    let isDisabled = false;
+    this.listSelectableProducts.children.forEach((sincroProd: any) => {
+      sincroProd.children.forEach((catProd: any) => {
+        catProd.children.forEach((producto: any) => {
+          console.log(' - Producto a revisar: ');
+          console.log(producto);
+          if (producto.id === idProducto && producto.select === true) {
+            console.log('TRUE!!!');
+            isDisabled = true;
+          }
+        });
+      });
+    });
+    console.log('================================================');
+    console.log('isDisabled Producto: ' + isDisabled);
     return isDisabled;
   }
 
@@ -1051,7 +1091,10 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 id: subCategoriaSeleccionada.id,
                 title: subCategoriaSeleccionada.title,
                 children: subCategoriaSeleccionada.items.map((item: any) => {
-                  return { ...item[0], disabled: false };
+                  return {
+                    ...item[0],
+                    disabled: this.isDisabledProducto(item[0].id),
+                  };
                 }),
                 disabled: this.isDisabledCategoria(subCategoriaSeleccionada.id),
                 checksum: subCategoriaSeleccionada.checksum,
@@ -1078,9 +1121,14 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                   id: subCategoriaSeleccionada.id,
                   title: subCategoriaSeleccionada.title,
                   children: subCategoriaSeleccionada.items.map((item: any) => {
-                    return { ...item[0], disabled: false };
+                    return {
+                      ...item[0],
+                      disabled: this.isDisabledProducto(item[0].id),
+                    };
                   }),
-                  disabled: false,
+                  disabled: this.isDisabledCategoria(
+                    subCategoriaSeleccionada.id
+                  ),
                   checksum: subCategoriaSeleccionada.checksum,
                   titleMenu: subCategoriaSeleccionada.titleMenu,
                   color: subCategoriaSeleccionada.color,
@@ -1090,14 +1138,21 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           });
         }
       });
-
     } else {
+      //Flag isDisabled nos sirve para saber si la categoria eliminada estaba seleccionada.
+      let isDisabled = false;
       this.listSelectableProducts.children.forEach(
         (sincroProd: any, index: number) => {
           if (sincroProd.syncrosId === subCategoria.syncrosId) {
-            sincroProd.children = sincroProd.children.filter(
-              (catProd: any) => catProd.id !== subCategoria.id
-            );
+            sincroProd.children = sincroProd.children.filter((catProd: any) => {
+              if (catProd.id !== subCategoria.id) {
+                return catProd;
+              } else {
+                catProd.children.forEach((producto: any) => {
+                  if (producto.select) isDisabled = true;
+                });
+              }
+            });
           }
           //Si la division de productos por sincronizacion no tiene productos dentro, se elimina.
           if (sincroProd.children.length === 0) {
@@ -1107,12 +1162,19 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           }
         }
       );
-      //Eliminamos los elementos que esten vacios
-      /* this.listSelectableProducts.children.filter((sincroProd: any, index: number) => {
-        if(sincroProd.children.length > 0) {
-          return sincroProd;
-        }
-      }) */
+      //Se debe habilitar la edicion de los productos disponibles a seleccionar en caso de que la categoria eliminada estuvera seleccionada
+      this.listSelectableProducts.children.forEach((sincroProd: any) => {
+        sincroProd.children.forEach((catProd: any) => {
+          console.log(' - Categoria a revisar: ');
+          console.log(catProd);
+          if (catProd.id === subCategoria.id && isDisabled === true) {
+            catProd.disabled = false;
+            catProd.children.forEach((producto: any) => {
+              producto.disabled = false;
+            });
+          }
+        });
+      });
     }
     console.log('productosSeleccionados: ');
     console.log(this.productosSeleccionados);
@@ -1392,9 +1454,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
             }
           });
           if (
-            catProd.children.filter((prod: any) => 
-              prod.disabled === true
-            ).length === 0
+            catProd.children.filter((prod: any) => prod.disabled === true)
+              .length === 0
           ) {
             catProd.disabled = false;
           }
