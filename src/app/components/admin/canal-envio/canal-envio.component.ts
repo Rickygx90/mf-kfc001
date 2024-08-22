@@ -37,21 +37,18 @@ import { MatBadgeModule } from '@angular/material/badge';
   styleUrl: './canal-envio.component.css',
 })
 export class CanalEnvioComponent implements OnInit {
-  constructor(
-    public dialogRef: MatDialogRef<CanalEnvioComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private messageService: MessageService
-  ) {}
-
+  token: string = '';
   showCanales: boolean = false;
   showRestaurantes: Boolean = false;
   menuService = inject(MenuService);
   allCompleteCanales: boolean = false;
   allCompleteRestaurante: boolean = false;
   btnEnviarAhoraDisabled: boolean = false;
+  btnHabilitarDisabled: boolean = false;
+  msjBtnHabilitar: string = 'Habilitar';
+  colorBtnHabilitar: string = '#1fa44f';
   //Objetos que habilitaran el panel de canal de envio y restaurantes para poder ser modificados
-  panelCanalVentaDisabled: boolean = true;
-  panelRestauranteDisabled: boolean = true;
+  panelesDisabled: boolean = true;
   //Objeto menusSeleccionados guarda los menus filtrados para mostrarlos en la plantilla.
   menusSeleccionados: Array<any> = [];
 
@@ -67,6 +64,70 @@ export class CanalEnvioComponent implements OnInit {
     select: false,
     children: [],
   };
+  //Id del intervalo para hacer el request de 'EXTRACCIÓN DE MENÚS' cada 5 segundos
+  idInterval: any;
+
+  constructor(
+    public dialogRef: MatDialogRef<CanalEnvioComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private messageService: MessageService
+  ) {
+    this.checkStatusCanalEnvio();
+    this.idInterval = setInterval(() => {
+      this.checkStatusCanalEnvio();
+    }, 4000);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.idInterval);
+  }
+
+  checkStatusCanalEnvio() {
+    this.menuService.checkStatusCanalEnvio(this.token).subscribe({
+      next: (result) => {
+        console.log(result);
+        if (result) {
+          if (result.status === 'ACTIVED') {
+            this.panelesDisabled = false;
+            this.btnHabilitarDisabled = false;
+            this.msjBtnHabilitar = 'Cancelar';
+            this.colorBtnHabilitar = 'red';
+          } else if (
+            result.status === 'EXPIRED' ||
+            result.status === 'NOT_FOUND'
+          ) {
+            this.panelesDisabled = true;
+            this.btnHabilitarDisabled = false;
+            this.msjBtnHabilitar = 'Habilitar';
+            this.colorBtnHabilitar = 'green';
+          } else if (result.status === 'CREATED') {
+            this.panelesDisabled = true;
+            this.btnHabilitarDisabled = true;
+            this.msjBtnHabilitar = 'Habilitar';
+            this.colorBtnHabilitar = 'green';
+          }
+        }
+      },
+      error: (err) => {},
+    });
+  }
+
+  getTokenCanalEnvio() {
+    if (this.msjBtnHabilitar === 'Habilitar') {
+      this.btnHabilitarDisabled = true;
+      this.menuService.getTokenCanalEnvio().subscribe({
+        next: (result) => {
+          console.log(result);
+          if (result) {
+            this.token = result.token;
+          }
+        },
+        error: (err) => {},
+      });
+    } else {
+      this.token = '';
+    }
+  }
 
   ngOnInit(): void {
     if (this.data && this.data.menusSeleccionados) {
@@ -266,14 +327,20 @@ export class CanalEnvioComponent implements OnInit {
 
   //Funcion que envia la informacion del menu, canal de venta y restaurante seleccionado.
   enviarAhora() {
-    console.log(' ---------------- enviarAhora ---------------- ');
+    console.log(
+      ' ======================== enviarAhora ======================== '
+    );
     this.btnEnviarAhoraDisabled = true;
     const { canalesVentaSelected, restaurantesSelected } =
       this.getCanalesRestaurantesSelected();
 
+    console.log(' - canalesVentaSelected: ');
     console.log(canalesVentaSelected);
+    console.log(' - restaurantesSelected: ');
     console.log(restaurantesSelected);
+    console.log(' - menuSeleccionado: ');
     console.log(this.menuSeleccionado);
+    console.log(' - productosSeleccionados: ');
     console.log(this.data.productosSeleccionados);
 
     const productosPorCategorias: Array<any> = [];
@@ -287,18 +354,16 @@ export class CanalEnvioComponent implements OnInit {
         ) {
           productosPorCategorias.push({
             id: productoSeleccionado.catId,
-            products: [productoSeleccionado[0].id],
+            products: [productoSeleccionado.id],
           });
         } else {
           productosPorCategorias.forEach((e: any) => {
             if (e.id === productoSeleccionado.catId)
-              e.products.push(productoSeleccionado[0].id);
+              e.products.push(productoSeleccionado.id);
           });
         }
       }
     });
-
-    console.log(productosPorCategorias);
 
     const request = {
       request_menu: [
@@ -320,6 +385,9 @@ export class CanalEnvioComponent implements OnInit {
         },
       ],
     };
+
+    console.log(' --------------------- request --------------------- ');
+    console.log(request);
 
     this.menuService.sendManualSync(request).subscribe({
       next: (response) => {

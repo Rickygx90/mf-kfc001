@@ -24,10 +24,6 @@
         <div class="w-full h-full border-r-2">
             <div class="border-b-2 flex justify-between items-center">
                 <h3 class="m-4 text-lg">Canales de Venta</h3>
-                <button mat-raised-button style="background-color: #1fa44f; margin-inline: 1rem;" mat-flat-button
-                    color="primary">
-                    Habilitar
-                </button>
             </div>
             @if (!showCanales) {
             <div class="w-full h-full flex justify-center items-center">
@@ -35,7 +31,7 @@
             </div>
             } @else {
             <div class="m-1 border-b">
-                <mat-checkbox [disabled]="panelCanalVentaDisabled" [checked]="allCompleteCanales"
+                <mat-checkbox [disabled]="panelesDisabled" [checked]="allCompleteCanales"
                     [indeterminate]="someCompleteCanales()" (change)="setAllCanales($event.checked)">
                     <div class="font-semibold text-sm">{{listSelectableCanalesVenta.name}}</div>
                 </mat-checkbox>
@@ -43,7 +39,7 @@
             <div class="w-full h-[calc(100%-110px)] overflow-auto">
                 @for (canal of listSelectableCanalesVenta.children; track canal) {
                 <div class="m-1">
-                    <mat-checkbox [disabled]="panelCanalVentaDisabled" [(ngModel)]="canal.select"
+                    <mat-checkbox [disabled]="panelesDisabled" [(ngModel)]="canal.select"
                         (ngModelChange)="updateAllCompleteCanales()">
                         <div class="border border-gray-300 py-1 px-5 text-xs">
                             <p>{{canal.name}}</p>
@@ -59,9 +55,9 @@
         <div class="w-full h-full border-r-2">
             <div class="border-b-2 flex justify-between items-center">
                 <h3 class="m-4 text-lg">Restaurantes</h3>
-                <button mat-raised-button style="background-color: #1fa44f; margin-inline: 1rem;" mat-flat-button
+                <button [disabled]="btnHabilitarDisabled" (click)="getTokenCanalEnvio()" mat-raised-button [style]="{'background-color': colorBtnHabilitar, 'margin-inline': '1rem'}" mat-flat-button
                     color="primary">
-                    Habilitar
+                    {{msjBtnHabilitar}}
                 </button>
             </div>
             @if (!showRestaurantes) {
@@ -70,7 +66,7 @@
             </div>
             } @else {
             <div class="m-1 border-b">
-                <mat-checkbox [disabled]="panelRestauranteDisabled" [checked]="allCompleteRestaurante"
+                <mat-checkbox [disabled]="panelesDisabled" [checked]="allCompleteRestaurante"
                     [indeterminate]="someCompleteRestaurantes()" (change)="setAllRestaurantes($event.checked)">
                     <div class="font-semibold text-sm">{{listSelectableRestaurantes.name}}</div>
                 </mat-checkbox>
@@ -78,7 +74,7 @@
             <div class="w-full h-[calc(100%-178px)] overflow-auto">
                 @for (restaurante of listSelectableRestaurantes.children; track restaurante) {
                 <div class="m-1">
-                    <mat-checkbox [disabled]="panelRestauranteDisabled" [(ngModel)]="restaurante.select"
+                    <mat-checkbox [disabled]="panelesDisabled" [(ngModel)]="restaurante.select"
                         (ngModelChange)="updateAllCompleteRestaurantes()">
                         <div class="border border-gray-300 py-1 px-5 text-xs">
                             <p>{{restaurante.codeStore}}</p>

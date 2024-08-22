@@ -26,6 +26,20 @@ export class MenuService {
     return this.httpClient.get<any>(`${environment.url}/sync/verify`);
   }
 
+  checkStatusCanalEnvio(token: string): Observable<any> {
+    return this.httpClient.post<any>(
+      `${environment.url}/security/verifyToken`,
+      { token }
+    );
+  }
+
+  getTokenCanalEnvio(): Observable<any> {
+    return this.httpClient.post<any>(
+      `${environment.url}/security/generateNewToken`,
+      {}
+    );
+  }
+
   getMenuItems(pagina: number, filas: number): Observable<menuObject> {
     const translator = short();
     let data: menuItemI[] = [];
