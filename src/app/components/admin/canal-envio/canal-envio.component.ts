@@ -102,6 +102,7 @@ export class CanalEnvioComponent implements OnInit {
             this.btnHabilitarDisabled = false;
             this.msjBtnHabilitar = 'Habilitar';
             this.colorBtnHabilitar = 'green';
+            this.token = '';
           } else if (result.status === 'CREATED') {
             this.panelesDisabled = true;
             this.btnHabilitarDisabled = true;
