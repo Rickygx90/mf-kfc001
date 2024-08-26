@@ -46,7 +46,7 @@ export class CanalEnvioComponent implements OnInit {
   btnEnviarAhoraDisabled: boolean = false;
   btnHabilitarDisabled: boolean = false;
   msjBtnHabilitar: string = 'Habilitar';
-  colorBtnHabilitar: string = '#1fa44f';
+  colorBtnHabilitar: string = 'green'; //#1fa44f
   //Objetos que habilitaran el panel de canal de envio y restaurantes para poder ser modificados
   panelesDisabled: boolean = true;
   //Objeto menusSeleccionados guarda los menus filtrados para mostrarlos en la plantilla.
@@ -72,9 +72,10 @@ export class CanalEnvioComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private messageService: MessageService
   ) {
-    this.checkStatusCanalEnvio();
     this.idInterval = setInterval(() => {
-      this.checkStatusCanalEnvio();
+      if (this.token && this.token.length > 0) {
+        this.checkStatusCanalEnvio();
+      }
     }, 4000);
   }
 
@@ -92,6 +93,7 @@ export class CanalEnvioComponent implements OnInit {
             this.btnHabilitarDisabled = false;
             this.msjBtnHabilitar = 'Cancelar';
             this.colorBtnHabilitar = 'red';
+            this.token = '';
           } else if (
             result.status === 'EXPIRED' ||
             result.status === 'NOT_FOUND'
@@ -122,9 +124,15 @@ export class CanalEnvioComponent implements OnInit {
             this.token = result.token;
           }
         },
-        error: (err) => {},
+        error: (err) => {
+          console.log(err)
+        },
       });
     } else {
+      this.panelesDisabled = true;
+      this.btnHabilitarDisabled = false;
+      this.msjBtnHabilitar = 'Habilitar';
+      this.colorBtnHabilitar = 'green';
       this.token = '';
     }
   }
