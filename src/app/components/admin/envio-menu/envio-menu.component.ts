@@ -777,24 +777,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     this.restartCategoriasProductos('menu');
   }
 
-  isCheckingCategoria(
-    checksum: string,
-    syncrosId: string,
-    idCategoria: string
-  ): boolean {
-    let selectCategoria = false;
-    this.categoriasSeleccionadas.forEach((categoria: any) => {
-      if (
-        categoria.checksum === checksum &&
-        categoria.syncrosId === syncrosId &&
-        categoria.id === idCategoria
-      ) {
-        selectCategoria = categoria.select;
-      }
-    });
-    return selectCategoria;
-  }
-
   //Funcion que selecciona un menu de la lista de menus disponibles y lo agrega a menusSeleccionados.
   updateAllCompleteSubMenus(menu: any): void {
     console.log('updateAllCompleteSubMenus!!!');
@@ -900,6 +882,70 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         : false;
     this.btnCanalEnvioDisabled =
       this.productosSeleccionados.length > 0 ? false : true;
+  }
+
+  isCheckingCategoria(
+    checksum: string,
+    syncrosId: string,
+    idCategoria: string
+  ): boolean {
+    let selectCategoria = false;
+    this.categoriasSeleccionadas.forEach((categoria: any) => {
+      if (
+        categoria.checksum === checksum &&
+        categoria.syncrosId === syncrosId &&
+        categoria.id === idCategoria
+      ) {
+        selectCategoria = categoria.select;
+      }
+    });
+    return selectCategoria;
+  }
+
+  /* isDisabledCategoria(idCategoria: string): boolean {
+    let isDisabled = false;
+    console.log(
+      ' --------------------- isDisabledCategoria --------------------- '
+    );
+    console.log('idCategoria: ' + idCategoria);
+
+    this.listSelectableProducts.children.forEach((sincroProd: any) => {
+      sincroProd.children.forEach((catProd: any) => {
+        console.log(' - Categoria a revisar: ');
+        console.log(catProd);
+        //if (catProd.id === idCategoria) {
+        catProd.children.forEach((producto: any) => {
+          if (producto.select) isDisabled = true;
+        });
+        //}
+      });
+    });
+    console.log('================================================');
+    console.log('isDisabled Categoria: ' + isDisabled);
+    return isDisabled;
+  } */
+
+  isDisabledProducto(idProducto: string): boolean {
+    console.log(
+      ' --------------------- isDisabledProducto --------------------- '
+    );
+    console.log('idProducto: ' + idProducto);
+    let isDisabled = false;
+    this.listSelectableProducts.children.forEach((sincroProd: any) => {
+      sincroProd.children.forEach((catProd: any) => {
+        catProd.children.forEach((producto: any) => {
+          console.log(' - Producto a revisar: ');
+          console.log(producto);
+          if (producto.id === idProducto && producto.select === true) {
+            console.log('TRUE!!!');
+            isDisabled = true;
+          }
+        });
+      });
+    });
+    console.log('================================================');
+    console.log('isDisabled Producto: ' + isDisabled);
+    return isDisabled;
   }
 
   updateAllCompleteCategorias(): void {
@@ -1026,58 +1072,14 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     this.restartCategoriasProductos('categoria');
   }
 
-  isDisabledCategoria(idCategoria: string): boolean {
-    let isDisabled = false;
-    console.log(
-      ' --------------------- isDisabledCategoria --------------------- '
-    );
-    console.log('idCategoria: ' + idCategoria);
-
-    this.listSelectableProducts.children.forEach((sincroProd: any) => {
-      sincroProd.children.forEach((catProd: any) => {
-        console.log(' - Categoria a revisar: ');
-        console.log(catProd);
-        if (catProd.id === idCategoria) {
-          catProd.children.forEach((producto: any) => {
-            if (producto.select) isDisabled = true;
-          });
-        }
-      });
-    });
-    console.log('================================================');
-    console.log('isDisabled Categoria: ' + isDisabled);
-    return isDisabled;
-  }
-
-  isDisabledProducto(idProducto: string): boolean {
-    console.log(
-      ' --------------------- isDisabledProducto --------------------- '
-    );
-    console.log('idProducto: ' + idProducto);
-    let isDisabled = false;
-    this.listSelectableProducts.children.forEach((sincroProd: any) => {
-      sincroProd.children.forEach((catProd: any) => {
-        catProd.children.forEach((producto: any) => {
-          console.log(' - Producto a revisar: ');
-          console.log(producto);
-          if (producto.id === idProducto && producto.select === true) {
-            console.log('TRUE!!!');
-            isDisabled = true;
-          }
-        });
-      });
-    });
-    console.log('================================================');
-    console.log('isDisabled Producto: ' + isDisabled);
-    return isDisabled;
-  }
-
   updateAllCompleteSubCategorias(categoria: any, subCategoria: any): void {
     //En 'updateAllCompleteSubOptions' Preparamos categoriasSeleccionadas
     this.updateAllCompleteSubOptions(categoria, 'categoria');
     //verificar si se esta agregando o se eliminando una categoria, en base a eso se agrega o elimina elementos en 'listSelectableProducts'
     if (subCategoria.select) {
       this.categoriasSeleccionadas.forEach((subCategoriaSeleccionada: any) => {
+        //Flag isDisabledCategoria nos sirve para saber si la categoria a agregar debe estar seleccionada.
+        let isDisabledCategoria = false;
         //if que verifica si existe la sincro en listSelectableProducts, sino existe la agrega junto a la categoria y los productos
         if (
           this.listSelectableProducts.children.filter(
@@ -1091,12 +1093,15 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 id: subCategoriaSeleccionada.id,
                 title: subCategoriaSeleccionada.title,
                 children: subCategoriaSeleccionada.items.map((item: any) => {
+                  let isDisabledProducto = this.isDisabledProducto(item[0].id);
+                  if (isDisabledProducto)
+                    isDisabledCategoria = isDisabledProducto;
                   return {
                     ...item[0],
-                    disabled: this.isDisabledProducto(item[0].id),
+                    disabled: isDisabledProducto,
                   };
                 }),
-                disabled: this.isDisabledCategoria(subCategoriaSeleccionada.id),
+                disabled: isDisabledCategoria,
                 checksum: subCategoriaSeleccionada.checksum,
                 titleMenu: subCategoriaSeleccionada.titleMenu,
                 color: subCategoriaSeleccionada.color,
@@ -1121,14 +1126,17 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                   id: subCategoriaSeleccionada.id,
                   title: subCategoriaSeleccionada.title,
                   children: subCategoriaSeleccionada.items.map((item: any) => {
+                    let isDisabledProducto = this.isDisabledProducto(
+                      item[0].id
+                    );
+                    if (isDisabledProducto)
+                      isDisabledCategoria = isDisabledProducto;
                     return {
                       ...item[0],
-                      disabled: this.isDisabledProducto(item[0].id),
+                      disabled: isDisabledProducto,
                     };
                   }),
-                  disabled: this.isDisabledCategoria(
-                    subCategoriaSeleccionada.id
-                  ),
+                  disabled: isDisabledCategoria,
                   checksum: subCategoriaSeleccionada.checksum,
                   titleMenu: subCategoriaSeleccionada.titleMenu,
                   color: subCategoriaSeleccionada.color,
@@ -1139,8 +1147,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
         }
       });
     } else {
-      //Flag isDisabled nos sirve para saber si la categoria eliminada estaba seleccionada.
-      let isDisabled = false;
+      //Objeto productosEliminadosSeleccionados nos sirve para saber que productos fueron eliminados de 'listSelectableProducts' estaba seleccionada.
+      let productosEliminadosSeleccionados: any = [];
       this.listSelectableProducts.children.forEach(
         (sincroProd: any, index: number) => {
           if (sincroProd.syncrosId === subCategoria.syncrosId) {
@@ -1149,7 +1157,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 return catProd;
               } else {
                 catProd.children.forEach((producto: any) => {
-                  if (producto.select) isDisabled = true;
+                  if (producto.select)
+                    productosEliminadosSeleccionados.push(producto);
                 });
               }
             });
@@ -1162,19 +1171,29 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           }
         }
       );
-      //Se debe habilitar la edicion de los productos disponibles a seleccionar en caso de que la categoria eliminada estuvera seleccionada
-      this.listSelectableProducts.children.forEach((sincroProd: any) => {
-        sincroProd.children.forEach((catProd: any) => {
-          console.log(' - Categoria a revisar: ');
-          console.log(catProd);
-          if (catProd.id === subCategoria.id && isDisabled === true) {
-            catProd.disabled = false;
-            catProd.children.forEach((producto: any) => {
-              producto.disabled = false;
+
+      //Recorremos los productos que fueron eliminados y que estaban seleccionados para poder habilitarlos en 'listSelectableProducts'
+      productosEliminadosSeleccionados.forEach(
+        (productoEliminadoSeleccionado: any) => {
+          //Se debe habilitar la edicion de los productos disponibles a seleccionar en caso de que la categoria y el producto eliminado estuvera seleccionada
+          this.listSelectableProducts.children.forEach((sincroProd: any) => {
+            sincroProd.children.forEach((catProd: any) => {
+              catProd.children.forEach((producto: any) => {
+                if (
+                  producto.id === productoEliminadoSeleccionado.id &&
+                  producto.disabled
+                )
+                  producto.disabled = false;
+              });
+              if (
+                catProd.children.filter((producto: any) => producto.disabled)
+                  .length === 0
+              )
+                catProd.disabled = false;
             });
-          }
-        });
-      });
+          });
+        }
+      );
     }
     console.log('productosSeleccionados: ');
     console.log(this.productosSeleccionados);
@@ -1205,6 +1224,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     console.log(this.categoriasSeleccionadas);
     if (select) {
       this.categoriasSeleccionadas.forEach((categoriaSeleccionada: any) => {
+        //Flag isDisabledCategoria nos sirve para saber si la categoria a agregar debe estar seleccionada.
+        let isDisabledCategoria = false;
         //Verifico si en listSelectableProducts.children ya existe esa sincronizacion, sino existe la agrego.
         if (
           this.listSelectableProducts.children.filter(
@@ -1218,9 +1239,12 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 id: categoriaSeleccionada.id,
                 title: categoriaSeleccionada.title,
                 children: categoriaSeleccionada.items.map((item: any) => {
-                  return { ...item[0], disabled: false };
+                  let isDisabledProducto = this.isDisabledProducto(item[0].id);
+                  if (isDisabledProducto)
+                    isDisabledCategoria = isDisabledProducto;
+                  return { ...item[0], disabled: isDisabledProducto };
                 }),
-                disabled: false,
+                disabled: isDisabledCategoria,
                 checksum: categoria.checksum,
                 titleMenu: categoriaSeleccionada.titleMenu,
                 color: categoria.color,
@@ -1244,9 +1268,14 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                   id: categoriaSeleccionada.id,
                   title: categoriaSeleccionada.title,
                   children: categoriaSeleccionada.items.map((item: any) => {
-                    return { ...item[0], disabled: false };
+                    let isDisabledProducto = this.isDisabledProducto(
+                      item[0].id
+                    );
+                    if (isDisabledProducto)
+                      isDisabledCategoria = isDisabledProducto;
+                    return { ...item[0], disabled: isDisabledProducto };
                   }),
-                  disabled: false,
+                  disabled: isDisabledCategoria,
                   checksum: categoria.checksum,
                   titleMenu: categoriaSeleccionada.titleMenu,
                   color: categoria.color,
