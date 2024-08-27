@@ -52,7 +52,10 @@ export class CanalEnvioComponent implements OnInit {
   //Objeto menusSeleccionados guarda los menus filtrados para mostrarlos en la plantilla.
   menusSeleccionados: Array<any> = [];
 
+  //Objeto que guarda el menu seleccionado y en base a esto filtra las categorias y los productos.
   menuSeleccionado: any;
+  //Objeto que guarda el menu seleccionado inicial en caso de que se cancele la edicion de canales de venta/restaurantes (boton rojo)
+  menuSeleccionadoInicial: any;
   listSelectableCanalesVenta: multiSelectI = {
     name: 'Seleccionar todos',
     select: false,
@@ -77,6 +80,52 @@ export class CanalEnvioComponent implements OnInit {
         this.checkStatusCanalEnvio();
       }
     }, 4000);
+  }
+
+  ngOnInit(): void {
+    if (this.data && this.data.menusSeleccionados) {
+      //Objeto que guardara los menus filtrados sin repeticiones.
+      const menusUnificados: Array<any> = [];
+      //Filtramos los menus repetidos y los guardamos en menusUnificados.
+      this.data.menusSeleccionados.forEach((menusSeleccionado: any) => {
+        if (
+          menusUnificados.filter((menu: any) => {
+            if (menu.checksum === menusSeleccionado[0].checksum) {
+              if (menu.store.id === menusSeleccionado[0].store.id) {
+                return menu;
+              }
+            }
+          }).length === 0
+        ) {
+          menusUnificados.push({
+            title: menusSeleccionado[0].menus[0].title,
+            sincrosId: menusSeleccionado[0].syncrosId,
+            checksum: menusSeleccionado[0].checksum,
+            aggregator: menusSeleccionado[0].aggregator,
+            store: menusSeleccionado[0].store,
+            checked: false,
+          });
+        }
+      });
+
+      this.menusSeleccionados = menusUnificados;
+      //Ordenamos los menus por orden alfabetico.
+      this.menusSeleccionados.sort(function (a, b) {
+        if (a.title > b.title) {
+          return 1;
+        }
+        if (a.title < b.title) {
+          return -1;
+        }
+        return 0;
+      });
+      this.menusSeleccionados[0].checked = true;
+      this.menuSeleccionado = this.menusSeleccionados[0];
+      //Salvamos el menu seleccionado por default en 'menuSeleccionadoInicial'
+      this.menuSeleccionadoInicial = this.menuSeleccionado;
+      this.getRestaurantesbyMenus(this.menuSeleccionado);
+      this.getCanalesVenta(this.menuSeleccionado);
+    }
   }
 
   ngOnDestroy() {
@@ -135,48 +184,8 @@ export class CanalEnvioComponent implements OnInit {
       this.msjBtnHabilitar = 'Habilitar';
       this.colorBtnHabilitar = 'green';
       this.token = '';
-    }
-  }
 
-  ngOnInit(): void {
-    if (this.data && this.data.menusSeleccionados) {
-      //Objeto que guardara los menus filtrados sin repeticiones.
-      const menusUnificados: Array<any> = [];
-      //Filtramos los menus repetidos y los guardamos en menusUnificados.
-      this.data.menusSeleccionados.forEach((menusSeleccionado: any) => {
-        if (
-          menusUnificados.filter((menu: any) => {
-            if (menu.checksum === menusSeleccionado[0].checksum) {
-              if (menu.store.id === menusSeleccionado[0].store.id) {
-                return menu;
-              }
-            }
-          }).length === 0
-        ) {
-          menusUnificados.push({
-            title: menusSeleccionado[0].menus[0].title,
-            sincrosId: menusSeleccionado[0].syncrosId,
-            checksum: menusSeleccionado[0].checksum,
-            aggregator: menusSeleccionado[0].aggregator,
-            store: menusSeleccionado[0].store,
-            checked: false,
-          });
-        }
-      });
-
-      this.menusSeleccionados = menusUnificados;
-      //Ordenamos los menus por orden alfabetico.
-      this.menusSeleccionados.sort(function (a, b) {
-        if (a.title > b.title) {
-          return 1;
-        }
-        if (a.title < b.title) {
-          return -1;
-        }
-        return 0;
-      });
-      this.menusSeleccionados[0].checked = true;
-      this.menuSeleccionado = this.menusSeleccionados[0];
+      this.menuSeleccionado = this.menuSeleccionadoInicial;
       this.getRestaurantesbyMenus(this.menuSeleccionado);
       this.getCanalesVenta(this.menuSeleccionado);
     }
@@ -355,10 +364,10 @@ export class CanalEnvioComponent implements OnInit {
     const productosPorCategorias: Array<any> = [];
 
     this.data.productosSeleccionados.forEach((productoSeleccionado: any) => {
-      if (productoSeleccionado.sincroId === this.menuSeleccionado.sincrosId) {
+      if (productoSeleccionado.sincroId === this.menuSeleccionado.sincrosId && productoSeleccionado.checksum === this.menuSeleccionado.checksum) {
         if (
           productosPorCategorias.filter(
-            (e: any) => e.id === productoSeleccionado.catId
+            (categoria: any) => categoria.id === productoSeleccionado.catId
           ).length === 0
         ) {
           productosPorCategorias.push({
@@ -366,9 +375,9 @@ export class CanalEnvioComponent implements OnInit {
             products: [productoSeleccionado.id],
           });
         } else {
-          productosPorCategorias.forEach((e: any) => {
-            if (e.id === productoSeleccionado.catId)
-              e.products.push(productoSeleccionado.id);
+          productosPorCategorias.forEach((categoria: any) => {
+            if (categoria.id === productoSeleccionado.catId)
+              categoria.products.push(productoSeleccionado.id);
           });
         }
       }
@@ -391,6 +400,7 @@ export class CanalEnvioComponent implements OnInit {
             }),
           },
           categories: productosPorCategorias,
+          tokenTotp: this.token
         },
       ],
     };
@@ -411,7 +421,7 @@ export class CanalEnvioComponent implements OnInit {
           summary: 'Exito',
           detail: 'La configuración se guardo exitosamente!',
         });
-        //this.dialogRef.close();
+        this.token = '';
       },
     });
   }

@@ -261,7 +261,6 @@ export class MenuService {
   }
 
   sendManualSync(req: any): Observable<any> {
-    console.log(req);
     return this.httpClient.post<any>(`${environment.url}/menu/sendmenu`, req);
   }
 
