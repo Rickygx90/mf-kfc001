@@ -1000,6 +1000,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
     //Si select es true se agrega a 'listSelectableProducts' la categoria con el id de la sincro y sus productos
     if (select) {
       this.categoriasSeleccionadas.forEach((subCategoriaSeleccionada: any) => {
+        //Flag isDisabledCategoria nos sirve para saber si la categoria a agregar debe estar seleccionada.
+        let isDisabledCategoria = false;
         //Verifico si 'subCategoriaSeleccionada' existe dentro de 'listSelectableProducts.children' sino existe la agrego
         if (
           this.listSelectableProducts.children.filter(
@@ -1013,9 +1015,12 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                 id: subCategoriaSeleccionada.id,
                 title: subCategoriaSeleccionada.title,
                 children: subCategoriaSeleccionada.items.map((item: any) => {
-                  return { ...item[0], disabled: false };
+                  let isDisabledProducto = this.isDisabledProducto(item[0].id);
+                  if (isDisabledProducto)
+                    isDisabledCategoria = isDisabledProducto;
+                  return { ...item[0], disabled: isDisabledProducto };
                 }),
-                disabled: false,
+                disabled: isDisabledCategoria,
                 checksum: subCategoriaSeleccionada.checksum,
                 titleMenu: subCategoriaSeleccionada.titleMenu,
                 color: subCategoriaSeleccionada.color,
@@ -1040,9 +1045,12 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
                   id: subCategoriaSeleccionada.id,
                   title: subCategoriaSeleccionada.title,
                   children: subCategoriaSeleccionada.items.map((item: any) => {
-                    return { ...item[0], disabled: false };
+                    let isDisabledProducto = this.isDisabledProducto(item[0].id);
+                  if (isDisabledProducto)
+                    isDisabledCategoria = isDisabledProducto;
+                    return { ...item[0], disabled: isDisabledProducto };
                   }),
-                  disabled: false,
+                  disabled: isDisabledCategoria,
                   checksum: subCategoriaSeleccionada.checksum,
                   titleMenu: subCategoriaSeleccionada.titleMenu,
                   color: subCategoriaSeleccionada.color,
@@ -1287,7 +1295,6 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
       });
     } else {
       const arrayAux: any = [];
-
       this.listSelectableProducts.children.forEach((sincroProd: any) => {
         if (sincroProd.syncrosId === categoria.syncrosId) {
           sincroProd.children.forEach((producto: any) => {
@@ -1297,10 +1304,8 @@ export class EnvioMenuComponent /* implements CanComponentDeactivate, OnInit */ 
           });
         }
       });
-
       console.log(' --- arrayAux: ');
       console.log(arrayAux);
-
       if (arrayAux.length === 0) {
         this.listSelectableProducts.children =
           this.listSelectableProducts.children.filter(

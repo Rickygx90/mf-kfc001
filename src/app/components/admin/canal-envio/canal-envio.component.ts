@@ -37,7 +37,8 @@ import { MatBadgeModule } from '@angular/material/badge';
   styleUrl: './canal-envio.component.css',
 })
 export class CanalEnvioComponent implements OnInit {
-  token: string = '';
+  tokenTotp: string = '';
+  statusTotp: string = '';
   showCanales: boolean = false;
   showRestaurantes: Boolean = false;
   menuService = inject(MenuService);
@@ -49,13 +50,13 @@ export class CanalEnvioComponent implements OnInit {
   colorBtnHabilitar: string = 'green'; //#1fa44f
   //Objetos que habilitaran el panel de canal de envio y restaurantes para poder ser modificados
   panelesDisabled: boolean = true;
-  //Objeto menusSeleccionados guarda los menus filtrados para mostrarlos en la plantilla.
-  menusSeleccionados: Array<any> = [];
+  //Objeto que guardara los menus filtrados sin repeticiones.
+  menusUnificados: Array<any> = [];
 
   //Objeto que guarda el menu seleccionado y en base a esto filtra las categorias y los productos.
   menuSeleccionado: any;
   //Objeto que guarda el menu seleccionado inicial en caso de que se cancele la edicion de canales de venta/restaurantes (boton rojo)
-  menuSeleccionadoInicial: any;
+  menuSeleccionadoInicial: any = [];
   listSelectableCanalesVenta: multiSelectI = {
     name: 'Seleccionar todos',
     select: false,
@@ -67,7 +68,7 @@ export class CanalEnvioComponent implements OnInit {
     select: false,
     children: [],
   };
-  //Id del intervalo para hacer el request de 'EXTRACCIÓN DE MENÚS' cada 5 segundos
+  //Id del intervalo para hacer el request de 'checkStatusCanalEnvio' cada 4 segundos
   idInterval: any;
 
   constructor(
@@ -76,7 +77,7 @@ export class CanalEnvioComponent implements OnInit {
     private messageService: MessageService
   ) {
     this.idInterval = setInterval(() => {
-      if (this.token && this.token.length > 0) {
+      if (this.statusTotp === 'CREATED') {
         this.checkStatusCanalEnvio();
       }
     }, 4000);
@@ -84,33 +85,34 @@ export class CanalEnvioComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.data && this.data.menusSeleccionados) {
-      //Objeto que guardara los menus filtrados sin repeticiones.
-      const menusUnificados: Array<any> = [];
       //Filtramos los menus repetidos y los guardamos en menusUnificados.
       this.data.menusSeleccionados.forEach((menusSeleccionado: any) => {
         if (
-          menusUnificados.filter((menu: any) => {
-            if (menu.checksum === menusSeleccionado[0].checksum) {
+          this.menusUnificados.filter((menu: any) => {
+            if (menu.aggregator === menusSeleccionado[0].aggregator) {
               if (menu.store.id === menusSeleccionado[0].store.id) {
                 return menu;
               }
             }
           }).length === 0
         ) {
-          menusUnificados.push({
+          this.menusUnificados.push({
             title: menusSeleccionado[0].menus[0].title,
             sincrosId: menusSeleccionado[0].syncrosId,
             checksum: menusSeleccionado[0].checksum,
             aggregator: menusSeleccionado[0].aggregator,
             store: menusSeleccionado[0].store,
             checked: false,
+            metadata: {
+              platforms: this.getCanalesVenta2(menusSeleccionado[0]),
+              restaurant: this.getRestaurantesbyMenus2(menusSeleccionado[0]),
+            },
           });
         }
       });
 
-      this.menusSeleccionados = menusUnificados;
       //Ordenamos los menus por orden alfabetico.
-      this.menusSeleccionados.sort(function (a, b) {
+      this.menusUnificados.sort(function (a, b) {
         if (a.title > b.title) {
           return 1;
         }
@@ -119,12 +121,19 @@ export class CanalEnvioComponent implements OnInit {
         }
         return 0;
       });
-      this.menusSeleccionados[0].checked = true;
-      this.menuSeleccionado = this.menusSeleccionados[0];
+
+      console.log(' ---- menusUnificados: ');
+      console.log(this.menusUnificados);
+
       //Salvamos el menu seleccionado por default en 'menuSeleccionadoInicial'
-      this.menuSeleccionadoInicial = this.menuSeleccionado;
-      this.getRestaurantesbyMenus(this.menuSeleccionado);
-      this.getCanalesVenta(this.menuSeleccionado);
+      this.menuSeleccionadoInicial = {...this.menusUnificados};
+
+      this.listSelectableRestaurantes.children =
+        this.menusUnificados[0].metadata.restaurant;
+      this.listSelectableCanalesVenta.children =
+        this.menusUnificados[0].metadata.platforms;
+
+      this.menuSeleccionado = this.menusUnificados[0];
     }
   }
 
@@ -133,26 +142,26 @@ export class CanalEnvioComponent implements OnInit {
   }
 
   checkStatusCanalEnvio() {
-    this.menuService.checkStatusCanalEnvio(this.token).subscribe({
+    this.menuService.checkStatusCanalEnvio(this.tokenTotp).subscribe({
       next: (result) => {
         console.log(result);
         if (result) {
-          if (result.status === 'ACTIVED') {
+          this.statusTotp = result.status;
+          if (this.statusTotp === 'ACTIVED') {
             this.panelesDisabled = false;
             this.btnHabilitarDisabled = false;
             this.msjBtnHabilitar = 'Cancelar';
             this.colorBtnHabilitar = 'red';
-            this.token = '';
           } else if (
-            result.status === 'EXPIRED' ||
-            result.status === 'NOT_FOUND'
+            this.statusTotp === 'EXPIRED' ||
+            this.statusTotp === 'NOT_FOUND'
           ) {
             this.panelesDisabled = true;
             this.btnHabilitarDisabled = false;
             this.msjBtnHabilitar = 'Habilitar';
             this.colorBtnHabilitar = 'green';
-            this.token = '';
-          } else if (result.status === 'CREATED') {
+            this.tokenTotp = '';
+          } else if (this.statusTotp === 'CREATED') {
             this.panelesDisabled = true;
             this.btnHabilitarDisabled = true;
             this.msjBtnHabilitar = 'Habilitar';
@@ -171,11 +180,12 @@ export class CanalEnvioComponent implements OnInit {
         next: (result) => {
           console.log(result);
           if (result) {
-            this.token = result.token;
+            this.tokenTotp = result.token;
+            this.statusTotp = 'CREATED';
           }
         },
         error: (err) => {
-          console.log(err)
+          console.log(err);
         },
       });
     } else {
@@ -183,11 +193,68 @@ export class CanalEnvioComponent implements OnInit {
       this.btnHabilitarDisabled = false;
       this.msjBtnHabilitar = 'Habilitar';
       this.colorBtnHabilitar = 'green';
-      this.token = '';
+      this.tokenTotp = '';
 
-      this.menuSeleccionado = this.menuSeleccionadoInicial;
-      this.getRestaurantesbyMenus(this.menuSeleccionado);
-      this.getCanalesVenta(this.menuSeleccionado);
+      //Reinicio los objetos
+      this.showCanales = false;
+      this.showRestaurantes = false;
+      this.menusUnificados = [];
+      this.listSelectableCanalesVenta = {
+        name: 'Seleccionar todos',
+        select: false,
+        children: [],
+      };
+      this.listSelectableRestaurantes = {
+        name: 'Seleccionar todos',
+        select: false,
+        children: [],
+      };
+
+      //Filtramos los menus repetidos y los guardamos en menusUnificados.
+      this.data.menusSeleccionados.forEach((menusSeleccionado: any) => {
+        if (
+          this.menusUnificados.filter((menu: any) => {
+            if (menu.aggregator === menusSeleccionado[0].aggregator) {
+              if (menu.store.id === menusSeleccionado[0].store.id) {
+                return menu;
+              }
+            }
+          }).length === 0
+        ) {
+          this.menusUnificados.push({
+            title: menusSeleccionado[0].menus[0].title,
+            sincrosId: menusSeleccionado[0].syncrosId,
+            checksum: menusSeleccionado[0].checksum,
+            aggregator: menusSeleccionado[0].aggregator,
+            store: menusSeleccionado[0].store,
+            checked: false,
+            metadata: {
+              platforms: this.getCanalesVenta2(menusSeleccionado[0]),
+              restaurant: this.getRestaurantesbyMenus2(menusSeleccionado[0]),
+            },
+          });
+        }
+      });
+
+      //Ordenamos los menus por orden alfabetico.
+      this.menusUnificados.sort(function (a, b) {
+        if (a.title > b.title) {
+          return 1;
+        }
+        if (a.title < b.title) {
+          return -1;
+        }
+        return 0;
+      });
+
+      //this.menusUnificados = this.menuSeleccionadoInicial;
+      console.log(this.menusUnificados)
+
+      this.listSelectableRestaurantes.children =
+        this.menusUnificados[0].metadata.restaurant;
+      this.listSelectableCanalesVenta.children =
+        this.menusUnificados[0].metadata.platforms;
+      this.menuSeleccionado = this.menusUnificados[0];
     }
   }
 
@@ -229,6 +296,68 @@ export class CanalEnvioComponent implements OnInit {
     });
   }
 
+  getCanalesVenta2(menuSeleccionado: any) {
+    const canalesSeleccionables: any = [];
+    this.menuService.requestAggregators().subscribe({
+      next: (response) => {
+        if (response && response.aggregators) {
+          response.aggregators.forEach((aggregator: any) => {
+            canalesSeleccionables.push(aggregator);
+          });
+          //Activamos el canal de venta por defecto segun el menu seleccionado.
+          canalesSeleccionables.forEach((canalVenta: any) => {
+            if (
+              canalVenta.name.toLowerCase() ===
+              menuSeleccionado.aggregator.toLowerCase()
+            ) {
+              canalVenta.select = true;
+            }
+          });
+          this.showCanales = true;
+        }
+      },
+      error: (err) => {},
+    });
+    console.log(canalesSeleccionables);
+    return canalesSeleccionables;
+  }
+
+  getRestaurantesbyMenus2(menuSeleccionado: any) {
+    const restaurantesSeleccionables: any = [];
+    this.menuService.getRestaurantesbyMenus(menuSeleccionado).subscribe({
+      next: (restaurantes) => {
+        if (restaurantes) {
+          restaurantes.forEach((restaurante: any) => {
+            restaurantesSeleccionables.push({
+              ...restaurante,
+              select: false,
+            });
+          });
+          //Ordenamos los restaurantesDisponibles por orden alfabetico.
+          restaurantesSeleccionables.sort(function (a: any, b: any) {
+            if (a.codeStore > b.codeStore) {
+              return 1;
+            }
+            if (a.codeStore < b.codeStore) {
+              return -1;
+            }
+            return 0;
+          });
+          //Activamos el restaurante por defecto segun el menu seleccionado.
+          restaurantesSeleccionables.forEach((restaurante: any) => {
+            if (restaurante.id === menuSeleccionado.store.id) {
+              restaurante.select = true;
+            }
+          });
+          this.showRestaurantes = true;
+        }
+      },
+      error: (err) => {},
+    });
+    console.log(restaurantesSeleccionables);
+    return restaurantesSeleccionables;
+  }
+
   //Funcion que obtiene los canales de venta segun el menu seleccionado y activa el canal de venta por defecto.
   getCanalesVenta(menuSeleccionado: any) {
     this.menuService.requestAggregators().subscribe({
@@ -257,8 +386,16 @@ export class CanalEnvioComponent implements OnInit {
   cambiarMenu($event: any) {
     this.showRestaurantes = false;
     this.showCanales = false;
-    this.getRestaurantesbyMenus($event.value);
-    this.getCanalesVenta($event.value);
+    this.menusUnificados.forEach((menu: any) => {
+      if (menu.title === $event.value.title) {
+        menu.checked = true;
+        this.menuSeleccionado = menu;
+        this.listSelectableRestaurantes.children = menu.metadata.restaurant;
+        this.showRestaurantes = true;
+        this.listSelectableCanalesVenta.children = menu.metadata.platforms;
+        this.showCanales = true;
+      }
+    });
   }
 
   //Funcion que obtiene los restaurantes y los canales de venta seleccionados.
@@ -345,9 +482,7 @@ export class CanalEnvioComponent implements OnInit {
 
   //Funcion que envia la informacion del menu, canal de venta y restaurante seleccionado.
   enviarAhora() {
-    console.log(
-      ' ======================== enviarAhora ======================== '
-    );
+    console.log(' =================== enviarAhora ===================== ');
     this.btnEnviarAhoraDisabled = true;
     const { canalesVentaSelected, restaurantesSelected } =
       this.getCanalesRestaurantesSelected();
@@ -356,53 +491,80 @@ export class CanalEnvioComponent implements OnInit {
     console.log(canalesVentaSelected);
     console.log(' - restaurantesSelected: ');
     console.log(restaurantesSelected);
-    console.log(' - menuSeleccionado: ');
-    console.log(this.menuSeleccionado);
+    console.log(' - menusSeleccionados: ');
+    console.log(this.data.menusSeleccionados);
     console.log(' - productosSeleccionados: ');
     console.log(this.data.productosSeleccionados);
 
-    const productosPorCategorias: Array<any> = [];
+    const request_menu = this.menusUnificados.map((menuUnificado: any) => {
+      const sync_ids: any = [];
+      const checksums: any = [];
 
-    this.data.productosSeleccionados.forEach((productoSeleccionado: any) => {
-      if (productoSeleccionado.sincroId === this.menuSeleccionado.sincrosId && productoSeleccionado.checksum === this.menuSeleccionado.checksum) {
-        if (
-          productosPorCategorias.filter(
-            (categoria: any) => categoria.id === productoSeleccionado.catId
-          ).length === 0
-        ) {
-          productosPorCategorias.push({
-            id: productoSeleccionado.catId,
-            products: [productoSeleccionado.id],
-          });
-        } else {
-          productosPorCategorias.forEach((categoria: any) => {
-            if (categoria.id === productoSeleccionado.catId)
-              categoria.products.push(productoSeleccionado.id);
-          });
+      this.data.menusSeleccionados.forEach((menuSeleccionado: any) => {
+        if (menuUnificado.aggregator === menuSeleccionado[0].aggregator) {
+          if (menuUnificado.store.id === menuSeleccionado[0].store.id) {
+            sync_ids.push(menuSeleccionado[0].syncrosId);
+            checksums.push(menuSeleccionado[0].checksum);
+          }
         }
-      }
+      });
+
+      const restaurantMetadata: any = [];
+      menuUnificado.metadata.restaurant.forEach((restaurant: any) => {
+        if (restaurant.select)
+          restaurantMetadata.push({
+            id: restaurant.id,
+            chain_id: restaurant.idChain,
+          });
+      });
+
+      const platformsMetadata: any = [];
+      menuUnificado.metadata.platforms.forEach((platform: any) => {
+        if (platform.select) platformsMetadata.push(platform.name);
+      });
+
+      const productosPorCategorias: any = [];
+      this.data.productosSeleccionados.forEach((productoSeleccionado: any) => {
+        if (
+          checksums.filter(
+            (checksum: any) => checksum === productoSeleccionado.checksum
+          ).length > 0
+        ) {
+          if (
+            productosPorCategorias.filter(
+              (categoria: any) => categoria.id === productoSeleccionado.catId
+            ).length === 0
+          ) {
+            productosPorCategorias.push({
+              sync_id: productoSeleccionado.sincroId,
+              checksum: productoSeleccionado.checksum,
+              id: productoSeleccionado.catId,
+              products: [productoSeleccionado.id],
+            });
+          } else {
+            productosPorCategorias.forEach((categoria: any) => {
+              if (categoria.id === productoSeleccionado.catId)
+                categoria.products.push(productoSeleccionado.id);
+            });
+          }
+        }
+      });
+
+      return {
+        sync_ids: sync_ids,
+        checksums: checksums,
+        metadata: {
+          platforms: platformsMetadata,
+          restaurant: restaurantMetadata,
+        },
+        categories: productosPorCategorias,
+      };
     });
 
+
     const request = {
-      request_menu: [
-        {
-          sync_id: this.menuSeleccionado.sincrosId,
-          checksum: this.menuSeleccionado.checksum,
-          metadata: {
-            platforms: canalesVentaSelected.map(
-              (canalVenta: any) => canalVenta.name
-            ),
-            restaurant: restaurantesSelected.map((restaurante: any) => {
-              return {
-                id: restaurante.id.toString(),
-                chain_id: restaurante.idChain.toString(),
-              };
-            }),
-          },
-          categories: productosPorCategorias,
-          tokenTotp: this.token
-        },
-      ],
+      tokenTotp: '12345678',
+      request_menu: request_menu.filter((menu) => menu.categories.length > 0),
     };
 
     console.log(' --------------------- request --------------------- ');
@@ -421,7 +583,10 @@ export class CanalEnvioComponent implements OnInit {
           summary: 'Exito',
           detail: 'La configuración se guardo exitosamente!',
         });
-        this.token = '';
+        this.tokenTotp = '';
+        this.btnEnviarAhoraDisabled = false;
+        this.dialogRef.close();
+        //this.statusTotp = '';
       },
     });
   }

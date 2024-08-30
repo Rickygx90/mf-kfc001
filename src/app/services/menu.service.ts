@@ -272,7 +272,7 @@ export class MenuService {
     return this.httpClient.post<any>(
       `${environment.url}/menu/getresturants_sincroschecksum`,
       {
-        idSincronization: req.sincrosId,
+        idSincronization: req.syncrosId,
         menuReference: req.checksum,
       }
     );
